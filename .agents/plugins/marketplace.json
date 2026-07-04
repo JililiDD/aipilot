@@ -1,0 +1,23 @@
+{
+  "name": "aipilot-local",
+  "interface": {
+    "displayName": "AI Pilot Local"
+  },
+  "plugins": [
+    {
+      "name": "aipilot",
+      "source": {
+        "source": "url",
+        "url": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL",
+        "products": [
+          "CODEX"
+        ]
+      },
+      "category": "Productivity"
+    }
+  ]
+}
