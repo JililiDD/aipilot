@@ -1,11 +1,11 @@
 {
-  "name": "aipilot-local",
+  "name": "aipilot-jl-local",
   "interface": {
-    "displayName": "AI Pilot Local"
+    "displayName": "AI Pilot JL Local"
   },
   "plugins": [
     {
-      "name": "aipilot",
+      "name": "aipilot-jl",
       "source": {
         "source": "url",
         "url": "./"

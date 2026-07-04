@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// SessionStart hook for AI Pilot. Fail-safe: any error emits empty output and
+// SessionStart hook for AI Pilot JL. Fail-safe: any error emits empty output and
 // exits cleanly — a broken hook must never disrupt the host session.
 
 try {

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// UserPromptSubmit hook for AI Pilot. Fail-safe: any error emits empty output.
+// UserPromptSubmit hook for AI Pilot JL. Fail-safe: any error emits empty output.
 // Always injects the correction-capture note (the model judges relevance);
 // adds the session-review note when the prompt signals wrap-up.
 

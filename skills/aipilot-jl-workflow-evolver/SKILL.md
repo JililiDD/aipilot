@@ -1,6 +1,6 @@
 ---
-name: workflow-evolver
-description: Use when analyzing workflow signals, proposing improvements to AI Pilot rules and skills, or applying user-approved workflow changes — the feedback loop that turns real usage into rule revisions.
+name: aipilot-jl-workflow-evolver
+description: Use when analyzing workflow signals, proposing improvements to AI Pilot JL rules and skills, or applying user-approved workflow changes — the feedback loop that turns real usage into rule revisions.
 ---
 
 # Workflow Evolver

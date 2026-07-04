@@ -1,4 +1,4 @@
-// AI Pilot hook runtime — output adapter only. Emits injected context in the
+// AI Pilot JL hook runtime — output adapter only. Emits injected context in the
 // shape each host runtime expects (Cursor / Claude / Antigravity / others).
 
 const { detectHost } = require('./plugin-root');

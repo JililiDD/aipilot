@@ -1,5 +1,5 @@
 ---
-name: code-reviewer
+name: aipilot-jl-code-reviewer
 description: Use when independently reviewing implemented changes inside the implementation-review loop — story-level, task-level, or final work-item review, checking code against the work-item's Requirement, Design, and Plan sections and the recorded evidence.
 ---
 
@@ -52,7 +52,7 @@ All paths mean the resolved documents root:
 
 **Robustness** — the failure paths, where generated code most often breaks: errors handled rather than swallowed, external input validated at trust boundaries, resources closed on every path, concurrent access to shared state safe.
 
-**Java diffs** — load the `java-backend-expert` overlay and apply its checks (transactions, N+1, layering, concurrency).
+**Java diffs** — load the `aipilot-jl-java-backend-expert` overlay and apply its checks (transactions, N+1, layering, concurrency).
 
 ## Circuit Breaker
 

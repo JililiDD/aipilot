@@ -1,5 +1,5 @@
 ---
-name: release-builder
+name: aipilot-jl-release-builder
 description: Use when preparing a build, deployment, package, public release, beta handoff, release notes, privacy review, permission review, or final pre-release checklist.
 ---
 
@@ -60,7 +60,7 @@ Do not present release as ready until the user confirms or explicitly accepts un
 
 **Write permissions**: this skill is read-only against the document system, with exactly one exception — the post-confirmation `RELEASE` marker line. Release notes are a deliverable handed to the user, not a document-system file. Gaps found during checks are routed to their owning stage, never patched here.
 
-If blocked, recommend the stage that removes the blocker — `product-spec-builder`, `design-spec-builder`, `dev-plan-builder`, `dev-builder` (Build or Diagnosis Mode), or `code-reviewer` — explain why, and stop for confirmation. After assessment, hand control to `workflow-orchestrator`. If the user asked for workflow review, recommend `workflow-evolver`.
+If blocked, recommend the stage that removes the blocker — `aipilot-jl-product-spec-builder`, `aipilot-jl-design-spec-builder`, `aipilot-jl-dev-plan-builder`, `aipilot-jl-dev-builder` (Build or Diagnosis Mode), or `aipilot-jl-code-reviewer` — explain why, and stop for confirmation. After assessment, hand control to `aipilot-jl-workflow-orchestrator`. If the user asked for workflow review, recommend `aipilot-jl-workflow-evolver`.
 
 ## Final Response Pattern
 

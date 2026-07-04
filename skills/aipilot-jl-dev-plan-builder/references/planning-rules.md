@@ -1,6 +1,6 @@
 # Planning Rules
 
-Detailed rules for `dev-plan-builder`. The Document System Specification governs structure and ownership; these rules govern planning judgment.
+Detailed rules for `aipilot-jl-dev-plan-builder`. The Document System Specification governs structure and ownership; these rules govern planning judgment.
 
 ## Routing Checks (Roadmap vs Breakdown)
 
@@ -63,7 +63,7 @@ Every phase and task names at least one: automated test, build command, lint/typ
 
 ## Risk Routing
 
-- Product scope, behavior, or authority gap → `product-spec-builder`
-- Layout, interaction, or visual gap → `design-spec-builder`
+- Product scope, behavior, or authority gap → `aipilot-jl-product-spec-builder`
+- Layout, interaction, or visual gap → `aipilot-jl-design-spec-builder`
 - Acceptance, data-boundary, integration, verification, trust, cost, or data-loss uncertainty → ask the user the smallest useful question and stop
 - Pure implementation uncertainty → a spike task with an explicit learning output

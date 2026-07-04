@@ -1,5 +1,5 @@
 ---
-name: dev-plan-builder
+name: aipilot-jl-dev-plan-builder
 description: Use when a requirement needs an executable development plan — either the phase roadmap of a project or large feature (dev-phase-plan.md), or the story/task breakdown of a specific work-item's Plan section — covering implementation order, reuse, verification, and testing strategy.
 ---
 
@@ -25,7 +25,7 @@ For detailed rules, load on demand: `references/planning-rules.md` (split catego
 
 ## Mode Selection
 
-**Hard order: resolve the requirement source before choosing a mode.** Each mode has a different source: Breakdown consumes a work-item; Roadmap consumes a confirmed `product-spec.md`. If the source for the work at hand is missing — "plan feature X" with no work-item for X, or "plan the project" with no confirmed master spec — the requirement stage has not happened: route to `product-spec-builder` and stop. Mode selection never applies to un-specced work.
+**Hard order: resolve the requirement source before choosing a mode.** Each mode has a different source: Breakdown consumes a work-item; Roadmap consumes a confirmed `product-spec.md`. If the source for the work at hand is missing — "plan feature X" with no work-item for X, or "plan the project" with no confirmed master spec — the requirement stage has not happened: route to `aipilot-jl-product-spec-builder` and stop. Mode selection never applies to un-specced work.
 
 Then choose:
 
@@ -47,24 +47,24 @@ Write or update `dev-phase-plan.md` — **the map only**, structured per `refere
 
 ## Breakdown Mode
 
-Fill the **Plan section** of the target work-item. This mode produces plans, never code — no implementation, no file-by-file checklists; that belongs to `dev-builder`. Never write into Requirement, Design, or Execution Record; if Requirement (or Design, for UI work) is missing or not buildable, route to its owner and stop.
+Fill the **Plan section** of the target work-item. This mode produces plans, never code — no implementation, no file-by-file checklists; that belongs to `aipilot-jl-dev-builder`. Never write into Requirement, Design, or Execution Record; if Requirement (or Design, for UI work) is missing or not buildable, route to its owner and stop.
 
 The Plan section contains:
 
 - **User stories → tasks.** A task is the smallest execution unit and always carries its own verification method (command, test, or manual check). The optional middle layer groups tasks and carries a Done-when line: **User Stories** for user-visible increments, neutral **Task Groups** for refactors and pipelines — same structure, no forced user narration. Naming is fixed: Phase → User Story / Task Group → Task.
 - **Story 0 — visual smoke**, required when the change introduces a new page or screen: render it with static data as the first story. Its confirmation stop is **on by default** and applies at every execution granularity; when asking the granularity question, also ask whether to waive it, and record the answer on Story 0 as `[stop: user-confirm]` or `[stop: skip]` (recommend stopping — wrong direction is expensive, one confirmation is cheap). Mark its code `throwaway` (later stories rebuild) or `base` (later stories build on it). Story 0 replaces any separate prototyping stage.
-- **Execution granularity default** — one low-risk question to the user (whole work-item / per story / per task), recorded here for `dev-builder`.
+- **Execution granularity default** — one low-risk question to the user (whole work-item / per story / per task), recorded here for `aipilot-jl-dev-builder`.
 - **Reuse notes** — what existing code, helpers, dependencies, or native features each story builds on; new implementation states why reuse is insufficient.
 - **Explicit non-goals.**
 - **Exit Criteria and Stop Conditions** — the work-item's final verification pass, and the shared halt-and-ask triggers every level inherits.
 
 **Goal-ready at every level**: each unit — task, story/group, whole work-item — carries its own convergence plus the inherited Stop Conditions (mechanics in the template), so any single level can be delegated to an autonomous run without rewriting the plan. Running "a whole phase" means running that phase's work-item; grouping multiple phases into one autonomous target is this skill's **Goal Wrap** (below). A unit that cannot run from the work-item file plus what it explicitly names is not fully broken down.
 
-**Acceptance-criteria traceability (excluded middle)**: every story or task AC must trace to a criterion in the Requirement or Design section. A criterion with no source is either a missing requirement — route to `product-spec-builder` or `design-spec-builder` — or scope creep — drop it. There is no third option; planning time never invents requirements.
+**Acceptance-criteria traceability (excluded middle)**: every story or task AC must trace to a criterion in the Requirement or Design section. A criterion with no source is either a missing requirement — route to `aipilot-jl-product-spec-builder` or `aipilot-jl-design-spec-builder` — or scope creep — drop it. There is no third option; planning time never invents requirements.
 
 ## Goal Wrap (multi-phase autonomous runs)
 
-A single task, story, or work-item is already goal-ready — delegate it directly, no wrapping. Wrap only when the user wants **one autonomous run spanning multiple phases** — either asked for explicitly, or offered by the orchestrator when the user requests open-ended automation ("do all remaining phases"), which is never granted by silent chaining. The wrap is a short document containing: the objective in one sentence; the phases in order, each with its work-item filename (derive missing ones first) and its own Exit Criteria as the per-phase exit; the aggregate exit — the last phase merged; and one instruction: *follow the `workflow-orchestrator` stages throughout — Story 0 stop markers, granularity, Stop Conditions, review cadence, and merge-backs all apply; autonomy never skips gates.* The wrap points at the system, never restates it. It is a **derived delivery artifact**: hand it to the user for the runtime's goal feature; do not store it in the document system.
+A single task, story, or work-item is already goal-ready — delegate it directly, no wrapping. Wrap only when the user wants **one autonomous run spanning multiple phases** — either asked for explicitly, or offered by the orchestrator when the user requests open-ended automation ("do all remaining phases"), which is never granted by silent chaining. The wrap is a short document containing: the objective in one sentence; the phases in order, each with its work-item filename (derive missing ones first) and its own Exit Criteria as the per-phase exit; the aggregate exit — the last phase merged; and one instruction: *follow the `aipilot-jl-workflow-orchestrator` stages throughout — Story 0 stop markers, granularity, Stop Conditions, review cadence, and merge-backs all apply; autonomy never skips gates.* The wrap points at the system, never restates it. It is a **derived delivery artifact**: hand it to the user for the runtime's goal feature; do not store it in the document system.
 
 ## Valves
 
@@ -77,7 +77,7 @@ Both are normal outcomes, not failures; that is why ambiguity defaults to the sm
 
 - Run a Material Uncertainty Scan before writing. Stop and ask the smallest useful question when a missing decision affects behavior, acceptance, data boundaries, integration, verification expectations, trust, cost, or data-loss risk — do not infer material requirements from convention or convenience, and never silently turn uncertainty into plan text. Low-risk implementation defaults may be chosen but must be labeled as assumptions.
 - Question format: the runtime's structured-question UI when available, else lettered chat options, 2–3 options with trade-offs plus a free-form escape. Mark a recommendation only for low-risk implementation defaults; never for anything affecting behavior, data, contracts, or trust.
-- When planning Java backend work, load the `java-backend-expert` overlay for backend phase/task boundaries, API contracts, and transaction/persistence strategy.
+- When planning Java backend work, load the `aipilot-jl-java-backend-expert` overlay for backend phase/task boundaries, API contracts, and transaction/persistence strategy.
 - Apply YAGNI and first principles per `references/planning-rules.md`: no speculative features, abstractions, providers, modes, or dependencies without current requirement evidence; smallest user-visible outcome, minimal state and surface, explicit data flow, verification at trust boundaries.
 - When it constrains future work-items AND is not visible in the state documents: a planning choice → dated entry in `decisions.md`; a constraint discovered while planning → dated entry in `lessons.md`. Never edit past entries; supersede with a tag.
 
@@ -87,7 +87,7 @@ The plan is not ready if: any task lacks a verification method; any story lacks 
 
 ## Workflow Handoff
 
-After Roadmap Mode: recommend deriving and breaking down the first unbuilt phase (this skill, Breakdown Mode). After Breakdown Mode: summarize the decisions affecting scope, architecture, data boundaries, verification, and non-goals; recommend `dev-builder` for the target work-item (name it), or produce a Goal Wrap when the user wants one autonomous run across multiple phases. Stop for explicit user confirmation before any next stage. If blocked, ask the smallest useful question and stop.
+After Roadmap Mode: recommend deriving and breaking down the first unbuilt phase (this skill, Breakdown Mode). After Breakdown Mode: summarize the decisions affecting scope, architecture, data boundaries, verification, and non-goals; recommend `aipilot-jl-dev-builder` for the target work-item (name it), or produce a Goal Wrap when the user wants one autonomous run across multiple phases. Stop for explicit user confirmation before any next stage. If blocked, ask the smallest useful question and stop.
 
 ## Final Response Pattern
 

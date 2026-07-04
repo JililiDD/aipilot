@@ -1,4 +1,4 @@
-// Host-neutral plugin root detection for AI Pilot adapters.
+// Host-neutral plugin root detection for AI Pilot JL adapters.
 
 const ROOT_ENV_KEYS = [
   'AIPILOT_PLUGIN_ROOT',
