@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v node >/dev/null 2>&1 && node \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.js\" || exit 0",
+            "commandWindows": "where node >nul 2>nul && node \"%CLAUDE_PLUGIN_ROOT%\\hooks\\session-start.js\" || exit /b 0",
+            "async": false
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v node >/dev/null 2>&1 && node \"${CLAUDE_PLUGIN_ROOT}/hooks/prompt-context.js\" || exit 0",
+            "commandWindows": "where node >nul 2>nul && node \"%CLAUDE_PLUGIN_ROOT%\\hooks\\prompt-context.js\" || exit /b 0",
+            "timeout": 5,
+            "statusMessage": "AI Pilot"
+          }
+        ]
+      }
+    ]
+  }
+}

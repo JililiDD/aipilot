@@ -1,0 +1,22 @@
+{
+  "name": "aipilot",
+  "version": "2.0.0",
+  "description": "Document-driven AI product development workflow.",
+  "author": {
+    "name": "JililiDD"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AI Pilot",
+    "shortDescription": "Run a document-driven product workflow.",
+    "longDescription": "AI Pilot guides projects through product spec, design spec, phase roadmap and just-in-time breakdown planning, implementation with build and diagnosis modes, code review, release readiness, and governed workflow evolution.",
+    "developerName": "JililiDD",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": "Use AI Pilot to inspect this project and recommend the next workflow stage."
+  }
+}
