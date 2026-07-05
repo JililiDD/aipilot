@@ -47,7 +47,7 @@ All four sections live inside the target work-item file resolved above; this ski
 
 ## Execution Granularity
 
-Read the recorded granularity from the Plan section: whole work-item / per story / per task. If none is recorded, ask the one low-risk granularity question before starting — never assume. A stop means: report the unit's results and wait for instruction. "Continue" authorizes exactly one unit at the current granularity. The user may change granularity mid-run in either direction. **Story 0's stop follows its Plan marker** (see Story 0 Discipline).
+Read the recorded granularity from the Plan section: whole work-item / per story/task group / per task. If none is recorded, ask the one low-risk structured question before starting — whole work-item, per user story/task group, or per task — and record the answer in the Plan before implementation. A stop means: report the unit's results and wait for instruction. "Continue" authorizes exactly one unit at the current granularity. The user may change granularity mid-run in either direction. **Story 0's stop follows its Plan marker** (see Story 0 Discipline).
 
 ## Required Loop
 
@@ -63,13 +63,13 @@ Read the recorded granularity from the Plan section: whole work-item / per story
 6. Tick the checkbox only after its verification passes; append the facts to the Execution Record.
 7. If any Stop Condition **from the Plan section's Stop Conditions block** fires at any point, halt and ask — execute the Plan's list, not a memorized one.
 
-**Per story/group:** confirm the Done-when line holds and run the project's test suite (suite-green evidence recorded, beyond the per-task verifies); run review per the Review Cadence. Review findings do not un-tick tasks — the tick records "done and verified once", which stays true; instead, fix the finding, **rerun the affected task's original `— Verify:` method**, and append the finding-fix-reverify sequence to the Execution Record. Then rerun the review until it passes or a blocker needs user input. **After a review passes, commit** (message: work-item slug + story) and record the commit ref in the Execution Record as the next round's review anchor. At a stop granularity, report and wait.
+**Per user story/task group:** confirm the Done-when line holds and run the project's test suite (suite-green evidence recorded, beyond the per-task verifies); run review per the Review Cadence. Review findings do not un-tick tasks — the tick records "done and verified once", which stays true; instead, fix the finding, **rerun the affected task's original `— Verify:` method**, and append the finding-fix-reverify sequence to the Execution Record. Then rerun the review until it passes or a blocker needs user input. **After a review passes, commit** (message: work-item slug + user story/task group) and record the commit ref in the Execution Record as the next round's review anchor. At a stop granularity, report and wait.
 
 **Work-item completion:** run the Exit Criteria fresh; pass the final full review; complete the Execution Record; hand to `aipilot-jl-workflow-orchestrator` — merge-back is its job, never performed here.
 
 ## Review Cadence
 
-- **Every story/group completion → automatic `aipilot-jl-code-reviewer` run.** A machine gate, not a user stop — it applies even at whole-work-item granularity.
+- **Every user story/task group completion → automatic `aipilot-jl-code-reviewer` run.** A machine gate, not a user stop — it applies even at whole-work-item granularity.
 - **Per-task granularity → review after every task.**
 - **Final full work-item review before merge-back → always**, covering cross-story coherence and Exit Criteria evidence, regardless of how many interim reviews ran.
 
@@ -86,6 +86,8 @@ Reviews **must** run in a fresh clean-context agent/sub-agent whenever the runti
 **Fixing never changes specified behavior.** If the expected behavior is itself unclear, or the fix requires deviating from the Requirement/Design sections, that is a requirement or design question → route per Section Ownership and stop. A converged fix exits per the Modes rule; the full reproduce–root-cause–fix–reverify sequence lives in the Execution Record.
 
 ## Story 0 Discipline
+
+Execute Story 0 as visual direction only. If `Direction source:` is missing, ask the user before writing anything: single-file static HTML prototype (recommended), generated image prototype, or user-provided prototype. For `html`, create the smallest single-file static prototype with sample data; for `image-generation`, generate or reference the image artifact; for `user-provided`, record the provided path/link and do not create replacement visuals. Do not implement production flow, API, persistence, full frontend state, or TDD-driven feature logic in Story 0.
 
 Execute Story 0's stop marker as planned: `[stop: user-confirm]` (the default) → stop for the user's visual confirmation at every granularity; `[stop: skip]` → proceed, noting in the Execution Record that confirmation was waived at planning time. A missing marker means stop. Then respect the code marking regardless of the stop: `base` → later stories build on it; `throwaway` → later stories rebuild properly. Never silently grow production logic on `throwaway` code.
 

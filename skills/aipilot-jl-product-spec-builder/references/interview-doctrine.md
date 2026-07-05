@@ -28,12 +28,12 @@ Maintain four categories throughout the interview:
 
 Ask the smallest useful batch: one question when one blocking decision remains; 2–3 tightly related questions when exploring a vague area; more only when the user requests a full audit.
 
-When the runtime provides a native structured-question UI (multiple-choice / option-picker), use it; otherwise ask in plain chat with lettered options. Provide 3–4 options plus an explicit Other/Custom, each with a one-line explanation. Options are suggestions, not constraints.
+Every question must be a multiple-choice / option-picker question, with an explicit free-form escape. Use the current host/runtime's native structured-choice UI when it exists (Codex uses its option-picker, Claude uses its own equivalent, and other adapters use theirs); otherwise ask in plain chat with lettered options. Provide 2–4 options plus Other/Custom, put a recommended option first and label it, and give every option a brief one-line explanation. Options are suggestions, not constraints.
 
 **Recommendation policy is risk-tiered**:
 
-- **Low-risk decisions** (naming, minor defaults, cosmetic choices): put your recommended option first and label it — efficiency over deliberation.
-- **High-risk decisions** (data model, workflow, scope boundary, external contracts, product personality, primary references): do NOT mark a recommendation. State each option's trade-off and force a real choice. A recommendation here anchors the user into rubber-stamping. If the user picks quickly without engaging the trade-off, log the choice as Assumed, not Confirmed.
+- **Low-risk decisions** (naming, minor defaults, cosmetic choices): the recommendation may be a normal default — efficiency over deliberation.
+- **High-risk decisions** (data model, workflow, scope boundary, external contracts, product personality, primary references): still include a recommendation because the UI needs one, but make the explanation name the trade-off and treat a quick pick as Assumed, not Confirmed. Do not present the recommendation as a settled answer.
 
 ## Exit Valve
 

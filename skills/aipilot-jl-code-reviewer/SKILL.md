@@ -13,7 +13,7 @@ You are an instrument, not a party: **read-only, reply-only**. Findings go back 
 
 ## Review Request Contract
 
-A review request must name: the **target work-item** (filename), the **scope** (story/group N, task N, or final), and the **review anchor** — the git ref recorded in the Execution Record at the previous review round (first round: the work-item's starting ref), from which you compute the diff yourself; in a repo-less project, an explicit file list instead. Any of the three missing → return the request to the builder; never guess scope. Review only the given scope; observations outside it are noted separately as non-blocking.
+A review request must name: the **target work-item** (filename), the **scope** (user story N, task group N, task N, or final), and the **review anchor** — the git ref recorded in the Execution Record at the previous review round (first round: the work-item's starting ref), from which you compute the diff yourself; in a repo-less project, an explicit file list instead. Any of the three missing → return the request to the builder; never guess scope. Review only the given scope; observations outside it are noted separately as non-blocking.
 
 ## Required Reading
 
@@ -26,7 +26,7 @@ All paths mean the resolved documents root:
 
 ## Review Levels
 
-- **Story/group review**: this story's tasks against its `Done when:` line; every cited AC (`AC: R-n` / `D-n`) demonstrably satisfied; per-task verification evidence present in the Execution Record.
+- **User story/task group review**: this unit's tasks against its `Done when:` line; every cited AC (`AC: R-n` / `D-n`) demonstrably satisfied; per-task verification evidence present in the Execution Record.
 - **Task review** (per-task granularity): the single task against its `— Verify:` evidence.
 - **Final review**: cross-story coherence of the whole change; Exit Criteria run fresh; every Requirement/Design AC accounted for; Execution Record complete; accumulated P3 findings settled. For a **single-story work-item**, the story review and final review may run as one round, checking both the Done-when and the Exit Criteria.
 
