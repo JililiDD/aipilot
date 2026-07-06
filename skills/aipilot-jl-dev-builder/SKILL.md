@@ -47,7 +47,7 @@ All four sections live inside the target work-item file resolved above; this ski
 
 ## Execution Granularity
 
-Read the recorded granularity from the Plan section: whole work-item / per story/task group / per task. If none is recorded, ask the one low-risk structured question before starting — whole work-item, per user story/task group, or per task — and record the answer in the Plan before implementation. A stop means: report the unit's results and wait for instruction. "Continue" authorizes exactly one unit at the current granularity. The user may change granularity mid-run in either direction. **Story 0's stop follows its Plan marker** (see Story 0 Discipline).
+Read the recorded granularity from the Plan section: whole work-item / per story/task group / per task. On the first implementation entry in a session, the orchestrator handoff must say the granularity was confirmed this session; if it does not, ask the same low-risk question before starting and record any change in the Plan. If none is recorded, ask before starting and record the answer in the Plan. A stop means: report the unit's results and wait for instruction. "Continue" authorizes exactly one unit at the current granularity. The user may change granularity mid-run in either direction. **Story 0's stop follows its Plan marker** (see Story 0 Discipline).
 
 ## Required Loop
 
@@ -73,7 +73,7 @@ Read the recorded granularity from the Plan section: whole work-item / per story
 - **Per-task granularity → review after every task.**
 - **Final full work-item review before merge-back → always**, covering cross-story coherence and Exit Criteria evidence, regardless of how many interim reviews ran.
 
-Reviews **must** run in a fresh clean-context agent/sub-agent whenever the runtime supports it — no separate confirmation inside the loop; log the delegation and scope. Fall back to main-agent review only when the runtime cannot provide one, and state that limitation as review evidence.
+Reviews **must** use a clean-context reviewer only when its report is returned to the main agent and can be inspected as review evidence — no separate confirmation inside the loop; log the delegation and scope. Spawn-only delegation without returned output is not enough. If no inspectable clean-context report is available, run main-agent fallback and record `clean-context result unavailable`.
 
 ## Diagnosis Discipline (Diagnosis Mode)
 
