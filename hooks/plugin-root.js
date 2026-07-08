@@ -19,7 +19,7 @@ function resolvePluginRoot(env = process.env, fallback = process.cwd()) {
 }
 
 function detectHost(env = process.env) {
-  if (env.CODEX_PLUGIN_ROOT || env.COPILOT_CLI) return 'codex';
+  if (env.CODEX_PLUGIN_ROOT) return 'codex';
   if (env.CURSOR_PLUGIN_ROOT) return 'cursor';
   if (env.CLAUDE_PLUGIN_ROOT) return 'claude';
   if (env.ANTIGRAVITY_PLUGIN_ROOT) return 'antigravity';

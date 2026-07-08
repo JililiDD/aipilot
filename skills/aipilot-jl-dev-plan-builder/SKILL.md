@@ -15,7 +15,7 @@ Read, when they exist (all paths mean the resolved documents root):
 
 - `document-system-spec.md` at the documents root — governs file conventions, section ownership, target resolution, routing between roadmap and breakdown, and merge-back; this skill follows it without restating it. Read `agent-guideline.md` alongside it for project-specific overrides.
 - `product-spec.md` — current product state.
-- the **target work-item** in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule (orchestrator handoff → conversation context → single-candidate confirm → ask; never guess). Its Requirement and Design sections are the authoritative input; they supersede the master specs for this change until merge-back.
+- the **target work-item** in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Its Requirement and Design sections are the authoritative input; they supersede the master specs for this change until merge-back.
 - `design-spec.md` — current design state, when the work has a UI surface.
 - `dev-phase-plan.md` — the existing roadmap, if any.
 - `decisions.md` and `lessons.md` — the append-only logs of choices and pits; always read both whole (small by design).
@@ -51,8 +51,8 @@ Fill the **Plan section** of the target work-item. This mode produces plans, nev
 
 The Plan section contains:
 
-- **User stories → tasks.** A task is the smallest execution unit and always carries its own verification method (command, test, or manual check). The optional middle layer groups tasks and carries a Done-when line: **User Stories** for user-visible increments, neutral **Task Groups** for refactors and pipelines — same structure, no forced user narration. Naming is fixed: Phase → User Story / Task Group → Task. Use `### User Story n:` for any user-facing capability or AC range, even when most tasks are backend; use `### Task Group n:` only for invisible refactors/pipelines. Never title a user story `Group n`.
-- **Story 0 — visual direction smoke**, required when the change introduces a new page or screen: before writing it, ask a structured three-option question for how to establish the visual direction: single-file static HTML prototype (recommended), generated image prototype, or user-provided prototype. Record the answer as `Direction source: <html | image-generation | user-provided>` under Story 0. Story 0 is only for visual direction with static/sample data — no production flow, API, persistence, or full frontend implementation. Its confirmation stop is **on by default** and applies at every execution granularity; when asking the granularity question, also ask whether to waive it, and record the answer on Story 0 as `[stop: user-confirm]` or `[stop: skip]` (recommend stopping — wrong direction is expensive, one confirmation is cheap). Mark its code `throwaway` by default; use `base` only when the user explicitly wants later stories to build on it.
+- **User stories → tasks.** A task is the smallest execution unit and always carries its own verification method; every story/group carries a Done-when line. Hierarchy, the two middle-layer flavors, and naming discipline per constitution §3 and `references/planning-rules.md`; headings are `### User Story n:` / `### Task Group n:`.
+- **Story 0 — visual direction smoke**, required when the change introduces a new page or screen. Ask the direction-source question and record markers per `references/planning-rules.md` (Story 0 section).
 - **Execution granularity default** — ask one structured low-risk question with these choices before handing to `aipilot-jl-dev-builder`: whole work-item, per user story/task group, or per task. Record the user's choice here.
 - **Reuse notes** — what existing code, helpers, dependencies, or native features each story builds on; new implementation states why reuse is insufficient.
 - **Explicit non-goals.**
@@ -76,10 +76,10 @@ Both are normal outcomes, not failures; that is why ambiguity defaults to the sm
 ## Planning Rules
 
 - Run a Material Uncertainty Scan before writing. Stop and ask the smallest useful question when a missing decision affects behavior, acceptance, data boundaries, integration, verification expectations, trust, cost, or data-loss risk — do not infer material requirements from convention or convenience, and never silently turn uncertainty into plan text. Low-risk implementation defaults may be chosen but must be labeled as assumptions.
-- Question format: every question uses the current host/runtime's native structured-choice UI when available (Codex uses its option-picker, Claude uses its own equivalent, and other adapters use theirs), else lettered chat options. Provide 2–4 options plus a free-form escape; put a recommended option first and give every option a brief explanation. For behavior, data, contracts, trust, or core visual direction, the recommendation is only a soft default and the explanation must expose the trade-off.
+- Question format: per constitution §7.
 - When planning Java backend work, load the `aipilot-jl-java-backend-expert` overlay for backend phase/task boundaries, API contracts, and transaction/persistence strategy.
 - Apply YAGNI and first principles per `references/planning-rules.md`: no speculative features, abstractions, providers, modes, or dependencies without current requirement evidence; smallest user-visible outcome, minimal state and surface, explicit data flow, verification at trust boundaries.
-- When it constrains future work-items AND is not visible in the state documents: a planning choice → dated entry in `decisions.md`; a constraint discovered while planning → dated entry in `lessons.md`. Never edit past entries; supersede with a tag.
+- Record per constitution §2: a planning choice → dated entry in `decisions.md`; a constraint discovered while planning → dated entry in `lessons.md`.
 
 ## Quality Gate
 
@@ -87,7 +87,7 @@ The plan is not ready if: any task lacks a verification method; any story lacks 
 
 ## Workflow Handoff
 
-After Roadmap Mode: recommend deriving and breaking down the first unbuilt phase (this skill, Breakdown Mode). After Breakdown Mode: summarize the decisions affecting scope, architecture, data boundaries, verification, and non-goals; recommend `aipilot-jl-dev-builder` for the target work-item (name it), or produce a Goal Wrap when the user wants one autonomous run across multiple phases. Stop for explicit user confirmation before any next stage. If blocked, ask the smallest useful question and stop.
+After Roadmap Mode: recommend deriving and breaking down the first unbuilt phase (this skill, Breakdown Mode). After Breakdown Mode: summarize the decisions affecting scope, architecture, data boundaries, verification, and non-goals — **lead with the decisions the user is most likely to change** (data model, interfaces, user-facing behavior) and put mechanical work last; recommend `aipilot-jl-dev-builder` for the target work-item (name it), or produce a Goal Wrap when the user wants one autonomous run across multiple phases. Stop for explicit user confirmation before any next stage. If blocked, ask the smallest useful question and stop.
 
 ## Final Response Pattern
 

@@ -26,18 +26,4 @@ function writeHookOutput(context, hookEventName = 'UserPromptSubmit') {
   process.stdout.write(JSON.stringify({ additionalContext: context }));
 }
 
-// Minimal stdin reader — used only where a hook still inspects the prompt.
-function readPrompt(callback) {
-  let input = '';
-  process.stdin.on('data', chunk => { input += chunk; });
-  process.stdin.on('end', () => {
-    try {
-      const data = JSON.parse(input.replace(/^\uFEFF/, ''));
-      callback(String(data && data.prompt ? data.prompt : ''));
-    } catch (_e) {
-      writeHookOutput('');
-    }
-  });
-}
-
-module.exports = { writeHookOutput, readPrompt };
+module.exports = { writeHookOutput };

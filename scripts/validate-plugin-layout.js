@@ -24,6 +24,26 @@ function assertManifest(relativePath, expected) {
   }
 }
 
+function assertManifestsInSync() {
+  const claudeManifest = readJson('.claude-plugin/plugin.json');
+  const codexManifest = readJson('.codex-plugin/plugin.json');
+  // README documents this carve-out: Codex's plugin validator rejects fields
+  // it doesn't recognize, so those fields may legitimately be absent from the
+  // codex manifest. Everything else must stay identical between the two.
+  const CODEX_INCOMPATIBLE_FIELDS = ['hooks'];
+
+  const claudeComparable = { ...claudeManifest };
+  for (const field of CODEX_INCOMPATIBLE_FIELDS) {
+    delete claudeComparable[field];
+  }
+
+  assert.deepStrictEqual(
+    codexManifest,
+    claudeComparable,
+    'codex manifest has drifted from claude manifest outside the documented carve-out (hooks)',
+  );
+}
+
 function assertSkills() {
   const skillsRoot = path.join(root, 'skills');
   const skillDirs = fs.readdirSync(skillsRoot, { withFileTypes: true })
@@ -63,6 +83,7 @@ function assertHookSmoke(scriptPath, input) {
 
 assertManifest('.claude-plugin/plugin.json', {});
 assertManifest('.codex-plugin/plugin.json', { absentFields: ['hooks'] });
+assertManifestsInSync();
 assertMarketplace();
 assertSkills();
 assertHookSmoke('hooks/session-start.js');

@@ -1,16 +1,13 @@
 #!/usr/bin/env node
 // UserPromptSubmit hook for AI Pilot JL. Fail-safe: any error emits empty output.
-// Always injects the correction-capture note (the model judges relevance);
-// adds the session-review note when the prompt signals wrap-up.
+// Static injection — the model judges relevance for both correction capture and
+// session-review from the full message, so no prompt inspection is needed here.
 
 try {
-  const { correctionCaptureContext, sessionReviewContext, endIntentPatterns } = require('./workflow-config');
-  const { writeHookOutput, readPrompt } = require('./workflow-runtime');
+  const { correctionCaptureContext } = require('./workflow-config');
+  const { writeHookOutput } = require('./workflow-runtime');
 
-  readPrompt(prompt => {
-    const wrappingUp = endIntentPatterns.some(p => p.test(prompt));
-    writeHookOutput(correctionCaptureContext + (wrappingUp ? sessionReviewContext : ''));
-  });
+  writeHookOutput(correctionCaptureContext);
 } catch (_e) {
   process.stdout.write('{}');
 }

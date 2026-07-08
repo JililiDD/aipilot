@@ -23,6 +23,8 @@ Diagnosis Mode is an **overlay on the loop, not a replacement**: the loop mechan
 
 Exit: the defect no longer reproduces **and** the original failing check is green — the task's `— Verify:` method, or the review finding's reverify → announce the return to plain Build Mode and continue from the point of failure.
 
+**Dead-end protocol**: when the root cause cannot be located with the information available, the only legal exit is to add observability — logging and traceability at the key points of the suspect path — and honestly report that the information is insufficient and what the new instrumentation will reveal on the next occurrence. A surface fix that makes the symptom disappear without a written root cause is never an exit; it hides an unknown defect in the system.
+
 **Independent bugs** — any defect not caused by the active change (user-reported, in merged work, or uncovered in passing): never create work-item files — route to `aipilot-jl-product-spec-builder`'s fast track (it confirms expected behavior and creates the bug work-item), `aipilot-jl-dev-plan-builder` Breakdown fills its Plan, then execute it like any work-item — normal loop mechanics, with Diagnosis Discipline governing the work itself. Never absorb an unrelated defect into the current work-item. **Pre-existing-cause rule**: when diagnosis shows the root cause pre-dates the current change — if it blocks the current work-item's verification, fix it in-loop and note "pre-existing defect, not introduced here"; if not, it is an independent bug, or `BACKLOG.md` with the user's approval.
 
 ## Required Reading
@@ -30,7 +32,7 @@ Exit: the defect no longer reproduces **and** the original failing check is gree
 Read, when they exist (all paths mean the resolved documents root):
 
 - `document-system-spec.md` at the documents root — governs file conventions, section ownership, target resolution, execution granularity, and merge-back; follow it without restating it. Read `agent-guideline.md` alongside it for project-specific overrides.
-- the **target work-item** in the top level of `work-items/`, identified per the Target Resolution rule (orchestrator handoff → conversation context → single-candidate confirm → ask; never guess). Its Requirement, Design, and Plan sections are the authoritative input and supersede the master specs for this change until merge-back. An empty Design section on a phase work-item is normal — the master `design-spec.md` is its design source.
+- the **target work-item** in the top level of `work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Its Requirement, Design, and Plan sections are the authoritative input and supersede the master specs for this change until merge-back. An empty Design section on a phase work-item is normal — the master `design-spec.md` is its design source.
 - `product-spec.md` and `design-spec.md` — surrounding product and design state.
 - `dev-phase-plan.md` when executing a phase work-item.
 - `decisions.md` and `lessons.md` — always read both whole (small by design).
@@ -47,7 +49,7 @@ All four sections live inside the target work-item file resolved above; this ski
 
 ## Execution Granularity
 
-Read the recorded granularity from the Plan section: whole work-item / per story/task group / per task. On the first implementation entry in a session, the orchestrator handoff must say the granularity was confirmed this session; if it does not, ask the same low-risk question before starting and record any change in the Plan. If none is recorded, ask before starting and record the answer in the Plan. A stop means: report the unit's results and wait for instruction. "Continue" authorizes exactly one unit at the current granularity. The user may change granularity mid-run in either direction. **Story 0's stop follows its Plan marker** (see Story 0 Discipline).
+Read the recorded granularity from the Plan section (constitution §5). On the first implementation entry in a session, the orchestrator handoff must say the granularity was confirmed this session; if it does not, ask the same low-risk question before starting and record any change in the Plan. If none is recorded, ask before starting and record the answer in the Plan. A stop means: report the unit's results and wait for instruction. "Continue" authorizes exactly one unit at the current granularity. The user may change granularity mid-run in either direction. **Story 0's stop follows its Plan marker** (see Story 0 Discipline).
 
 ## Required Loop
 
@@ -69,9 +71,7 @@ Read the recorded granularity from the Plan section: whole work-item / per story
 
 ## Review Cadence
 
-- **Every user story/task group completion → automatic `aipilot-jl-code-reviewer` run.** A machine gate, not a user stop — it applies even at whole-work-item granularity.
-- **Per-task granularity → review after every task.**
-- **Final full work-item review before merge-back → always**, covering cross-story coherence and Exit Criteria evidence, regardless of how many interim reviews ran.
+Review cadence per constitution §5 — machine gates, not user stops: automatic `aipilot-jl-code-reviewer` run at every user story/task group completion (even at whole-work-item granularity), after every task at per-task granularity, and always a final full work-item review before merge-back covering cross-story coherence and Exit Criteria evidence.
 
 Reviews **must** use a clean-context reviewer only when its report is returned to the main agent and can be inspected as review evidence — no separate confirmation inside the loop; log the delegation and scope. Spawn-only delegation without returned output is not enough. If no inspectable clean-context report is available, run main-agent fallback and record `clean-context result unavailable`.
 
@@ -87,7 +87,7 @@ Reviews **must** use a clean-context reviewer only when its report is returned t
 
 ## Story 0 Discipline
 
-Execute Story 0 as visual direction only. If `Direction source:` is missing, ask the user before writing anything: single-file static HTML prototype (recommended), generated image prototype, or user-provided prototype. For `html`, create the smallest single-file static prototype with sample data; for `image-generation`, generate or reference the image artifact; for `user-provided`, record the provided path/link and do not create replacement visuals. Do not implement production flow, API, persistence, full frontend state, or TDD-driven feature logic in Story 0.
+Execute Story 0 per its Plan marker (`Direction source`, stop marker, `throwaway`/`base` — constitution §3, planning-rules.md). If `Direction source:` is missing, ask the user before writing anything: single-file static HTML prototype (recommended), generated image prototype, or user-provided prototype. Action by source: `html` → create the smallest single-file static prototype with sample data; `image-generation` → generate or reference the image artifact; `user-provided` → record the provided path/link, no replacement visuals. Do not implement production flow, API, persistence, full frontend state, or TDD-driven feature logic in Story 0.
 
 Execute Story 0's stop marker as planned: `[stop: user-confirm]` (the default) → stop for the user's visual confirmation at every granularity; `[stop: skip]` → proceed, noting in the Execution Record that confirmation was waived at planning time. A missing marker means stop. Then respect the code marking regardless of the stop: `base` → later stories build on it; `throwaway` → later stories rebuild properly. Never silently grow production logic on `throwaway` code.
 
@@ -95,6 +95,8 @@ Execute Story 0's stop marker as planned: `[stop: user-confirm]` (the default) �
 
 - Preserve existing user changes.
 - Follow existing project style before generic Clean Code or SOLID preferences.
+- **Fail fast, fail loud**: never add fallback logic that swallows errors or hides failures — let problems surface where they occur. Do not give method parameters default values unless the correct default is 100% certain; a wrong default fails silently at the call site and is painful to debug.
+- **Don't break mainline**: before a large-scale refactor or an experimental change, create a new branch first.
 - Type-safe domain categories, states, modes, and action types over raw strings in business logic; display copy and one-off labels stay strings.
 - Design patterns only for real repeated variation or external-boundary complexity.
 - First principles: minimal state and surface area, explicit data flow, verification at trust and integration boundaries.

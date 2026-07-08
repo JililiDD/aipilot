@@ -2,17 +2,8 @@
 // live in the documents root (document-system-spec.md) and the
 // aipilot-jl-workflow-orchestrator skill. Keep these short so they never drift.
 
-// Only session-review still inspects the prompt: its value is being time-bound
-// to wrap-up moments. Correction capture is unconditional (the model, which sees
-// the full message, decides) so it needs no pattern list.
-const endIntentPatterns = [
-  /wrap\s*up/i,
-  /stop\s*here/i,
-  /done\s*for\s*now/i,
-  /finish\s*(this\s*)?session/i,
-  /session[-\s]?review/i,
-  /that'?s (it|enough) for (today|now)/i,
-];
+// Correction capture and session-review both hand judgment to the model, which
+// sees the full message and conversation — no pattern list, no language bias.
 
 const sessionStartContext = `
 <ai-pilot-session-start>
@@ -28,20 +19,12 @@ For anything else — a quick question, a typo fix, casual chat — just help no
 `;
 
 const correctionCaptureContext = `
-<ai-pilot-correction-capture>
-If this message corrects the workflow's behavior, rejects an assumption, or states a durable preference, route it to its home (see the constitution for exact files): a product fact → \`product-spec.md\` or the work-item; a discovered project constraint → \`lessons.md\`; an implementation fact → \`CHANGELOG.md\` via the normal flow; a reusable workflow-rule defect → one concise JSONL line in \`evolution/signals.jsonl\` (\`aipilot-jl-workflow-evolver\` analyzes later; no proposal unless the user asks). If it's none of these, ignore this note. Say briefly whether you recorded a signal.
-</ai-pilot-correction-capture>
-`;
-
-const sessionReviewContext = `
-<ai-pilot-session-review>
-The user seems to be wrapping up. Before the final response, run \`aipilot-jl-workflow-evolver\` Signal Capture Mode if available: review the session for workflow-rule defects, recurring failures, or durable preferences; append a concise signal to \`evolution/signals.jsonl\` only if it would improve future behavior (project pits go to \`lessons.md\`); no proposal unless asked; report whether a signal was added or skipped.
-</ai-pilot-session-review>
+<ai-pilot-note>
+If this message corrects workflow behavior or states a durable preference, route it per the constitution (workflow-rule defect → one line in evolution/signals.jsonl; project pit → lessons.md; product fact → spec/work-item). If the user is wrapping up the session, additionally run aipilot-jl-workflow-evolver Signal Capture Mode as a session review — append a signal only if it would improve future behavior. Briefly say if you recorded one. Otherwise ignore this note.
+</ai-pilot-note>
 `;
 
 module.exports = {
   correctionCaptureContext,
-  endIntentPatterns,
-  sessionReviewContext,
   sessionStartContext,
 };

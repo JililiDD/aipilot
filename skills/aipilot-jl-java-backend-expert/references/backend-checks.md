@@ -10,19 +10,6 @@ Use this reference only when the active task touches Java backend behavior or ba
 4. Official Java, Spring, JUnit, Maven, and Gradle documentation
 5. Generic conventions such as Google Java Style
 
-## Official References
-
-- Java API: https://docs.oracle.com/en/java/javase/21/docs/api/index.html
-- Spring Framework transactions: https://docs.spring.io/spring-framework/reference/data-access/transaction.html
-- Spring Web MVC: https://docs.spring.io/spring-framework/reference/web/webmvc.html
-- Spring Bean Validation: https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html
-- Spring Boot testing: https://docs.spring.io/spring-boot/reference/testing/index.html
-- Spring Security servlet apps: https://docs.spring.io/spring-security/reference/servlet/index.html
-- JUnit user guide: https://docs.junit.org/6.1.0/overview.html
-- Maven guides: https://maven.apache.org/guides/index.html
-- Gradle user manual: https://docs.gradle.org/current/userguide/userguide.html
-- Google Java Style: https://google.github.io/styleguide/javaguide.html
-
 ## Planning Checks
 
 - Identify Java version, Spring Boot version, build tool, package layout, and test conventions before planning backend work.

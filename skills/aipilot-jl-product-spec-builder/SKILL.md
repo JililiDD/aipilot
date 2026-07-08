@@ -16,9 +16,9 @@ Read, when they exist:
 - `document-system-spec.md` at the documents root — governs file conventions, section ownership, target resolution, and merge-back; this skill follows it without restating it. Read `agent-guideline.md` alongside it for project-specific overrides.
 - `docs/aipilot/product-spec.md`
 - `decisions.md` and `lessons.md` — the append-only logs of choices and pits; always read both whole (small by design).
-- for existing-project changes, the target work-item in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule in the Document System Specification (orchestrator handoff → conversation context → single-candidate confirm → ask; never guess). Merged history lives under `work-items/merged/`
+- for existing-project changes, the target work-item in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Merged history lives under `work-items/merged/`
 
-Then read `references/interview-doctrine.md` — it governs stance, decision ledger, question format, exit valve, and stall detection for the entire interview. Follow it throughout.
+Then read `references/interview-doctrine.md` — the canonical interview doctrine, also read by `aipilot-jl-design-spec-builder` via relative path. It governs the entire interview discipline. Follow it throughout.
 
 Never ask for information that already exists in these documents. If a document conflicts with the user's request, surface the conflict and ask which stands. Summarize your understanding before proceeding.
 
@@ -82,7 +82,7 @@ Include only sections that add value — no empty template sections. Candidate c
 
 **Versioning**: stamp the document with version and date and the line: "This spec reflects decisions confirmed as of this date; subsequent changes should record what changed and why." For direct master-spec writes (New Product / core re-scoping), append a one-line entry to `docs/aipilot/CHANGELOG.md` (`YYYY-MM-DDTHH:MM:SS` local time); for work items, the merge-back writes the CHANGELOG line later — do not write it now. Do not claim the spec is frozen — enforcement belongs to version control, not this document.
 
-Append a dated entry to `decisions.md` only when a decision will constrain future work-items AND is not visible in the state documents ("Redis for caching" yes; ordinary requirement details no). Never edit past entries; supersede them with a tag.
+Record decisions per constitution §2 when a spec decision meets the bar there.
 
 ## Workflow Handoff
 

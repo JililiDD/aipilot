@@ -40,7 +40,7 @@ Then verify:
 
 ## Release Question Discipline
 
-Use the current host/runtime's native structured-choice UI when available (Codex uses its option-picker, Claude uses its own equivalent, and other adapters use theirs), else lettered chat options. Ask only what documents, build files, and verification output cannot answer — typically release channel, risk acceptance, rollback requirements, privacy exposure, known limitations. One blocking question by default, up to three tightly related ones, each with 2–3 options plus a free-form escape. Put a recommended option first for low-risk logistics; for risk-acceptance or trust questions, make the recommendation a soft default and expose the trade-off in the option explanation.
+Question format and recommendation policy follow constitution §7. Ask only what documents, build files, and verification output cannot answer — typically release channel, risk acceptance, rollback requirements, privacy exposure, known limitations. One blocking question by default, up to three tightly related ones.
 
 ## Privacy and Permission Audit
 

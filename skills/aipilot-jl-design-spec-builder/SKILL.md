@@ -15,11 +15,11 @@ Read, when they exist:
 
 - `document-system-spec.md` at the documents root — governs file conventions, section ownership, target resolution, and merge-back; this skill follows it without restating it. Read `agent-guideline.md` alongside it for project-specific overrides.
 - `docs/aipilot/product-spec.md` — the current product state.
-- the **target work-item** in the top level of `docs/aipilot/work-items/` when this session serves an in-flight change, identified per the Target Resolution rule in the Document System Specification (orchestrator handoff → conversation context → single-candidate confirm → ask; never guess). Its **Requirement section** is the authoritative behavior input for this design session — those behaviors are not yet merged into the master spec.
+- the **target work-item** in the top level of `docs/aipilot/work-items/` when this session serves an in-flight change, identified per the Target Resolution rule (constitution §3); never guess. Its **Requirement section** is the authoritative behavior input for this design session — those behaviors are not yet merged into the master spec.
 - `docs/aipilot/design-spec.md` — the current design state.
 - `decisions.md` and `lessons.md` — the append-only logs of choices and pits; always read both whole (small by design).
 
-Then read `references/interview-doctrine.md` — it governs stance, decision ledger, question format, exit valve, and stall detection for the entire interview.
+Then read `../aipilot-jl-product-spec-builder/references/interview-doctrine.md` — the canonical interview doctrine, shared with `aipilot-jl-product-spec-builder`. It governs the entire interview discipline.
 
 Load on demand:
 
@@ -62,7 +62,7 @@ Do not start visual implementation or code generation; this skill only produces 
 
 Design Acceptance Criteria are observable checks a reviewer can verify on screen; `aipilot-jl-dev-plan-builder` references them per story and task and must not invent new ones.
 
-Append a dated entry to `decisions.md` only when a design decision will constrain future work-items AND is not visible in the state documents — not for ordinary taste choices already clear in the spec. Never edit past entries; supersede with a tag.
+Record decisions per constitution §2 when a design decision meets the bar there.
 
 ## Completion Standard
 

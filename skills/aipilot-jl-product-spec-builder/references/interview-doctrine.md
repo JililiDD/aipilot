@@ -28,12 +28,18 @@ Maintain four categories throughout the interview:
 
 Ask the smallest useful batch: one question when one blocking decision remains; 2–3 tightly related questions when exploring a vague area; more only when the user requests a full audit.
 
-Every question must be a multiple-choice / option-picker question, with an explicit free-form escape. Use the current host/runtime's native structured-choice UI when it exists (Codex uses its option-picker, Claude uses its own equivalent, and other adapters use theirs); otherwise ask in plain chat with lettered options. Provide 2–4 options plus Other/Custom, put a recommended option first and label it, and give every option a brief one-line explanation. Options are suggestions, not constraints.
+Question mechanics (UI choice, options count, free-form escape) follow constitution §7. Options are suggestions, not constraints.
 
 **Recommendation policy is risk-tiered**:
 
 - **Low-risk decisions** (naming, minor defaults, cosmetic choices): the recommendation may be a normal default — efficiency over deliberation.
 - **High-risk decisions** (data model, workflow, scope boundary, external contracts, product personality, primary references): still include a recommendation because the UI needs one, but make the explanation name the trade-off and treat a quick pick as Assumed, not Confirmed. Do not present the recommendation as a settled answer.
+
+## Unfamiliar Ground and References
+
+When the user signals unfamiliarity with the domain ("I don't know what's possible here", "I've never done this"), do not interrogate them with decisions they cannot evaluate. Run a brief **blindspot pass** first: explain the decision space, the common pitfalls, and what "good" looks like — then ask. Questions asked into a blindspot produce guesses recorded as decisions.
+
+When the user struggles to articulate what they want after a round or two, stop rephrasing the question and ask for a **reference** instead: existing source code is the richest (point at a module or library that does it right, even in another language), then an existing product or screen, then a screenshot or sketch. Record the reference in the ledger as the requirement's anchor.
 
 ## Exit Valve
 

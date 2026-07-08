@@ -14,7 +14,7 @@ You are the workflow controller. Keep AI Pilot JL clear and checkpointed from on
 Run these in order at every session start:
 
 1. **Resolve the documents root**: read the project-root `AGENTS.md` for a `Documents root:` entry under an `## AI Pilot JL` heading (canonical in every runtime — an explicit file read; do not search `CLAUDE.md` or other runtime files); absent → default `docs/aipilot/`. Report the resolved root once. Every `docs/aipilot/` path below means the resolved root.
-2. **Self-healing scan**: before any routing, scan the top level of `work-items/` for interrupted merge-backs — a work-item whose frontmatter already says `status: merged`, or whose Execution Record shows a passed review with no matching `CHANGELOG.md` line. Complete the remaining merge-back steps first, then proceed.
+2. **Self-healing scan** (constitution §6): before any routing, scan for interrupted merge-backs and complete them first.
 3. **Read state** (when they exist): `document-system-spec.md` at the documents root (the constitution — follow it without restating it); `agent-guideline.md` for project-specific overrides; `product-spec.md`; `design-spec.md`; `dev-phase-plan.md`; `CHANGELOG.md`; `BACKLOG.md` when deferred tasks may affect the recommendation; `decisions.md` and `lessons.md` — always read both whole (small by design); active work-items in the top level of `work-items/` (merged history under `work-items/merged/`, read only when it matters); relevant `design-assets/` images when a design direction is in play; `evolution/signals.jsonl` (canonical evolution location; a legacy path may be configured in `agent-guideline.md`); `AGENTS.md`.
 
 ## Stage Order
@@ -48,15 +48,15 @@ When routing any stage that operates on a work-item, **name the target file expl
 - If the roadmap exists and the next unbuilt phase has no work-item yet, or a work-item's Plan section is missing or incomplete, route to `aipilot-jl-dev-plan-builder` Breakdown Mode (it derives phase work-items just in time).
 - If the user explicitly asks to add a deferred task to the backlog, append a concise item to `BACKLOG.md`; if the user only says something should happen later or not now, ask before adding it.
 - If `aipilot-jl-dev-plan-builder` reports a blocking product, design, acceptance, data, integration, verification, trust, cost, or data-loss-risk question, stop for user clarification before routing to later stages.
-- If a work-item is ready and implementation is requested, first confirm the Plan's recorded execution granularity for this session — whole work-item, per user story/task group, or per task — allowing the user to keep or change it. Then route to `aipilot-jl-dev-builder`, naming the target and the confirmed-this-session granularity. Ready means: Requirement section filled; Design section filled when the change has a UI surface (an empty Design section on a phase work-item referencing the master `design-spec.md` is normal, not a blocker); Plan section complete with execution granularity recorded.
+- If a work-item is ready and implementation is requested, first confirm the Plan's recorded execution granularity for this session (constitution §5), allowing the user to keep or change it. Then route to `aipilot-jl-dev-builder`, naming the target and the confirmed-this-session granularity. Ready means: Requirement section filled; Design section filled when the change has a UI surface (an empty Design section on a phase work-item referencing the master `design-spec.md` is normal, not a blocker); Plan section complete with execution granularity recorded.
 - If implementation changed behavior, architecture, data, UI, or release risk, route to `aipilot-jl-code-reviewer`.
 - If verification or review fails inside the implementation-review loop, `aipilot-jl-dev-builder` handles it: Build Mode fixes when the cause is evident in the change at hand; its Diagnosis Mode takes over when the root cause needs diagnosis — not visible in the current change, reproduction required, or two fix attempts without convergence (its hard gate). Rerun `aipilot-jl-code-reviewer` after fixes until review passes or a blocker requires user input.
-- **Merge-back**: after `aipilot-jl-code-reviewer` passes for a work-item, perform all five steps as one uninterrupted bookkeeping action: (1) apply the work-item's Impact on Product-Spec map to `product-spec.md` — state-level outcome only, never interview detail; (2) apply the Design section's deltas per its Impact on Design-Spec map to `design-spec.md`, when a Design section exists — creating the file if this is the project's first design content; (3) append one line to `CHANGELOG.md`: timestamp (`YYYY-MM-DDTHH:MM:SS` local), one-sentence summary, and the work-item **filename only** (never a directory path — the file is about to move); (4) set frontmatter `status: merged` and move the file to `work-items/merged/`; (5) for phase work-items, flip the phase status to `merged` in `dev-phase-plan.md`. A work-item still in the top level means this bookkeeping is unfinished. Until merge-back, active work-items are the authoritative source for their change and the state documents intentionally lag them — that lag is by design, not a staleness defect.
+- **Merge-back**: after `aipilot-jl-code-reviewer` passes for a work-item, perform the five steps in constitution §6 as one uninterrupted bookkeeping action — no separate user confirmation. Until merge-back, active work-items are the authoritative source for their change and the state documents intentionally lag them — that lag is by design, not a staleness defect.
 - If merge-back completes for a phase work-item and another planned phase remains, recommend `aipilot-jl-dev-plan-builder` Breakdown Mode for the next unbuilt phase.
 - If the user asks to package, publish, hand off, or release, route to `aipilot-jl-release-builder`.
 - If there are pending evolution signals or the user asks to improve the workflow, route to `aipilot-jl-workflow-evolver`.
 - If the active stage touches Java backend code or Java backend risk, load the `aipilot-jl-java-backend-expert` overlay inside that stage (see companion note above).
-- If current work introduces a choice or uncovers a constraint that binds future work-items and is not visible in the state documents, ensure the active stage appends a dated entry to `decisions.md` (choices) or `lessons.md` (discovered constraints).
+- If current work introduces a choice or uncovers a constraint that binds future work-items and is not visible in the state documents, ensure the active stage records it per constitution §2 (`decisions.md` for choices, `lessons.md` for discovered constraints).
 
 ## First Principles Gate
 
@@ -75,7 +75,7 @@ If the next stage would add speculative features, extension points, abstractions
 
 One main agent owns the workflow end to end, including all implementation. **The only sub-agent in this system is the clean-context `aipilot-jl-code-reviewer`**. Use a clean-context reviewer only when its report is returned to the main agent and can be inspected as review evidence. Spawn-only delegation without returned output is not enough. If no inspectable clean-context report is available, run main-agent fallback and record `clean-context result unavailable`. Sub-agents never make final decisions: findings return to the main agent, which fixes, records, and decides.
 
-At SessionStart, pending evolution signals run `aipilot-jl-workflow-evolver` Proposal Mode **in the main agent** — its context is still fresh at that moment, and the mode writes proposal files and signal statuses only. Applying, revising, or deleting workflow rules still requires explicit user confirmation.
+At SessionStart, report the count of pending evolution signals in the startup summary. Run `aipilot-jl-workflow-evolver` Proposal Mode **in the main agent** only when: (a) the user explicitly asks for it, or (b) the session started with no immediate task (bare `/aipilot`, empty `$ARGUMENTS`, nothing to route) — context is fresh and this is routine maintenance, not time taken from a requested task. The mode writes proposal files and signal statuses only. Applying, revising, or deleting workflow rules still requires explicit user confirmation.
 
 ## Chaining Rules
 
@@ -94,25 +94,13 @@ Continue means the user says continue-style words in any language — "continue"
 
 Do not skip verification, review, document updates, or user approval gates to keep the chain moving.
 
-## User-Facing Updates
-
-When recommending a stage switch, tell the user briefly:
-
-- Completed stage
-- Next stage
-- Skill being used
-- Why that stage is now unblocked
-- That you are waiting for confirmation before starting it
-
-Keep the update short. The workflow should feel guided, not noisy.
-
 ## Final Response Pattern
 
-Report:
+Report, briefly — guided, not noisy:
 
-- Current workflow stage
-- Completed stages in this run
+- Current workflow stage; completed stages in this run
 - Merge-back performed, if any: spec sections updated (product and design), CHANGELOG line, work-item moved, phase status flipped
-- Next skill used or recommended
+- Next stage and skill recommended, and why it is now unblocked
 - Blocking questions, if any
 - Documents updated
+- That you are waiting for confirmation before starting the next stage
