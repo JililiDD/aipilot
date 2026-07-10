@@ -53,7 +53,7 @@ The Plan section contains:
 
 - **User stories → tasks.** A task is the smallest execution unit and always carries its own verification method; every story/group carries a Done-when line. Hierarchy, the two middle-layer flavors, and naming discipline per constitution §3 and `references/planning-rules.md`; headings are `### User Story n:` / `### Task Group n:`.
 - **Story 0 — visual direction smoke**, required when the change introduces a new page or screen. Ask the direction-source question and record markers per `references/planning-rules.md` (Story 0 section).
-- **Execution granularity default** — ask one structured low-risk question with these choices before handing to `aipilot-jl-dev-builder`: whole work-item, per user story/task group, or per task. Record the user's choice here.
+- **Execution granularity default** — ask one structured low-risk question with these choices before handing to `aipilot-jl-dev-builder`: whole work-item, per user story/task group, or per task. In the same batch, ask the **commit policy**: `manual` (recommended — the agent never commits; after each passing review the working tree is left for the user's own review and commit), `branch` (the agent commits freely on a work-item branch, never mainline; the user reviews and merges), or `auto` (commit after each passing review). Record both choices here (`Commit policy: <manual | branch | auto>`).
 - **Reuse notes** — what existing code, helpers, dependencies, or native features each story builds on; new implementation states why reuse is insufficient.
 - **Explicit non-goals.**
 - **Exit Criteria and Stop Conditions** — the work-item's final verification pass, and the shared halt-and-ask triggers every level inherits.
@@ -62,9 +62,12 @@ The Plan section contains:
 
 **Acceptance-criteria traceability (excluded middle)**: every story or task AC must trace to a criterion in the Requirement or Design section. A criterion with no source is either a missing requirement — route to `aipilot-jl-product-spec-builder` or `aipilot-jl-design-spec-builder` — or scope creep — drop it. There is no third option; planning time never invents requirements.
 
-## Goal Wrap (multi-phase autonomous runs)
+## Goal Wrap (autonomous runs)
 
-A single task, story, or work-item is already goal-ready — delegate it directly, no wrapping. Wrap only when the user wants **one autonomous run spanning multiple phases** — either asked for explicitly, or offered by the orchestrator when the user requests open-ended automation ("do all remaining phases"), which is never granted by silent chaining. The wrap is a short document containing: the objective in one sentence; the phases in order, each with its work-item filename (derive missing ones first) and its own Exit Criteria as the per-phase exit; the aggregate exit — the last phase merged; and one instruction: *follow the `aipilot-jl-workflow-orchestrator` stages throughout — Story 0 stop markers, granularity, Stop Conditions, review cadence, and merge-backs all apply; autonomy never skips gates.* The wrap points at the system, never restates it. It is a **derived delivery artifact**: hand it to the user for the runtime's goal feature; do not store it in the document system.
+A single task, story, or work-item is already goal-ready. Two shapes of autonomous permission exist; both keep every gate intact — Story 0 stop markers, granularity, Stop Conditions, review cadence, and merge-backs all apply; autonomy never skips gates.
+
+- **Single work-item, full pipeline** (Requirement → Design → Plan → Build → Review → merge-back): granted when the orchestrator's execution-mode question at intake (constitution §4 / routing rules) is answered with the autonomous option, or asked for explicitly. No document — the choice is recorded for the session; the orchestrator's per-stage stops are waived in favor of running straight through to a blocker, a failing review with no convergence, or completion.
+- **Multiple phases** ("do all remaining phases"): produces a short wrap document containing the objective in one sentence; the phases in order, each with its work-item filename (derive missing ones first) and its own Exit Criteria as the per-phase exit; the aggregate exit — the last phase merged; and one instruction: *follow the `aipilot-jl-workflow-orchestrator` stages throughout — Story 0 stop markers, granularity, Stop Conditions, review cadence, and merge-backs all apply; autonomy never skips gates.* The wrap points at the system, never restates it. It is a **derived delivery artifact**: hand it to the user for the runtime's goal feature; do not store it in the document system.
 
 ## Valves
 

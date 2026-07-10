@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "aipilot",
+  "description": "Document-driven AI product development workflow.",
+  "owner": {
+    "name": "JililiDD"
+  },
+  "plugins": [
+    {
+      "name": "aipilot-jl",
+      "description": "Document-driven AI product development workflow.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

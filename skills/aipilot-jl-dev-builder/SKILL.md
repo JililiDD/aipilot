@@ -49,7 +49,7 @@ All four sections live inside the target work-item file resolved above; this ski
 
 ## Execution Granularity
 
-Read the recorded granularity from the Plan section (constitution §5). On the first implementation entry in a session, the orchestrator handoff must say the granularity was confirmed this session; if it does not, ask the same low-risk question before starting and record any change in the Plan. If none is recorded, ask before starting and record the answer in the Plan. A stop means: report the unit's results and wait for instruction. "Continue" authorizes exactly one unit at the current granularity. The user may change granularity mid-run in either direction. **Story 0's stop follows its Plan marker** (see Story 0 Discipline).
+Read the recorded granularity and `Commit policy` from the Plan section (constitution §5). On the first implementation entry in a session, the orchestrator handoff must say the granularity was confirmed this session; if it does not, ask the same low-risk question before starting and record any change in the Plan. If either is not recorded, ask before starting and record the answer in the Plan. A stop means: report the unit's results and wait for instruction. "Continue" authorizes exactly one unit at the current granularity. The user may change granularity or commit policy mid-run in either direction. **Story 0's stop follows its Plan marker** (see Story 0 Discipline).
 
 ## Required Loop
 
@@ -65,7 +65,7 @@ Read the recorded granularity from the Plan section (constitution §5). On the f
 6. Tick the checkbox only after its verification passes; append the facts to the Execution Record.
 7. If any Stop Condition **from the Plan section's Stop Conditions block** fires at any point, halt and ask — execute the Plan's list, not a memorized one.
 
-**Per user story/task group:** confirm the Done-when line holds and run the project's test suite (suite-green evidence recorded, beyond the per-task verifies); run review per the Review Cadence. Review findings do not un-tick tasks — the tick records "done and verified once", which stays true; instead, fix the finding, **rerun the affected task's original `— Verify:` method**, and append the finding-fix-reverify sequence to the Execution Record. Then rerun the review until it passes or a blocker needs user input. **After a review passes, commit** (message: work-item slug + user story/task group) and record the commit ref in the Execution Record as the next round's review anchor. At a stop granularity, report and wait.
+**Per user story/task group:** confirm the Done-when line holds and run the project's test suite (suite-green evidence recorded, beyond the per-task verifies); run review per the Review Cadence. Review findings do not un-tick tasks — the tick records "done and verified once", which stays true; instead, fix the finding, **rerun the affected task's original `— Verify:` method**, and append the finding-fix-reverify sequence to the Execution Record. Then rerun the review until it passes or a blocker needs user input. **After a review passes, act per the Plan's recorded `Commit policy`** — `manual`: do not commit; record the reviewed file set in the Execution Record as the next round's review anchor and leave the working tree for the user's own review and commit; `branch`: commit (message: work-item slug + user story/task group) on the work-item branch — never mainline — and record the commit ref as the anchor; the user reviews and merges; `auto`: commit the same way directly and record the commit ref as the anchor. At a stop granularity, report and wait.
 
 **Work-item completion:** run the Exit Criteria fresh; pass the final full review; complete the Execution Record; hand to `aipilot-jl-workflow-orchestrator` — merge-back is its job, never performed here.
 
@@ -94,7 +94,11 @@ Execute Story 0's stop marker as planned: `[stop: user-confirm]` (the default) �
 ## Engineering Rules
 
 - Preserve existing user changes.
-- Follow existing project style before generic Clean Code or SOLID preferences.
+- Follow existing project style before generic Clean Code or SOLID preferences. If a project convention seems genuinely harmful, surface it to the user — never fork from it silently.
+- **Read before you write**: before adding or changing code, read the exports, immediate callers, and shared utilities it touches. "Looks orthogonal" is dangerous; if unsure why code is structured a certain way, ask.
+- **Surgical changes**: touch only what the task requires; clean up only your own mess. Do not "improve" adjacent code, comments, or formatting; do not refactor what isn't broken.
+- **Surface conflicts, don't average them**: when two existing patterns in the codebase contradict, pick one (more recent / better tested), say why, and flag the other for cleanup — never blend conflicting patterns into a hybrid.
+- **Tests verify intent, not just behavior**: a test must encode why the behavior matters; a test that cannot fail when the business logic changes is not a test.
 - **Fail fast, fail loud**: never add fallback logic that swallows errors or hides failures — let problems surface where they occur. Do not give method parameters default values unless the correct default is 100% certain; a wrong default fails silently at the call site and is painful to debug.
 - **Don't break mainline**: before a large-scale refactor or an experimental change, create a new branch first.
 - Type-safe domain categories, states, modes, and action types over raw strings in business logic; display copy and one-off labels stay strings.

@@ -49,7 +49,7 @@ All paths mean the resolved documents root:
 
 **Engineering** — reuse-first honored or the exception justified; no speculative abstractions, options, or dependencies beyond current requirements; type-safe domain values in business logic; existing project style followed; verification present at trust and integration boundaries; no leftover debug or dead code.
 
-**Tests and evidence** — the project test suite is green at this story's completion and the full suite fresh at final review (evidence, not re-execution); changed or new behavior has corresponding tests; a page-affecting change carries a passing automated UI test **when the project's declared Testing Strategy includes one** (never invent tooling requirements the project does not declare); tests genuinely assert the cited ACs rather than merely executing the code.
+**Tests and evidence** — the project test suite is green at this story's completion and the full suite fresh at final review (evidence, not re-execution); changed or new behavior has corresponding tests; a page-affecting change carries a passing automated UI test **when the project's declared Testing Strategy includes one** (never invent tooling requirements the project does not declare); tests genuinely assert the cited ACs rather than merely executing the code — a test that cannot fail when the business logic changes verifies nothing and is a finding.
 
 **Robustness** — the failure paths, where generated code most often breaks: errors handled rather than swallowed, external input validated at trust boundaries, resources closed on every path, concurrent access to shared state safe.
 

@@ -6,6 +6,7 @@ Structure for the `## Plan` section inside a work-item. The middle layer is opti
 ## Plan
 
 Execution granularity: <whole work-item | per user story/task group | per task>  (user's choice)
+Commit policy: <manual | branch | auto>  (user's choice)
 
 ### Story 0: Visual direction smoke  (only when a new page/screen is introduced)   [stop: user-confirm | skip]
 Direction source: <html | image-generation | user-provided>

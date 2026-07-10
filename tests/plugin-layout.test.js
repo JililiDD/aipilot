@@ -78,7 +78,8 @@ test('implementation granularity is confirmed at first dev-builder entry each se
   const devBuilder = fs.readFileSync(path.join(root, 'skills/aipilot-jl-dev-builder/SKILL.md'), 'utf8');
   const orchestrator = fs.readFileSync(path.join(root, 'skills/aipilot-jl-workflow-orchestrator/SKILL.md'), 'utf8');
 
-  assert.ok(orchestrator.includes("first confirm the Plan's recorded execution granularity for this session"));
+  assert.ok(orchestrator.includes("ask the user to confirm the Plan's recorded execution granularity for this session"));
+  assert.ok(orchestrator.includes('wait for their reply before routing'));
   assert.ok(orchestrator.includes('confirmed-this-session granularity'));
   assert.ok(devBuilder.includes('first implementation entry in a session'));
   assert.ok(devBuilder.includes('granularity was confirmed this session'));

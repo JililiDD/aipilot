@@ -26,18 +26,18 @@ Never ask for information that already exists in these documents. If a document 
 
 Infer the scope: New Product / New Feature / MVP Gap / Existing Feature Change / Bug Fix / Technical Refactor. Confirm only if genuinely ambiguous. One spec per requirement — never silently merge unrelated requirements.
 
-**Fast track**: for Bug Fix or small, well-bounded changes in an existing project, skip the ceremony — no ledger snapshots, no Pre-Spec Gate. Ask only questions targeting the highest-risk unknowns (reproduction conditions, blast radius, expected vs actual behavior, data-correction needs), scaling the count to the risk: a typo needs zero, a concurrency or data-integrity fix may need several. Stop as soon as a competent developer could fix it without guessing. Escalate to the full interview the moment answers reveal hidden complexity: unclear ownership of behavior, multiple plausible expected behaviors, or the "fix" turning out to be a design change.
+**Fast track**: for Bug Fix or small, well-bounded changes in an existing project, skip the Decision Notes recaps and the Pre-Spec Gate — never the asking. Ask only questions targeting the highest-risk unknowns (reproduction conditions, blast radius, expected vs actual behavior, data-correction needs), scaling the count to the risk: a typo needs zero, a concurrency or data-integrity fix may need several. **Skipping the ceremony does not skip asking: ask these questions (doctrine format) and wait for the answers before creating the work-item or writing any Requirement content — pointing out open questions in a summary after the file exists is not asking (constitution §7, Ask before acting). If the count is zero, say so explicitly ("no clarifying questions needed — creating the work-item") before creating it — a silent jump to file creation is not a valid zero-question verdict. If the user declines to answer, create it with the unresolved items honestly recorded under Open Questions with risk tags.** Stop as soon as a competent developer could fix it without guessing. Escalate to the full interview the moment answers reveal hidden complexity: unclear ownership of behavior, multiple plausible expected behaviors, or the "fix" turning out to be a design change.
 
 ## Interview Loop
 
-Track the decision ledger per the doctrine, plus two spec-specific items:
+Track the Decision Notes per the doctrine, plus two spec-specific items:
 
 - **Current Biggest Unknown** — the single most important unresolved implementation uncertainty. Always attack it first; depth beats breadth. Never ask checklist questions that don't reduce implementation uncertainty.
 - **Parking Lot** — topics deferred to stay depth-first. A queue, not a graveyard: every item must eventually be promoted to a question, moved to Open Questions, marked out of scope, or **deferred to the Design stage** (see Boundary below).
 
-Each iteration: identify the biggest unknown → challenge or question it per the doctrine → update the ledger → repeat.
+Each iteration: identify the biggest unknown → challenge or question it per the doctrine → update the Decision Notes → repeat.
 
-**Model shift rule**: if an answer changes your understanding of the product model, workflow, data model, scope, system behavior, or MVP boundary — stop the current question path, explain what changed, output a full ledger snapshot, re-sort priorities, and continue from the new biggest unknown. The same applies when an answer contradicts a Confirmed decision: surface the contradiction and ask which stands; never silently overwrite. You are not a fixed questionnaire.
+**Model shift rule**: if an answer changes your understanding of the product model, workflow, data model, scope, system behavior, or MVP boundary — stop the current question path, explain what changed, output a full recap of the Decision Notes, re-sort priorities, and continue from the new biggest unknown. The same applies when an answer contradicts a Confirmed decision: surface the contradiction and ask which stands; never silently overwrite. You are not a fixed questionnaire.
 
 ## Probing Heuristics
 
@@ -76,7 +76,7 @@ The Requirement section ends with an **Impact on Product-Spec** subsection: the 
 Include only sections that add value — no empty template sections. Candidate content (master-spec sections, or subsections inside the work-item's Requirement section): Summary, Existing Context, Scope, Problem/Reason, Proposed Behavior, Affected Users, Affected Flows/APIs/Data/Components, Functional Requirements, Data Changes, Permissions, Edge Cases, Compatibility/Migration, **Acceptance Criteria**, **Assumptions**, Open Questions (risk-tagged), Deferred-to-Design pointers, **Impact on Product-Spec** (work items only), Implementation Notes.
 
 - **Acceptance Criteria** are requirement-level and verifiable — the contract QA tests against. Downstream, `aipilot-jl-dev-plan-builder` decomposes and references them per story and task; it must not invent new ones. Writing them precisely is part of the interview: if a criterion cannot be phrased verifiably, the requirement is not resolved yet.
-- **Assumptions** lists every Assumed ledger entry, explicitly labeled unconfirmed.
+- **Assumptions** lists every Assumed entry in the Decision Notes, explicitly labeled unconfirmed.
 
 **Final user review**: before delivering, highlight the 2–3 highest-risk decisions — typically the ones decided fastest or adopted from your suggestions — and ask the user to confirm them one last time. One message.
 
