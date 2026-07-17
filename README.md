@@ -1,12 +1,12 @@
-# AIpilot
+# AIPilot
 
 A document-driven development workflow skill and command bundle: product spec ->
 design spec -> phase/breakdown planning -> implementation (build/diagnosis
 modes) -> review -> release, with lightweight persistent project memory.
 
-AIpilot is organized as a shared workflow core plus thin host adapters. The
+AIPilot is organized as a shared workflow core plus thin host adapters. The
 skills and command are kept in one place, while each host adapter documents the
-host-specific way to load them. The user-facing name is AIpilot; the
+host-specific way to load them. The user-facing name is AIPilot; the
 `aipilot-jl-` prefix identifies the internal skill directories.
 
 ## Structure
@@ -51,7 +51,7 @@ installation mechanism. Host-specific notes are in:
 - `adapters/antigravity/README.md`
 
 In Claude Code, `/aipilot` starts, continues, or resumes the workflow. In
-Codex, invoke an installed AIpilot skill or ask Codex to use AIpilot to inspect
+Codex, invoke an installed AIPilot skill or ask Codex to use AIPilot to inspect
 the project and recommend the next stage.
 
 ## Workflow lifecycle
@@ -102,7 +102,7 @@ startup so later sessions continue with the same project context.
 `aipilot-jl-note-keeper` keeps durable project memory lightweight. Product
 requirements belong in the product spec and work-items; project constraints
 belong in `lessons.md`; binding choices belong in `decisions.md`; lasting
-project-specific instructions for how AIpilot should work belong in
+project-specific instructions for how AIPilot should work belong in
 `agent-guideline.md`.
 
 Explicit durable wording such as "from now on", "always", "for this project",
@@ -114,7 +114,7 @@ directly in the plugin source only when the user explicitly requests them.
 
 ## Browser document review
 
-AIpilot can offer browser-based review for HTML design previews and rendered
+AIPilot can offer browser-based review for HTML design previews and rendered
 markdown deliverables. The markdown remains the source of truth; review HTML is
 generated as a disposable projection in the session scratchpad. The shared
 procedure and fallback behavior are documented in

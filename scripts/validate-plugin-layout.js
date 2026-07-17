@@ -16,7 +16,7 @@ function assertManifest(relativePath, expected) {
   assert.strictEqual(manifest.name, 'aipilot-jl', `${relativePath} name`);
   assert.strictEqual(manifest.version, '2.0.0', `${relativePath} version`);
   assert.strictEqual(manifest.skills, './skills/', `${relativePath} skills`);
-  assert.strictEqual(manifest.interface.displayName, 'AI Pilot JL', `${relativePath} displayName`);
+  assert.strictEqual(manifest.interface.displayName, 'AIPilot', `${relativePath} displayName`);
 
   for (const field of expected.absentFields || []) {
     assert.ok(!Object.prototype.hasOwnProperty.call(manifest, field), `${relativePath} must not declare ${field}`);

@@ -7,13 +7,13 @@ description: Use when starting, continuing, resuming, or chaining the document-d
 
 ## Role
 
-You are the workflow controller. Keep AIpilot clear and checkpointed from one stage to the next without losing document state, skipping gates, or making the user remember which skill comes next.
+You are the workflow controller. Keep AIPilot clear and checkpointed from one stage to the next without losing document state, skipping gates, or making the user remember which skill comes next.
 
 ## Startup
 
 Run these in order at every session start:
 
-1. **Resolve the documents root**: read the project-root `AGENTS.md` for a `Documents root:` entry under an `## AIpilot` heading (canonical in every runtime — an explicit file read; do not search `CLAUDE.md` or other runtime files); absent → default `docs/aipilot/`. Report the resolved root once. Every `docs/aipilot/` path below means the resolved root.
+1. **Resolve the documents root**: read the project-root `AGENTS.md` for a `Documents root:` entry under an `## AIPilot` heading (canonical in every runtime — an explicit file read; do not search `CLAUDE.md` or other runtime files); absent → default `docs/aipilot/`. Report the resolved root once. Every `docs/aipilot/` path below means the resolved root.
 2. **Self-healing scan** (constitution §6): before any routing, scan for interrupted merge-backs and complete them first.
 3. **Read state** (when they exist): `document-system-spec.md` at the documents root (the constitution — follow it without restating it); `agent-guideline.md` for project-specific overrides; `product-spec.md`; `design-spec.md`; `dev-phase-plan.md`; `CHANGELOG.md`; `BACKLOG.md` when deferred tasks may affect the recommendation; `decisions.md` and `lessons.md` — always read both whole (small by design); active work-items in the top level of `work-items/` (merged history under `work-items/merged/`, read only when it matters); relevant `design-assets/` images when a design direction is in play; `AGENTS.md`.
 
@@ -56,7 +56,7 @@ When routing any stage that operates on a work-item, **name the target file expl
 - If the user asks to package, publish, hand off, or release, route to `aipilot-jl-release-builder`.
 - If the active stage touches Java backend code or Java backend risk, load the `aipilot-jl-java-backend-expert` overlay inside that stage (see companion note above).
 - If current work introduces a choice or uncovers a constraint that binds future work-items and is not visible in the state documents, ensure the active stage records it per constitution §2 (`decisions.md` for choices, `lessons.md` for discovered constraints).
-- If the user states a lasting project-specific preference for how AIpilot should work, invoke `aipilot-jl-note-keeper`; explicit durable wording authorizes the write, while ambiguous persistence intent requires confirmation. Plugin-wide changes target the plugin source instead.
+- If the user states a lasting project-specific preference for how AIPilot should work, invoke `aipilot-jl-note-keeper`; explicit durable wording authorizes the write, while ambiguous persistence intent requires confirmation. Plugin-wide changes target the plugin source instead.
 
 ## First Principles Gate
 

@@ -11,7 +11,7 @@ Eliminate implementation uncertainty before development begins. Help the user di
 
 ## Required Reading
 
-**Resolve the documents root first**: read the project-root `AGENTS.md` for a `Documents root:` line under an `## AIpilot` heading; absent → default `docs/aipilot/`. If that root doesn't exist either, the project isn't initialized — route to `/aipilot` for cold start instead of proceeding.
+**Resolve the documents root first**: read the project-root `AGENTS.md` for a `Documents root:` line under an `## AIPilot` heading; absent → default `docs/aipilot/`. If that root doesn't exist either, the project isn't initialized — route to `/aipilot` for cold start instead of proceeding.
 
 Read, when they exist:
 

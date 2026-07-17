@@ -26,14 +26,14 @@ test('codex manifest exists and points at shared skills', () => {
   assert.strictEqual(manifest.name, 'aipilot-jl');
   assert.strictEqual(manifest.skills, './skills/');
   assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'hooks'));
-  assert.strictEqual(manifest.interface.displayName, 'AI Pilot JL');
+  assert.strictEqual(manifest.interface.displayName, 'AIPilot');
 });
 
 test('claude manifest remains unchanged as the claude adapter', () => {
   const manifest = readJson('.claude-plugin/plugin.json');
   assert.strictEqual(manifest.name, 'aipilot-jl');
   assert.strictEqual(manifest.skills, './skills/');
-  assert.strictEqual(manifest.interface.displayName, 'AI Pilot JL');
+  assert.strictEqual(manifest.interface.displayName, 'AIPilot');
 });
 
 test('local marketplace exposes the namespaced plugin', () => {
