@@ -1,21 +1,21 @@
 ---
 name: aipilot-jl-workflow-orchestrator
-description: Use when starting, continuing, resuming, or chaining the document-driven product workflow across product spec, design spec, development planning, goal creation, implementation, review, release, or evolution stages.
+description: Use when starting, continuing, resuming, or chaining the document-driven product workflow across product spec, design spec, development planning, goal creation, implementation, review, or release stages.
 ---
 
 # Workflow Orchestrator
 
 ## Role
 
-You are the workflow controller. Keep AI Pilot JL clear and checkpointed from one stage to the next without losing document state, skipping gates, or making the user remember which skill comes next.
+You are the workflow controller. Keep AIpilot clear and checkpointed from one stage to the next without losing document state, skipping gates, or making the user remember which skill comes next.
 
 ## Startup
 
 Run these in order at every session start:
 
-1. **Resolve the documents root**: read the project-root `AGENTS.md` for a `Documents root:` entry under an `## AI Pilot JL` heading (canonical in every runtime — an explicit file read; do not search `CLAUDE.md` or other runtime files); absent → default `docs/aipilot/`. Report the resolved root once. Every `docs/aipilot/` path below means the resolved root.
+1. **Resolve the documents root**: read the project-root `AGENTS.md` for a `Documents root:` entry under an `## AIpilot` heading (canonical in every runtime — an explicit file read; do not search `CLAUDE.md` or other runtime files); absent → default `docs/aipilot/`. Report the resolved root once. Every `docs/aipilot/` path below means the resolved root.
 2. **Self-healing scan** (constitution §6): before any routing, scan for interrupted merge-backs and complete them first.
-3. **Read state** (when they exist): `document-system-spec.md` at the documents root (the constitution — follow it without restating it); `agent-guideline.md` for project-specific overrides; `product-spec.md`; `design-spec.md`; `dev-phase-plan.md`; `CHANGELOG.md`; `BACKLOG.md` when deferred tasks may affect the recommendation; `decisions.md` and `lessons.md` — always read both whole (small by design); active work-items in the top level of `work-items/` (merged history under `work-items/merged/`, read only when it matters); relevant `design-assets/` images when a design direction is in play; `evolution/signals.jsonl` (canonical evolution location; a legacy path may be configured in `agent-guideline.md`); `AGENTS.md`.
+3. **Read state** (when they exist): `document-system-spec.md` at the documents root (the constitution — follow it without restating it); `agent-guideline.md` for project-specific overrides; `product-spec.md`; `design-spec.md`; `dev-phase-plan.md`; `CHANGELOG.md`; `BACKLOG.md` when deferred tasks may affect the recommendation; `decisions.md` and `lessons.md` — always read both whole (small by design); active work-items in the top level of `work-items/` (merged history under `work-items/merged/`, read only when it matters); relevant `design-assets/` images when a design direction is in play; `AGENTS.md`.
 
 ## Stage Order
 
@@ -27,7 +27,6 @@ Default stage order:
 4. `aipilot-jl-dev-builder`
 5. `aipilot-jl-code-reviewer`
 6. `aipilot-jl-release-builder` when the user wants packaging, deployment, release notes, or handoff
-7. `aipilot-jl-workflow-evolver` when signals or workflow changes need analysis
 
 Skip stage 2 when the requirement has no UI surface (pure backend, pipeline, or library work): route from `aipilot-jl-product-spec-builder` directly to `aipilot-jl-dev-plan-builder`, and state the skip in the stage summary.
 
@@ -36,6 +35,7 @@ Single tasks, stories, and work-items are already goal-ready in their Plan secti
 Companion skills may be used inside any stage when relevant:
 
 - `aipilot-jl-java-backend-expert` — a domain overlay (not a stage) any stage loads when its work touches Java backend; it is never routed to on its own.
+- `aipilot-jl-note-keeper` — a capture reflex (not a stage) for durable project decisions, lessons, and project-specific workflow preferences.
 
 ## Routing Rules
 
@@ -54,9 +54,9 @@ When routing any stage that operates on a work-item, **name the target file expl
 - **Merge-back**: after `aipilot-jl-code-reviewer` passes for a work-item, perform the five steps in constitution §6 as one uninterrupted bookkeeping action — no separate user confirmation. Until merge-back, active work-items are the authoritative source for their change and the state documents intentionally lag them — that lag is by design, not a staleness defect.
 - If merge-back completes for a phase work-item and another planned phase remains, recommend `aipilot-jl-dev-plan-builder` Breakdown Mode for the next unbuilt phase.
 - If the user asks to package, publish, hand off, or release, route to `aipilot-jl-release-builder`.
-- If there are pending evolution signals or the user asks to improve the workflow, route to `aipilot-jl-workflow-evolver`.
 - If the active stage touches Java backend code or Java backend risk, load the `aipilot-jl-java-backend-expert` overlay inside that stage (see companion note above).
 - If current work introduces a choice or uncovers a constraint that binds future work-items and is not visible in the state documents, ensure the active stage records it per constitution §2 (`decisions.md` for choices, `lessons.md` for discovered constraints).
+- If the user states a lasting project-specific preference for how AIpilot should work, invoke `aipilot-jl-note-keeper`; explicit durable wording authorizes the write, while ambiguous persistence intent requires confirmation. Plugin-wide changes target the plugin source instead.
 
 ## First Principles Gate
 
@@ -74,8 +74,6 @@ If the next stage would add speculative features, extension points, abstractions
 ## Sub-Agent Policy
 
 One main agent owns the workflow end to end, including all implementation. **The only sub-agent in this system is the clean-context `aipilot-jl-code-reviewer`**. Use a clean-context reviewer only when its report is returned to the main agent and can be inspected as review evidence. Spawn-only delegation without returned output is not enough. If no inspectable clean-context report is available, run main-agent fallback and record `clean-context result unavailable`. Sub-agents never make final decisions: findings return to the main agent, which fixes, records, and decides.
-
-At SessionStart, report the count of pending evolution signals in the startup summary. Run `aipilot-jl-workflow-evolver` Proposal Mode **in the main agent** only when: (a) the user explicitly asks for it, or (b) the session started with no immediate task (bare `/aipilot`, empty `$ARGUMENTS`, nothing to route) — context is fresh and this is routine maintenance, not time taken from a requested task. The mode writes proposal files and signal statuses only. Applying, revising, or deleting workflow rules still requires explicit user confirmation.
 
 ## Chaining Rules
 

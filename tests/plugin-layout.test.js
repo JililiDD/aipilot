@@ -84,6 +84,21 @@ test('implementation granularity is confirmed at first dev-builder entry each se
   assert.ok(devBuilder.includes('granularity was confirmed this session'));
 });
 
+test('note keeper persists only durable project workflow preferences', () => {
+  const noteKeeper = fs.readFileSync(path.join(root, 'skills/aipilot-jl-note-keeper/SKILL.md'), 'utf8');
+  const orchestrator = fs.readFileSync(path.join(root, 'skills/aipilot-jl-workflow-orchestrator/SKILL.md'), 'utf8');
+  const coldStart = fs.readFileSync(path.join(root, 'commands/aipilot.md'), 'utf8');
+
+  assert.ok(noteKeeper.includes('`agent-guideline.md`'));
+  assert.ok(noteKeeper.includes('as both the request and approval to write'));
+  assert.ok(noteKeeper.includes('use it only for the current task'));
+  assert.ok(noteKeeper.includes('it never authorizes a silent write'));
+  assert.ok(orchestrator.includes('explicit durable wording authorizes the write'));
+  assert.ok(!orchestrator.includes('evolution/signals.jsonl'));
+  assert.ok(coldStart.includes('## Active Workflow Overrides'));
+  assert.ok(coldStart.includes('## Superseded Overrides'));
+});
+
 test('plugin root resolver prefers host-specific environment variables', () => {
   const { resolvePluginRoot } = require('../hooks/plugin-root');
   assert.strictEqual(
