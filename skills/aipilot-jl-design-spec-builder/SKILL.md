@@ -55,7 +55,16 @@ Follow the doctrine throughout. Design-specific rules on top of it:
 
 Do not start visual implementation or code generation; this skill only produces decisions.
 
-## Output Responsibilities
+## Visual Preview via Review Runtime
+
+When HTML mocks are the chosen comparison format, run the review through the shared regimen in `../aipilot-jl-workflow-orchestrator/references/review-runtime.md` — it is the single call point for the browser review tool (commands, feedback loop, known quirks, degradation path); never inline those commands here.
+
+Preview policy:
+
+- **Always ask before previewing.** Offer an explicit skip: the user may prefer to decide from text descriptions or defer the visual check. A skipped preview is not a skipped confirmation — the underlying decision still gets confirmed in chat.
+- **New page in the requirement**: ask whether to build the mock following the existing design style (the usual answer when the project already has pages and a `design-spec.md`) or to explore freely (typical when a new project is still finding its UX direction). If exploring freely, ask how many candidate HTML mocks to generate for selection; keep losing candidates as anti-reference evidence per the interview rules.
+- **Bounded UI component change**: preview only the minimal affected component — e.g. a text-style change inside a card previews that card, not the whole page. Scope the mock to what the decision needs.
+
 
 - **0-to-1 Mode**: write `docs/aipilot/design-spec.md` using the template.
 - **Iteration Mode**: write the target work-item's Design section — deltas, Design Acceptance Criteria, Impact on Design-Spec merge map. The orchestrator applies the merge map to the spec at merge-back; this skill never performs the merge-back.

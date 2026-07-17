@@ -3,7 +3,6 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
 
 const root = path.resolve(__dirname, '..');
 
@@ -98,14 +97,4 @@ test('plugin root resolver prefers host-specific environment variables', () => {
   assert.strictEqual(resolvePluginRoot({ CLAUDE_PLUGIN_ROOT: '/tmp/claude' }), '/tmp/claude');
   assert.strictEqual(resolvePluginRoot({ ANTIGRAVITY_PLUGIN_ROOT: '/tmp/antigravity' }), '/tmp/antigravity');
   assert.strictEqual(resolvePluginRoot({ CURSOR_PLUGIN_ROOT: '/tmp/cursor' }), '/tmp/cursor');
-});
-
-test('hooks emit valid JSON without a host environment', () => {
-  const result = spawnSync(process.execPath, ['hooks/session-start.js'], {
-    cwd: root,
-    env: { PATH: process.env.PATH },
-    encoding: 'utf8',
-  });
-  assert.strictEqual(result.status, 0);
-  assert.doesNotThrow(() => JSON.parse(result.stdout));
 });

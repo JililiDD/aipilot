@@ -11,6 +11,8 @@ Eliminate implementation uncertainty before development begins. Help the user di
 
 ## Required Reading
 
+**Resolve the documents root first**: read the project-root `AGENTS.md` for a `Documents root:` line under an `## AI Pilot JL` heading; absent → default `docs/aipilot/`. If that root doesn't exist either, the project isn't initialized — route to `/aipilot` for cold start instead of proceeding.
+
 Read, when they exist:
 
 - `document-system-spec.md` at the documents root — governs file conventions, section ownership, target resolution, and merge-back; this skill follows it without restating it. Read `agent-guideline.md` alongside it for project-specific overrides.

@@ -3,7 +3,6 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
 
 const root = path.resolve(__dirname, '..');
 
@@ -69,24 +68,10 @@ function assertMarketplace() {
   assert.strictEqual(marketplace.plugins[0].source.url, './', 'marketplace local source');
 }
 
-function assertHookSmoke(scriptPath, input) {
-  const result = spawnSync(process.execPath, [scriptPath], {
-    cwd: root,
-    env: { PATH: process.env.PATH },
-    input,
-    encoding: 'utf8',
-  });
-
-  assert.strictEqual(result.status, 0, `${scriptPath} should exit cleanly`);
-  assert.doesNotThrow(() => JSON.parse(result.stdout), `${scriptPath} should emit JSON`);
-}
-
 assertManifest('.claude-plugin/plugin.json', {});
 assertManifest('.codex-plugin/plugin.json', { absentFields: ['hooks'] });
 assertManifestsInSync();
 assertMarketplace();
 assertSkills();
-assertHookSmoke('hooks/session-start.js');
-assertHookSmoke('hooks/prompt-context.js', '{"prompt":"wrap up"}');
 
 console.log('Plugin layout validation passed.');

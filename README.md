@@ -5,8 +5,10 @@ phase/breakdown planning -> implementation (build/diagnosis modes) -> review ->
 release, with a governed self-evolution loop.
 
 AI Pilot JL is organized as a shared workflow core plus thin host adapters. The
-skills, commands, and hook runtime are kept in one place; each supported host
-gets only the manifest and notes it needs for installation.
+skills and commands are kept in one place; each supported host gets only the
+manifest and notes it needs for installation. Discovery relies entirely on
+skill descriptions (matched by the host's own skill-routing) — there is no
+session hook forcing context on every turn.
 
 ## Structure
 
@@ -16,13 +18,8 @@ aipilot/
 ├── .codex-plugin/plugin.json       Codex plugin manifest
 ├── adapters/                       Host-specific installation notes
 ├── commands/aipilot.md             The /aipilot slash command (cold start + routing)
-├── hooks/                          SessionStart + UserPromptSubmit hooks (fail-safe)
-│   ├── hooks.json
-│   ├── plugin-root.js              Host-neutral plugin root detection
-│   ├── session-start.js
-│   ├── prompt-context.js
-│   ├── workflow-config.js          Injected text — pointers only, not rule copies
-│   └── workflow-runtime.js         Output adapter (Cursor/Claude/Antigravity/other)
+├── hooks/
+│   └── plugin-root.js              Host-neutral plugin root detection (used by tests; no active hook registered)
 └── skills/
     ├── aipilot-jl-product-spec-builder/       Requirement interviews, work-item creation
     ├── aipilot-jl-design-spec-builder/        Visual/interaction direction
@@ -31,6 +28,7 @@ aipilot/
     ├── aipilot-jl-code-reviewer/              Clean-context reviewer (story/task/final)
     ├── aipilot-jl-release-builder/            Release readiness, privacy/permission audit
     ├── aipilot-jl-workflow-evolver/           Signal capture, proposals, governed apply
+    ├── aipilot-jl-note-keeper/                Capture reflex for stray decisions.md/lessons.md entries
     ├── aipilot-jl-workflow-orchestrator/      Startup, routing, merge-back, sub-agent policy
                                     (carries the master document-system-spec.md
                                      under references/ — the constitution)
@@ -39,11 +37,11 @@ aipilot/
 
 ## Host support
 
-| Host | Skills | Slash command | Hooks/context injection | Status |
-| --- | --- | --- | --- | --- |
-| Claude Code | Yes | Yes, `/aipilot` | Yes | Supported |
-| Codex | Yes | Host-specific | No manifest hook declaration | Supported for skills-first usage |
-| Antigravity | Not packaged | Not packaged | Runtime detection only | Waiting for confirmed manifest format |
+| Host | Skills | Slash command | Status |
+| --- | --- | --- | --- |
+| Claude Code | Yes | Yes, `/aipilot` | Supported |
+| Codex | Yes | Host-specific | Supported for skills-first usage |
+| Antigravity | Not packaged | Not packaged | Waiting for confirmed manifest format |
 
 ## Codex installation
 
@@ -62,9 +60,8 @@ root.
 
 ## Claude Code installation
 
-Claude Code support remains under `.claude-plugin/plugin.json`, with hook
-configuration in `hooks/hooks.json` and the `/aipilot` slash command in
-`commands/aipilot.md`.
+Claude Code support remains under `.claude-plugin/plugin.json`, with the
+`/aipilot` slash command in `commands/aipilot.md`.
 
 ## Install / migration checklist
 

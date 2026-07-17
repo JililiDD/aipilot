@@ -88,6 +88,8 @@ After any stage finishes:
 5. If unblocked, summarize the completed stage and recommend the next skill or stage.
 6. Stop and wait for explicit user confirmation before reading or executing the next stage skill.
 
+When the stop in step 6 confirms a markdown deliverable (product spec, design spec or Design section, work-item, plan, roadmap), offer a browser document review per `references/review-runtime.md` — ask first, always skippable, and a skipped review never skips the confirmation itself.
+
 Exception: the implementation-review loop does not stop for confirmation between `aipilot-jl-dev-builder` and `aipilot-jl-code-reviewer`. Once implementation changes behavior, architecture, data, UI, or release risk, run review, fix findings, rerun verification, and rerun review until `aipilot-jl-code-reviewer` passes or reports a blocker requiring user input. Merge-back after a passing review is part of the same uninterrupted bookkeeping and needs no separate confirmation. A Story 0 marked `[stop: user-confirm]` remains a stop at every execution granularity — bookkeeping exceptions never override it; only a planning-time `[stop: skip]` waives it.
 
 Second exception: a single-work-item Goal Wrap (see routing rules), once granted, waives the per-stage stops across Requirement → Design → Plan → Build for that work-item, subject to the same Story-0 and gate carve-outs above.
