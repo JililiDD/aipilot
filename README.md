@@ -127,6 +127,15 @@ node skills/aipilot-jl-workflow-orchestrator/scripts/render-review.js \
   <input.md> <output.html> --title "Document review"
 ```
 
+## Third-party tools
+
+AIPilot uses the following external tools at runtime:
+
+- [lavish-axi](https://github.com/kunchenguid/lavish-axi) `0.1.40` — local
+  browser-based review sessions. Licensed under MIT.
+- [marked](https://github.com/markedjs/marked) `18.0.6` — Markdown-to-HTML
+  rendering. Licensed under MIT.
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
