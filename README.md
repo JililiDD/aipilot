@@ -1,5 +1,9 @@
 # AIPilot
 
+> **Status: Experimental / Self-testing** — AIPilot is currently being tested
+> in real workflows. Skill behavior, document conventions, and interfaces may
+> change before the first stable release.
+
 A document-driven development workflow skill and command bundle: product spec ->
 design spec -> phase/breakdown planning -> implementation (build/diagnosis
 modes) -> review -> release, with lightweight persistent project memory.
