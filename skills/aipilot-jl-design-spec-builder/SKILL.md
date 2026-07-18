@@ -13,7 +13,7 @@ Turn vague taste language into concrete design decisions. Never accept words lik
 
 Read, when they exist:
 
-- `document-system-spec.md` at the documents root — governs file conventions, section ownership, target resolution, and merge-back; this skill follows it without restating it. Read `agent-guideline.md` alongside it for project-specific overrides.
+- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
 - `docs/aipilot/product-spec.md` — the current product state.
 - the **target work-item** in the top level of `docs/aipilot/work-items/` when this session serves an in-flight change, identified per the Target Resolution rule (constitution §3); never guess. Its **Requirement section** is the authoritative behavior input for this design session — those behaviors are not yet merged into the master spec.
 - `docs/aipilot/design-spec.md` — the current design state.
@@ -82,4 +82,4 @@ Unmet items block handoff unless the user explicitly accepts them as risk-tagged
 
 ## Workflow Handoff
 
-Summarize the confirmed design decisions and ask the user to confirm the shared understanding, highlighting the 2–3 highest-risk choices. Then report per the orchestrator's pattern: completed stage, documents updated (spec in 0-to-1, the work-item's Design section in iteration), open questions, recommended next stage — `aipilot-jl-dev-plan-builder` to fill the work-item's Plan section; for changes introducing new pages, note that the Plan will open with a Story 0 visual smoke per the Document System Specification — why it is unblocked, and stop for explicit user confirmation before starting it. If blocked, ask the smallest useful question and stop.
+Summarize the confirmed design decisions, highlighting the 2–3 highest-risk choices. Then report per the orchestrator's pattern: completed stage, documents updated (spec in 0-to-1, the work-item's Design section in iteration), open questions, recommended next stage — `aipilot-jl-dev-plan-builder` to fill the work-item's Plan section; for changes introducing new pages, note that the Plan will open with a Story 0 visual smoke per the canonical constitution — and why it is unblocked. Apply the canonical constitution §8 at the stage boundary; do not restate or bypass its review and confirmation policy. If blocked, ask the smallest useful question and stop.

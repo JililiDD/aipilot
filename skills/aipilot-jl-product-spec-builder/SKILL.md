@@ -15,7 +15,7 @@ Eliminate implementation uncertainty before development begins. Help the user di
 
 Read, when they exist:
 
-- `document-system-spec.md` at the documents root — governs file conventions, section ownership, target resolution, and merge-back; this skill follows it without restating it. Read `agent-guideline.md` alongside it for project-specific overrides.
+- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
 - `docs/aipilot/product-spec.md`
 - `decisions.md` and `lessons.md` — the append-only logs of choices and pits; always read both whole (small by design).
 - for existing-project changes, the target work-item in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Merged history lives under `work-items/merged/`
@@ -67,7 +67,7 @@ Before generating the spec, in order:
 The scope decides the destination, not the interview length — fast track and full interviews can both produce either document.
 
 - **Master spec** (`docs/aipilot/product-spec.md`): write or rewrite only for New Product scope, or changes that redefine the product's core model, primary workflow, or MVP boundary.
-- **Work item** (`docs/aipilot/work-items/`): every bounded change to an existing product — feature addition, behavior change, removal, refactor, bug fix. File naming, metadata head, and lifecycle follow the Document System Specification (`document-system-spec.md`) (`YYYY-MM-DD-HHMM-slug.md`, frontmatter `created`/`scope`/`status: active`, root = active, `merged/` = done).
+- **Work item** (`docs/aipilot/work-items/`): every bounded change to an existing product — feature addition, behavior change, removal, refactor, bug fix. File naming, metadata head, and lifecycle follow the canonical plugin constitution §3 (`YYYY-MM-DD-HHMM-slug.md`, frontmatter `created`/`scope`/`status: active`, root = active, `merged/` = done).
 
 **Creating a work-item**: create the file with the metadata head and the full four-section skeleton — `## Requirement`, `## Design`, `## Plan`, `## Execution Record` — so downstream skills append into fixed headings. This skill fills **only the Requirement section** and leaves the other three empty. Never write into Design, Plan, or Execution Record; their owners are `aipilot-jl-design-spec-builder`, `aipilot-jl-dev-plan-builder`, and `aipilot-jl-dev-builder`/`bug-fixer`.
 
@@ -80,7 +80,7 @@ Include only sections that add value — no empty template sections. Candidate c
 - **Acceptance Criteria** are requirement-level and verifiable — the contract QA tests against. Downstream, `aipilot-jl-dev-plan-builder` decomposes and references them per story and task; it must not invent new ones. Writing them precisely is part of the interview: if a criterion cannot be phrased verifiably, the requirement is not resolved yet.
 - **Assumptions** lists every Assumed entry in the Decision Notes, explicitly labeled unconfirmed.
 
-**Final user review**: before delivering, highlight the 2–3 highest-risk decisions — typically the ones decided fastest or adopted from your suggestions — and ask the user to confirm them one last time. One message.
+**Final user review**: before delivering, highlight the 2–3 highest-risk decisions — typically the ones decided fastest or adopted from your suggestions — in the completion summary. Do not request confirmation before the browser-review offer required by Workflow Handoff; confirmation follows the completed review or the user's explicit skip.
 
 **Versioning**: stamp the document with version and date and the line: "This spec reflects decisions confirmed as of this date; subsequent changes should record what changed and why." For direct master-spec writes (New Product / core re-scoping), append a one-line entry to `docs/aipilot/CHANGELOG.md` (`YYYY-MM-DDTHH:MM:SS` local time); for work items, the merge-back writes the CHANGELOG line later — do not write it now. Do not claim the spec is frozen — enforcement belongs to version control, not this document.
 
@@ -88,4 +88,4 @@ Record decisions per constitution §2 when a spec decision meets the bar there.
 
 ## Workflow Handoff
 
-After the Requirement content is written, report per the orchestrator's pattern: completed stage, documents updated (name the work-item file when one was created), open questions, and the recommended next stage — `aipilot-jl-design-spec-builder` to fill the work-item's Design section when the requirement has a UI surface, otherwise `aipilot-jl-dev-plan-builder` to fill its Plan section. Explain why the next stage is unblocked and stop for explicit user confirmation before starting it. If the next stage is blocked by an unresolved decision, ask the smallest useful question and stop.
+After the Requirement content is written, report per the orchestrator's pattern: completed stage, documents updated (name the work-item file when one was created), open questions, and the recommended next stage — `aipilot-jl-design-spec-builder` to fill the work-item's Design section when the requirement has a UI surface, otherwise `aipilot-jl-dev-plan-builder` to fill its Plan section. Explain why the next stage is unblocked. Apply the canonical constitution §8 at the stage boundary; do not restate or bypass its review and confirmation policy. If the next stage is blocked by an unresolved decision, ask the smallest useful question and stop.

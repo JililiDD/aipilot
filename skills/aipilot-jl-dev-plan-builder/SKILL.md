@@ -11,9 +11,9 @@ You are a senior engineering planner. Convert confirmed requirements and design 
 
 ## Required Reading
 
-Read, when they exist (all paths mean the resolved documents root):
+Read, when they exist (project-document paths mean the resolved documents root; the constitution path is plugin-relative):
 
-- `document-system-spec.md` at the documents root — governs file conventions, section ownership, target resolution, routing between roadmap and breakdown, and merge-back; this skill follows it without restating it. Read `agent-guideline.md` alongside it for project-specific overrides.
+- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, roadmap/breakdown routing, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
 - `product-spec.md` — current product state.
 - the **target work-item** in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Its Requirement and Design sections are the authoritative input; they supersede the master specs for this change until merge-back.
 - `design-spec.md` — current design state, when the work has a UI surface.
@@ -90,7 +90,7 @@ The plan is not ready if: any task lacks a verification method; any story lacks 
 
 ## Workflow Handoff
 
-After Roadmap Mode: recommend deriving and breaking down the first unbuilt phase (this skill, Breakdown Mode). After Breakdown Mode: summarize the decisions affecting scope, architecture, data boundaries, verification, and non-goals — **lead with the decisions the user is most likely to change** (data model, interfaces, user-facing behavior) and put mechanical work last; recommend `aipilot-jl-dev-builder` for the target work-item (name it), or produce a Goal Wrap when the user wants one autonomous run across multiple phases. Stop for explicit user confirmation before any next stage. If blocked, ask the smallest useful question and stop.
+After Roadmap Mode: recommend deriving and breaking down the first unbuilt phase (this skill, Breakdown Mode). After Breakdown Mode: summarize the decisions affecting scope, architecture, data boundaries, verification, and non-goals — **lead with the decisions the user is most likely to change** (data model, interfaces, user-facing behavior) and put mechanical work last; recommend `aipilot-jl-dev-builder` for the target work-item (name it), or produce a Goal Wrap when the user wants one autonomous run across multiple phases. Apply the canonical constitution §8 at the stage boundary; do not restate or bypass its review and confirmation policy. If blocked, ask the smallest useful question and stop.
 
 ## Final Response Pattern
 

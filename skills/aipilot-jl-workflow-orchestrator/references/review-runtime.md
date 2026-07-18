@@ -1,4 +1,4 @@
-# Review Runtime (lavish-axi)
+# Review Runtime (ezreview)
 
 Shared regimen for opening browser-based review sessions where the user annotates rendered content and feedback flows back as structured, element-anchored data. **This file is the single call point**: skills that use the review runtime reference this regimen and never inline these commands themselves — when the tool changes or is replaced, only this file changes.
 
@@ -9,32 +9,26 @@ Shared regimen for opening browser-based review sessions where the user annotate
 
 ## Commands
 
-Version is pinned. Upgrades are deliberate: test the new version against this regimen, then update the pin here.
+Version is pinned. Upgrades are deliberate: test the new version against this regimen, then update the pin here. `ezreview` requires Node.js 20 or newer.
 
 ```
-npx -y lavish-axi@0.1.40 <file.html>                     # open the file in a review session
-npx -y lavish-axi@0.1.40 poll <file.html>                 # long-poll for user feedback (run as background task)
-npx -y lavish-axi@0.1.40 poll <file.html> --agent-reply "<message>"   # reply to the user, then keep polling
+npx -y ezreview@0.1.0 <file.html>                                  # open the file in a review session
+npx -y ezreview@0.1.0 wait <file.html>                              # wait for the next feedback batch
+npx -y ezreview@0.1.0 reply <file.html> --to <annotation-id> "<message>"  # reply to a question
 ```
 
 Place review HTML files in the session scratchpad, not the project tree.
 
 ## Feedback Loop
 
-1. Open the file, then start `poll` as a **background task** (it blocks silently until the user acts; never kill it — queued feedback is never lost, re-run `poll` if it dies).
-2. Poll returns YAML: `dom_snapshot` plus `prompts[]` rows of `{uid, prompt, selector, tag, text}` — the user's comment anchored to the element they clicked, or a freeform message with empty selector.
-3. Apply the requested change to the file, then run `poll --agent-reply "<what you did>"` to answer and resume waiting.
-4. End the loop when the user confirms (an approve-tagged prompt or an explicit confirmation in chat) or ends the session.
+1. Open the file, then start `wait` as a **background task** (it blocks until the user submits feedback; queued feedback is durable, so rerun `wait` if it is interrupted).
+2. `wait` returns one structured batch of annotations. Each item includes an id and an element selector/HTML snippet or selected-text context plus the user's comment.
+3. Apply requested changes to the file. For question-type annotations, use `reply --to <annotation-id> "<answer>"`; then run `wait` again for the next batch.
+4. End the loop when the user clicks ezreview's **Approve** toolbar action or explicitly confirms the document in chat. The approve action makes `wait` exit successfully with a document-confirmation message; it does not itself authorize the next workflow stage.
 
-## Embedded Action Buttons
+## Review Controls
 
-Review HTML may include decision buttons wired to `window.lavish.queuePrompt(...)`.
-
-**Known quirk (v0.1.40)**: `queuePrompt` must be passed a **plain string**, not an object — objects are stringified to `[object Object]` and the intent is lost. Use a `data-*` attribute or the button text for tagging instead:
-
-```html
-<button onclick="window.lavish && window.lavish.queuePrompt('approve-direction')">Approve this direction</button>
-```
+`ezreview` provides the review controls in its browser shell. Reviewers use **Submit review** in the comment rail to send annotations and **Approve** in the toolbar to confirm the document. Do not add action buttons that depend on an injected browser global to the reviewed HTML.
 
 ## Degradation Path
 
@@ -42,7 +36,7 @@ The review runtime is an enhancement, never a gate-blocker. If `npx` fails, no b
 
 ## Non-Goals
 
-- No use of lavish export/share features (third-party `ht-ml.app` coupling).
+- No use of export/share features or any third-party hosted review service.
 - No custom-built replacement runtime.
 - No review-runtime state committed to the project tree.
 
@@ -54,15 +48,15 @@ Invariant: **edits land in the markdown source only; the review HTML is a dispos
 
 Procedure:
 
-1. **Ask first, always skippable** (same policy as visual preview): offer the browser review before opening it; the user may prefer chat-only. A skipped review is not a skipped confirmation — the stage confirmation still happens in chat.
+1. **Enter only after selection**: constitution §8 owns whether and when browser review is offered. Start this procedure only after the user selects browser review; this runtime does not create, waive, or reorder stage-confirmation gates.
 2. **Render** with the deterministic converter (never model-rewrite the document into HTML):
 
    ```
    node <this-skill>/scripts/render-review.js <doc.md> <scratchpad>/review-<slug>.html --title "<Stage>: <doc name>"
    ```
 
-   The script pins `marked@18.0.6` internally and wraps the body in the review template (banner naming the markdown source, `data-source-md` attribute, Confirm document / Request changes buttons).
-3. **Open and poll** per the Commands section above.
+   The script pins `marked@18.0.6` internally and wraps the body in the review template (banner naming the markdown source and a `data-source-md` attribute). Review controls are provided by ezreview's browser shell.
+3. **Open and wait** per the Commands section above.
 4. **Back-map annotations**: each feedback row carries the annotated element's text. Locate that text in the markdown source (headings anchor sections; fall back to unique-substring search) and edit the **markdown**. If the text matches more than one place, ask instead of guessing.
-5. **Re-render** to the same HTML path after each markdown edit — the browser view refreshes from the file — then `poll --agent-reply` describing what changed.
-6. **Close**: a `confirm-document` prompt (or explicit confirmation in chat) ends the review; treat it as the stage confirmation. Delete or ignore the scratchpad HTML.
+5. **Re-render** to the same HTML path after each markdown edit — the browser view refreshes from the file — then run `wait` again for the next batch.
+6. **Close**: an ezreview confirmation from **Approve** (or explicit document confirmation in chat) ends the review. Return to constitution §8 for the separate next-stage confirmation; document approval alone does not authorize the next stage. Delete or ignore the scratchpad HTML.

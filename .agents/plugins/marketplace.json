@@ -1,0 +1,11 @@
+{
+  "name": "aipilot-jl-local",
+  "plugins": [
+    {
+      "name": "aipilot-jl",
+      "source": {
+        "url": "./"
+      }
+    }
+  ]
+}

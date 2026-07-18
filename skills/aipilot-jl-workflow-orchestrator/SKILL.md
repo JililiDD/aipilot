@@ -13,9 +13,10 @@ You are the workflow controller. Keep AIPilot clear and checkpointed from one st
 
 Run these in order at every session start:
 
-1. **Resolve the documents root**: read the project-root `AGENTS.md` for a `Documents root:` entry under an `## AIPilot` heading (canonical in every runtime — an explicit file read; do not search `CLAUDE.md` or other runtime files); absent → default `docs/aipilot/`. Report the resolved root once. Every `docs/aipilot/` path below means the resolved root.
-2. **Self-healing scan** (constitution §6): before any routing, scan for interrupted merge-backs and complete them first.
-3. **Read state** (when they exist): `document-system-spec.md` at the documents root (the constitution — follow it without restating it); `agent-guideline.md` for project-specific overrides; `product-spec.md`; `design-spec.md`; `dev-phase-plan.md`; `CHANGELOG.md`; `BACKLOG.md` when deferred tasks may affect the recommendation; `decisions.md` and `lessons.md` — always read both whole (small by design); active work-items in the top level of `work-items/` (merged history under `work-items/merged/`, read only when it matters); relevant `design-assets/` images when a design direction is in play; `AGENTS.md`.
+1. **Read the canonical constitution**: read `references/document-system-spec.md` from this skill. It is plugin-owned and never copied into a project. Ignore any legacy `document-system-spec.md` under the project documents root.
+2. **Resolve the documents root**: read the project-root `AGENTS.md` for a `Documents root:` entry under an `## AIPilot` heading (canonical in every runtime — an explicit file read; do not search `CLAUDE.md` or other runtime files); absent → default `docs/aipilot/`. Report the resolved root once. Every `docs/aipilot/` path below means the resolved root.
+3. **Self-healing scan** (constitution §6): before any routing, scan for interrupted merge-backs and complete them first.
+4. **Read project state** (when they exist): `agent-guideline.md` for project-specific overrides; `product-spec.md`; `design-spec.md`; `dev-phase-plan.md`; `CHANGELOG.md`; `BACKLOG.md` when deferred tasks may affect the recommendation; `decisions.md` and `lessons.md` — always read both whole (small by design); active work-items in the top level of `work-items/` (merged history under `work-items/merged/`, read only when it matters); relevant `design-assets/` images when a design direction is in play; `AGENTS.md`.
 
 ## Stage Order
 
@@ -84,13 +85,12 @@ After any stage finishes:
 3. If blocked by user decisions, ask the smallest useful question and stop.
 4. If blocked by missing documents, recommend the stage that creates or fixes them and stop for explicit user confirmation before starting it.
 5. If unblocked, summarize the completed stage and recommend the next skill or stage.
-6. Stop and wait for explicit user confirmation before reading or executing the next stage skill.
-
-When the stop in step 6 confirms a markdown deliverable (product spec, design spec or Design section, work-item, plan, roadmap), offer a browser document review per `references/review-runtime.md` — ask first, always skippable, and a skipped review never skips the confirmation itself.
+6. Apply the canonical Stage Boundary Review Gate in constitution §8 exactly. It owns review offers, confirmation ordering, and waived-boundary behavior; do not restate or reinterpret those rules here.
+7. Continue or stop as constitution §8 directs.
 
 Exception: the implementation-review loop does not stop for confirmation between `aipilot-jl-dev-builder` and `aipilot-jl-code-reviewer`. Once implementation changes behavior, architecture, data, UI, or release risk, run review, fix findings, rerun verification, and rerun review until `aipilot-jl-code-reviewer` passes or reports a blocker requiring user input. Merge-back after a passing review is part of the same uninterrupted bookkeeping and needs no separate confirmation. A Story 0 marked `[stop: user-confirm]` remains a stop at every execution granularity — bookkeeping exceptions never override it; only a planning-time `[stop: skip]` waives it.
 
-Second exception: a single-work-item Goal Wrap (see routing rules), once granted, waives the per-stage stops across Requirement → Design → Plan → Build for that work-item, subject to the same Story-0 and gate carve-outs above.
+Second exception: a single-work-item Goal Wrap (see routing rules), once granted, waives the per-stage stops across Requirement → Design → Plan → Build for that work-item, subject to the same Story-0 and gate carve-outs above. Constitution §8 defines the resulting stage-boundary behavior.
 
 Continue means the user says continue-style words in any language — "continue", "next", "keep going", "run the workflow", "do all steps", "step by step". Treat continue-style wording as permission to run one next stage only. It does not authorize open-ended automatic chaining across multiple stages. A bare "just keep going automatically" is not valid permission for multi-stage automation. When the user asks for open-ended automation ("do everything", "run the whole thing", "do all remaining phases"), do not silently chain — offer a `aipilot-jl-dev-plan-builder` **Goal Wrap** instead (single-work-item or multi-phase, per the routing rules above): the sanctioned vehicle for a long autonomous run, inside which every gate (Story 0 markers, granularity, Stop Conditions, review cadence) still applies. Inside `aipilot-jl-dev-builder`, the same word authorizes exactly one unit at the current execution granularity.
 

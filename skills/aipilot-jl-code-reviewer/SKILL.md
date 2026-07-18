@@ -17,9 +17,9 @@ A review request must name: the **target work-item** (filename), the **scope** (
 
 ## Required Reading
 
-All paths mean the resolved documents root:
+Project-document paths mean the resolved documents root; the constitution path is plugin-relative:
 
-- `document-system-spec.md` — the constitution; follow it without restating it. `agent-guideline.md` for project overrides.
+- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `agent-guideline.md` at the documents root separately for project overrides.
 - the target work-item — all four sections. Its Requirement, Design, and Plan sections are authoritative over the master specs until merge-back; the master documents lagging an active work-item is by design, never a staleness finding.
 - `product-spec.md` and `design-spec.md` for surrounding state; `decisions.md` and `lessons.md` whole (small by design).
 - For UI-facing changes, explicitly use the target work-item's Design section plus `design-spec.md` as the UI review lens; do not rely on conversation memory or screenshots alone.

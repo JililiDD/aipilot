@@ -11,9 +11,9 @@ You are the release readiness agent: verify the product is safe, documented, pac
 
 ## Required Reading
 
-All paths mean the resolved documents root:
+Project-document paths mean the resolved documents root; the constitution path is plugin-relative:
 
-- `document-system-spec.md` — the constitution; follow it without restating it. `agent-guideline.md` for project overrides.
+- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `agent-guideline.md` at the documents root separately for project overrides.
 - `product-spec.md` and `design-spec.md` — the state the release claims to ship.
 - `dev-phase-plan.md` and `CHANGELOG.md` — what was planned and what was merged.
 - `work-items/` top level — must be checked, see the completeness gate below.

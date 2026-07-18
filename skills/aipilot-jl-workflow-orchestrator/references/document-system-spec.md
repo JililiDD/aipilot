@@ -1,7 +1,7 @@
 # Document System Specification
 
-Status: APPROVED · Version 2.1 · 2026-07-16 (v1.0 frozen 2026-07-02; v2.1 simplifies project workflow preferences into agent-guideline.md)
-Installed at the documents root as `document-system-spec.md` (master copy ships inside the plugin; the `/aipilot` cold start installs it). It is the single authority on the document system; skills reference these rules instead of restating them. Changes to this spec are plugin-source changes and require an explicit user request.
+Status: APPROVED · Version 2.2 · 2026-07-17 (v1.0 frozen 2026-07-02; v2.2 makes the constitution plugin-owned and centralizes the stage-boundary review gate)
+This plugin reference is the single authority on the document system and workflow constitution. It remains at `skills/aipilot-jl-workflow-orchestrator/references/document-system-spec.md`; cold start never copies it into a project's documents root. Every skill reads this canonical plugin file directly and reads `agent-guideline.md` separately for project-specific overrides. A legacy project-local `document-system-spec.md` is non-authoritative and ignored; removing it is a user-owned cleanup, never an automatic migration. Changes to this spec are plugin-source changes and require an explicit user request.
 
 ## 1. Three Layers
 
@@ -20,7 +20,6 @@ Principle: state describes the present; change carries the lifecycle; history is
 | `dev-phase-plan.md` | State | Phase map only: order, dependencies, risks, reuse inventory, testing & review strategy. No user stories, no task detail. | `aipilot-jl-dev-plan-builder` Project Plan Mode; phase pointers backfilled as phases start/merge |
 | `decisions.md` | State (append-only) | Choices that bind future work-items AND are not visible in the state documents ("Redis for caching" yes; "this button is red" no — it's in the Design-Spec). Entry heading: `## YYYY-MM-DD <title>`. Superseded by choosing differently — tag the old entry `[superseded by <date entry>]`; never edit past entries. Small by design — every skill reads the whole file. | The stage that made the choice: `aipilot-jl-product-spec-builder`, `aipilot-jl-design-spec-builder`, `aipilot-jl-dev-plan-builder`, `aipilot-jl-dev-builder` |
 | `lessons.md` | State (append-only) | Discovered constraints — pits stepped in — that bind future work ("vendor API rate-limits at 10/s", "library X deadlocks under Y"). Entry heading: `## YYYY-MM-DD <title>`. Superseded only when the world changes, and the superseding entry must say what changed; never edited. Small by design — every skill reads the whole file. | Whoever discovers, records: `aipilot-jl-dev-plan-builder`, `aipilot-jl-dev-builder`. Read-only skills (`aipilot-jl-code-reviewer`, `aipilot-jl-release-builder`) note findings; the builder records |
-| `document-system-spec.md` | State | This constitution — installed from the plugin master at cold start, refreshed on plugin updates | Plugin (via `/aipilot` cold start); amendments are plugin-source changes explicitly requested by the user |
 | `agent-guideline.md` | State | Active project-specific workflow conventions and overrides; never plugin-wide defaults | User; `aipilot-jl-note-keeper` when durable intent is explicit or confirmed |
 | `work-items/*.md` | Change | One bounded change, full lifecycle | Four sections, four owners (§3) |
 | `work-items/merged/` | Change archive | Merged work-items = the detailed history | `aipilot-jl-workflow-orchestrator` (move at merge-back) |
@@ -118,3 +117,18 @@ A work-item still in the root means merge-back is unfinished. Until merge-back, 
 - **Ask before acting (all skills)**: whenever material uncertainty exists about what the user wants — scope, expected behavior, data, risk tolerance, direction — ask and **wait for the answers before creating documents, writing content, or changing code**. Listing open questions in a summary after the work exists is not asking; unresolved material uncertainty may only be written down as Open Questions when the user has explicitly declined to answer (exit valve) or explicitly deferred it. This applies on every path, including fast tracks and autonomous runs (a blocking question stops a Goal Wrap too).
 - **Question format (all skills)**: every question must be a multiple-choice / option-picker question with a free-form escape. Use the current host/runtime's native structured-choice UI when available (Codex uses its option-picker, Claude uses its own equivalent, and other adapters use theirs), otherwise plain chat with lettered options. Provide 2–4 options, put a recommended option first and label it, and give every option a brief explanation. For high-risk decisions affecting behavior, data, contracts, scope, trust, or core taste, the recommendation is only a soft default and the explanation must expose the trade-off.
 - **Timestamps** in CHANGELOG entries: `YYYY-MM-DDTHH:MM:SS` local time.
+
+## 8. Stage Boundary Review Gate
+
+This section is the single authority for review and confirmation ordering at stage boundaries. Skills and runtime references point here; they never restate this policy.
+
+At a stage boundary where explicit user confirmation is required:
+
+1. Complete the stage and report its deliverable, highest-risk decisions, and recommended next stage.
+2. If the stage produced or updated a reviewable markdown deliverable — product spec, design spec or Design section, work-item, plan, or roadmap — offer the optional browser review **before** requesting next-stage confirmation. Making the offer is mandatory at this boundary; opening the browser review is optional.
+3. If the user selects browser review, run the mechanism in `review-runtime.md`. Request next-stage confirmation only after the review completes. If the user explicitly skips browser review, proceed to chat confirmation; skipping review never skips confirmation.
+4. A completion report that asks only to continue to the next stage before making the required offer is invalid.
+
+The gate does not create a boundary where one has been waived. A single-work-item Goal Wrap or other explicitly authorized autonomous mode that waives a per-stage confirmation also waives this review offer at that boundary. The implementation-review loop between builder and code reviewer is not a stage-confirmation boundary. Story 0's recorded `[stop: user-confirm]` / `[stop: skip]` policy remains authoritative for its visual-direction stop.
+
+Stage skills return completion facts to this gate. The workflow orchestrator executes it. `review-runtime.md` owns only the browser mechanism after the user selects it.

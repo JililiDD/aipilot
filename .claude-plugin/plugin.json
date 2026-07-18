@@ -1,0 +1,9 @@
+{
+  "name": "aipilot-jl",
+  "version": "2.0.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AIPilot"
+  },
+  "hooks": "./hooks/"
+}

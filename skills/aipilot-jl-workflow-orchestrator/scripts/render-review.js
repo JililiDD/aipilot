@@ -76,23 +76,16 @@ const html = `<!DOCTYPE html>
   main th, main td { border: 1px solid #d1d9e0; padding: 6px 12px; }
   main th { background: #f6f8fa; }
   main blockquote { border-left: 4px solid #d1d9e0; margin-left: 0; padding-left: 16px; color: #59636e; }
-  .review-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #d1d9e0; padding: 14px 24px; display: flex; gap: 12px; justify-content: center; box-shadow: 0 -2px 8px rgba(0,0,0,0.06); }
-  .review-actions button { padding: 10px 24px; font-size: 14px; font-weight: 600; border-radius: 6px; cursor: pointer; border: 1px solid #d1d9e0; background: #f6f8fa; color: #1f2328; }
-  .review-actions button.primary { background: #1f883d; border-color: #1f883d; color: #fff; }
 </style>
 </head>
 <body data-source-md="${escapeHtml(sourceMd)}">
 <div class="review-banner">
-  <span>Document review — click any element and comment to request a change; edits land in the markdown source.</span>
+  <span>Document review — annotate in ezreview; use Submit review to send feedback and Approve to confirm this document.</span>
   <span>source: <code>${escapeHtml(sourceMd)}</code></span>
 </div>
 <main>
 ${body}
 </main>
-<div class="review-actions">
-  <button class="primary" onclick="window.lavish && window.lavish.queuePrompt('confirm-document')">Confirm document</button>
-  <button onclick="window.lavish && window.lavish.queuePrompt('request-changes')">Request changes</button>
-</div>
 </body>
 </html>
 `;

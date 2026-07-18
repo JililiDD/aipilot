@@ -29,9 +29,9 @@ Exit: the defect no longer reproduces **and** the original failing check is gree
 
 ## Required Reading
 
-Read, when they exist (all paths mean the resolved documents root):
+Read, when they exist (project-document paths mean the resolved documents root; the constitution path is plugin-relative):
 
-- `document-system-spec.md` at the documents root — governs file conventions, section ownership, target resolution, execution granularity, and merge-back; follow it without restating it. Read `agent-guideline.md` alongside it for project-specific overrides.
+- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, execution granularity, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
 - the **target work-item** in the top level of `work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Its Requirement, Design, and Plan sections are the authoritative input and supersede the master specs for this change until merge-back. An empty Design section on a phase work-item is normal — the master `design-spec.md` is its design source.
 - `product-spec.md` and `design-spec.md` — surrounding product and design state.
 - `dev-phase-plan.md` when executing a phase work-item.

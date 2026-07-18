@@ -50,6 +50,10 @@ function assertSkills() {
     .map(entry => entry.name);
 
   assert.ok(skillDirs.length > 0, 'skills directory must contain at least one skill');
+  assert.ok(
+    !skillDirs.includes('aipilot-jl-workflow-evolver'),
+    'removed workflow evolver skill must not be packaged',
+  );
 
   for (const skillName of skillDirs) {
     assert.ok(skillName.startsWith('aipilot-jl-'), `${skillName} must use aipilot-jl namespace`);
@@ -58,6 +62,8 @@ function assertSkills() {
 
     const contents = fs.readFileSync(skillPath, 'utf8');
     assert.ok(contents.includes(`name: ${skillName}\n`), `${skillName} frontmatter name must match directory`);
+    assert.ok(!contents.includes('signals.jsonl'), `${skillName} must not restore workflow signal capture`);
+    assert.ok(!contents.includes('workflow-evolver'), `${skillName} must not route to the removed workflow evolver`);
   }
 }
 
@@ -68,10 +74,42 @@ function assertMarketplace() {
   assert.strictEqual(marketplace.plugins[0].source.url, './', 'marketplace local source');
 }
 
+function assertCanonicalConstitution() {
+  const canonicalRelativePath = 'skills/aipilot-jl-workflow-orchestrator/references/document-system-spec.md';
+  const constitution = fs.readFileSync(path.join(root, canonicalRelativePath), 'utf8');
+  const coldStart = fs.readFileSync(path.join(root, 'commands/aipilot.md'), 'utf8');
+  const readers = [
+    'skills/aipilot-jl-product-spec-builder/SKILL.md',
+    'skills/aipilot-jl-design-spec-builder/SKILL.md',
+    'skills/aipilot-jl-dev-plan-builder/SKILL.md',
+    'skills/aipilot-jl-dev-builder/SKILL.md',
+    'skills/aipilot-jl-code-reviewer/SKILL.md',
+    'skills/aipilot-jl-release-builder/SKILL.md',
+  ];
+
+  assert.ok(constitution.includes('## 8. Stage Boundary Review Gate'), 'constitution must own the review gate');
+  assert.ok(constitution.includes('legacy project-local `document-system-spec.md` is non-authoritative and ignored'));
+  assert.ok(coldStart.includes('never copy or refresh it in the project documents root'));
+  assert.ok(!/copy .*document-system-spec\.md/i.test(coldStart), 'cold start must not copy the constitution');
+
+  for (const relativePath of readers) {
+    const contents = fs.readFileSync(path.join(root, relativePath), 'utf8');
+    assert.ok(
+      contents.includes('../aipilot-jl-workflow-orchestrator/references/document-system-spec.md'),
+      `${relativePath} must read the canonical plugin constitution directly`,
+    );
+    assert.ok(
+      !contents.includes('`document-system-spec.md` at the documents root'),
+      `${relativePath} must not read a project-local constitution`,
+    );
+  }
+}
+
 assertManifest('.claude-plugin/plugin.json', {});
 assertManifest('.codex-plugin/plugin.json', { absentFields: ['hooks'] });
 assertManifestsInSync();
 assertMarketplace();
 assertSkills();
+assertCanonicalConstitution();
 
 console.log('Plugin layout validation passed.');

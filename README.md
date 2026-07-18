@@ -30,7 +30,7 @@ aipilot/
     ├── aipilot-jl-release-builder/            Release readiness, privacy/permission audit
     ├── aipilot-jl-note-keeper/                Capture reflex for decisions, lessons, workflow preferences
     ├── aipilot-jl-workflow-orchestrator/      Startup, routing, merge-back, sub-agent policy
-                                    (carries the master document-system-spec.md
+                                    (carries the canonical document-system-spec.md
                                      and review runtime under references/)
                                     (includes scripts/render-review.js for
                                      deterministic document-review HTML)
@@ -66,8 +66,8 @@ invokes the workflow orchestrator, which:
 
 1. Resolves the project's documents root, defaulting to `docs/aipilot/` when no
    custom root is configured.
-2. On a new project, asks where documents should live, creates the document
-   skeleton, and installs the workflow constitution.
+2. On a new project, asks where documents should live and creates the document
+   skeleton. The workflow constitution stays canonical inside the plugin.
 3. On an existing project, checks for interrupted merge-back work, completes
    any unfinished bookkeeping, reads the current project state, and recommends
    the next stage.
@@ -135,7 +135,7 @@ node skills/aipilot-jl-workflow-orchestrator/scripts/render-review.js \
 
 AIPilot uses the following external tools at runtime:
 
-- [lavish-axi](https://github.com/kunchenguid/lavish-axi) `0.1.40` — local
+- [ezreview](https://github.com/JililiDD/ezreview) `0.1.0` — local
   browser-based review sessions. Licensed under MIT.
 - [marked](https://github.com/markedjs/marked) `18.0.6` — Markdown-to-HTML
   rendering. Licensed under MIT.
