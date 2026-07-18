@@ -135,7 +135,7 @@ node skills/aipilot-jl-workflow-orchestrator/scripts/render-review.js \
 
 AIPilot uses the following external tools at runtime:
 
-- [ezreview](https://github.com/JililiDD/ezreview) `0.1.0` — local
+- [ezreview](https://github.com/JililiDD/ezreview) `0.1.2` — local
   browser-based review sessions. Licensed under MIT.
 - [marked](https://github.com/markedjs/marked) `18.0.6` — Markdown-to-HTML
   rendering. Licensed under MIT.

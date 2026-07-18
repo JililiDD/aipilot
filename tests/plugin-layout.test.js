@@ -200,8 +200,12 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
     'utf8',
   );
 
-  assert.match(runtime, /npx -y ezreview@0\.1\.0 <file\.html>/);
-  assert.match(runtime, /npx -y ezreview@0\.1\.0 wait <file\.html>/);
-  assert.match(runtime, /npx -y ezreview@0\.1\.0 reply/);
+  assert.match(runtime, /npx -y ezreview@0\.1\.2 <file\.html>/);
+  assert.match(runtime, /npx -y ezreview@0\.1\.2 wait <file\.html>/);
+  assert.match(runtime, /npx -y ezreview@0\.1\.2 reply/);
+  assert.match(runtime, /must remain \*\*attached to the current agent execution\*\*/);
+  assert.match(runtime, /Do not launch it through ordinary shell detachment such as `&`, `nohup`, or `disown`/);
+  assert.match(runtime, /managed continuation mechanism/);
+  assert.doesNotMatch(runtime, /start `wait` as a \*\*foreground task\*\*/);
   assert.doesNotMatch(renderer, /queuePrompt|window\./i);
 });

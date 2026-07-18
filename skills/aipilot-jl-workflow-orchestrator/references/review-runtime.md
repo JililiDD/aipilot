@@ -12,16 +12,22 @@ Shared regimen for opening browser-based review sessions where the user annotate
 Version is pinned. Upgrades are deliberate: test the new version against this regimen, then update the pin here. `ezreview` requires Node.js 20 or newer.
 
 ```
-npx -y ezreview@0.1.0 <file.html>                                  # open the file in a review session
-npx -y ezreview@0.1.0 wait <file.html>                              # wait for the next feedback batch
-npx -y ezreview@0.1.0 reply <file.html> --to <annotation-id> "<message>"  # reply to a question
+npx -y ezreview@0.1.2 <file.html>                                  # open the file in a review session
+npx -y ezreview@0.1.2 wait <file.html>                              # wait for the next feedback batch
+npx -y ezreview@0.1.2 reply <file.html> --to <annotation-id> "<message>"  # reply to a question
 ```
 
 Place review HTML files in the session scratchpad, not the project tree.
 
+## Execution Attachment
+
+`wait` must remain **attached to the current agent execution** so its result returns to the agent that opened the review. Do not launch it through ordinary shell detachment such as `&`, `nohup`, or `disown`.
+
+Run `wait` as the current blocking tool call. If the host runtime yields a managed task/session identifier and can reliably resume that same agent execution, retain and poll that identifier; this is still attached even though the process may run in the background. Without such a managed continuation mechanism, keep `wait` directly blocking in the current tool call. “Attached” is the invariant; operating-system foreground/background status is not.
+
 ## Feedback Loop
 
-1. Open the file, then start `wait` as a **background task** (it blocks until the user submits feedback; queued feedback is durable, so rerun `wait` if it is interrupted).
+1. Open the file, then start `wait` using the attached execution rule above. It blocks until the user submits feedback; queued feedback is durable, so rerun `wait` if it is interrupted.
 2. `wait` returns one structured batch of annotations. Each item includes an id and an element selector/HTML snippet or selected-text context plus the user's comment.
 3. Apply requested changes to the file. For question-type annotations, use `reply --to <annotation-id> "<answer>"`; then run `wait` again for the next batch.
 4. End the loop when the user clicks ezreview's **Approve** toolbar action or explicitly confirms the document in chat. The approve action makes `wait` exit successfully with a document-confirmation message; it does not itself authorize the next workflow stage.
