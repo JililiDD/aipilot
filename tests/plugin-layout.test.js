@@ -200,12 +200,25 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
     'utf8',
   );
 
-  assert.match(runtime, /npx -y ezreview@0\.1\.2 <file\.html>/);
-  assert.match(runtime, /npx -y ezreview@0\.1\.2 wait <file\.html>/);
-  assert.match(runtime, /npx -y ezreview@0\.1\.2 reply/);
+  assert.match(runtime, /npx -y ezreview@0\.1\.4 <file\.html>/);
+  assert.match(runtime, /npx -y ezreview@0\.1\.4 wait <file\.html>/);
+  assert.match(runtime, /npx -y ezreview@0\.1\.4 reply/);
   assert.match(runtime, /must remain \*\*attached to the current agent execution\*\*/);
   assert.match(runtime, /Do not launch it through ordinary shell detachment such as `&`, `nohup`, or `disown`/);
   assert.match(runtime, /managed continuation mechanism/);
+  assert.match(runtime, /continue that exact process with `write_stdin` using the same `session_id`/);
+  assert.match(runtime, /A yield or an empty poll is not process completion/);
+  assert.match(runtime, /Do not start a second `ezreview wait` while that managed process handle is still alive/);
+  assert.match(runtime, /`wait` intentionally returns one structured batch and exits/);
+  assert.match(runtime, /\*\*Reply to every submitted annotation ID after handling it\.\*\*/);
+  assert.match(runtime, /Never treat a source edit or HTML reload as an implicit reply/);
+  assert.match(runtime, /Give each annotation its own reply, including when one edit addresses multiple comments/);
+  assert.match(runtime, /verify that every annotation ID in the returned batch has received an outcome reply/);
+  assert.match(runtime, /Run `wait` again only after all replies are visible to the review channel/);
+  assert.match(runtime, /Keep the current review turn open across every batch/);
+  assert.match(runtime, /End the loop only when the user clicks ezreview's \*\*Approve\*\*/);
   assert.doesNotMatch(runtime, /start `wait` as a \*\*foreground task\*\*/);
   assert.doesNotMatch(renderer, /queuePrompt|window\./i);
+  assert.doesNotMatch(renderer, /review-banner|Document review — annotate|source: <code>/i);
+  assert.match(renderer, /<body data-source-md=/);
 });

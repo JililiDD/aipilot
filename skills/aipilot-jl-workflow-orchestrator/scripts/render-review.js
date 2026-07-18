@@ -64,8 +64,6 @@ const html = `<!DOCTYPE html>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, "Segoe UI", "Noto Sans SC", sans-serif; color: #1f2328; background: #f6f8fa; }
-  .review-banner { background: #0969da; color: #fff; padding: 10px 24px; font-size: 13px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .review-banner code { background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 3px; }
   main { max-width: 860px; margin: 24px auto 120px; background: #fff; border: 1px solid #d1d9e0; border-radius: 6px; padding: 32px 40px; line-height: 1.6; }
   main h1, main h2, main h3 { line-height: 1.25; }
   main h1 { border-bottom: 1px solid #d1d9e0; padding-bottom: 8px; }
@@ -79,10 +77,6 @@ const html = `<!DOCTYPE html>
 </style>
 </head>
 <body data-source-md="${escapeHtml(sourceMd)}">
-<div class="review-banner">
-  <span>Document review — annotate in ezreview; use Submit review to send feedback and Approve to confirm this document.</span>
-  <span>source: <code>${escapeHtml(sourceMd)}</code></span>
-</div>
 <main>
 ${body}
 </main>
