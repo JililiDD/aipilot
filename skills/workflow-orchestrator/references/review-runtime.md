@@ -34,6 +34,26 @@ For Codex command execution, follow this handle lifecycle exactly:
 
 The managed command `session_id` belongs to the current `wait` process; it is not the ezreview server/session identity and must not be reused after that process exits.
 
+## Review Lifetime and Recovery
+
+The review is a user-controlled, potentially long-running gate. Keep the ezreview server/open-session process and the current attached `wait` available for the entire gate. **Never interrupt, terminate, kill, or close either process solely because no feedback has arrived, time has elapsed, polls are empty, the command tool yielded, or an agent wants to avoid leaving a background process running.** There is no agent-imposed idle timeout for human review.
+
+For a managed Codex process, poll the same live handle with host-safe bounded polling calls for as long as necessary. A poll boundary exists only so the host can return control; it is not a review deadline and does not authorize ending the agent turn. Do not replace a live handle with a new `wait`.
+
+If the host runtime or agent execution is interrupted before the review ends:
+
+1. Preserve the exact review HTML and its source document. Do not run review cleanup and do not report the review as complete.
+2. On the next execution, continue the existing managed `wait` handle when it is still recoverable. Otherwise, if the ezreview server/session is still available, start exactly one new attached `wait` for the **same HTML file**.
+3. If the ezreview server is no longer running, reopen the **same HTML file**, then start exactly one attached `wait`. Queued feedback is durable; interruption is a recovery event, not approval or cancellation.
+
+The attached ezreview loop may exit only when one of these events occurs:
+
+- ezreview reports **Approve**, or the user explicitly confirms the reviewed document in chat;
+- the user explicitly cancels the review or tells the agent to stop/close it — cancellation leaves the workflow gate unconfirmed and must never advance the next stage;
+- an unrecoverable tool failure requires the degradation path below. This exits only the ezreview loop: degradation changes the feedback channel and the review gate remains active.
+
+After approval or explicit cancellation, stop any live `wait` and server/open-session process as needed. On unrecoverable tool failure, stop only unusable processes and preserve the HTML/source for the fallback review. Never shut down a usable review process before approval or explicit cancellation.
+
 ## Feedback Loop
 
 1. Open the file, then start `wait` using the attached execution rule above. It blocks until the user submits feedback; queued feedback is durable, so rerun `wait` if it is interrupted.
@@ -41,8 +61,8 @@ The managed command `session_id` belongs to the current `wait` process; it is no
 3. Handle every annotation in the batch. Apply requested changes to the source/deliverable and re-render or reload the review HTML when required.
 4. **Reply to every submitted annotation ID after handling it.** Use `reply --to <annotation-id> "<outcome>"` even when the requested edit is already visible after HTML reload. For an edit, send a brief confirmation such as “Fixed” or “Already added explanation.”; for a question, answer it; for a rejected or no-op request, explain why or state that the content already satisfies it. Never treat a source edit or HTML reload as an implicit reply.
 5. Give each annotation its own reply, including when one edit addresses multiple comments. Before starting the next `wait`, verify that every annotation ID in the returned batch has received an outcome reply; do not silently leave any item pending.
-6. Keep the current review turn open across every batch. A yielded command, an empty poll, a completed feedback batch, or an arbitrary number of review rounds is not a reason to finish the turn or report that the review session ended.
-7. End the loop only when the user clicks ezreview's **Approve** toolbar action, explicitly confirms the document in chat, or an unrecoverable runtime error requires the degradation path. The approve action makes `wait` exit successfully with a document-confirmation message; it does not itself authorize the next workflow stage.
+6. Keep the current review turn open across every batch. A yielded command, an empty poll, a completed feedback batch, elapsed time, or an arbitrary number of review rounds is not a reason to finish the turn or report that the review session ended.
+7. End the ezreview loop only under the exit-event rules above. The approve action makes `wait` exit successfully with a document-confirmation message; it does not itself authorize the next workflow stage. Cancellation ends the review without confirming the document. Tool failure transfers the still-active gate to the degradation path.
 
 ## Review Controls
 
@@ -50,7 +70,7 @@ The managed command `session_id` belongs to the current `wait` process; it is no
 
 ## Degradation Path
 
-The review runtime is an enhancement, never a gate-blocker. If `npx` fails, no browser is available, or the session is headless: fall back to the pre-runtime behavior — open/attach the HTML directly (or show a screenshot), collect feedback as chat text, and proceed. State the fallback in the stage summary; do not stall a confirmation gate on tool failure.
+The review runtime is an enhancement, never a gate-blocker. If `npx` fails, no browser is available, or the session is headless: fall back to the pre-runtime behavior — open/attach the HTML directly (or show a screenshot) and collect feedback as chat text. The workflow remains at the same confirmation gate until the user confirms or cancels; tool failure and fallback are never implicit approval. State the fallback in the stage summary.
 
 ## Non-Goals
 
@@ -77,4 +97,4 @@ Procedure:
 3. **Open and wait** per the Commands section above.
 4. **Back-map annotations**: each feedback row carries the annotated element's text. Locate that text in the markdown source (headings anchor sections; fall back to unique-substring search) and edit the **markdown**. If the text matches more than one place, ask instead of guessing.
 5. **Re-render and reply**: after each markdown edit, re-render to the same HTML path so the browser refreshes, then send the required outcome reply to every annotation ID from that batch. Run `wait` again only after all replies are visible to the review channel.
-6. **Close**: an ezreview confirmation from **Approve** (or explicit document confirmation in chat) ends the review. Delete the exact scratchpad HTML created for this review from local disk before returning to constitution §8; use `rm -f -- <exact-review-html-path>` and do not retain or merely ignore it. Document approval alone does not authorize the next stage.
+6. **Close**: an ezreview confirmation from **Approve** (or explicit document confirmation in chat) ends the review successfully. An explicit user cancellation also ends it, but leaves the stage unconfirmed. In either case, close the live review processes as needed. Delete the exact scratchpad HTML created for this review from local disk before returning to constitution §8; use `rm -f -- <exact-review-html-path>` and do not retain or merely ignore it. Document approval alone does not authorize the next stage, and cancellation never authorizes it.
