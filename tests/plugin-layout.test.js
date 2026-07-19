@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 const assert = require('assert');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
@@ -199,6 +201,18 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
     path.join(root, 'skills/aipilot-jl-workflow-orchestrator/scripts/render-review.js'),
     'utf8',
   );
+  const markedVendor = path.join(
+    root,
+    'skills/aipilot-jl-workflow-orchestrator/vendor/marked/marked.esm.mjs',
+  );
+  const markedLicense = path.join(
+    root,
+    'skills/aipilot-jl-workflow-orchestrator/vendor/marked/LICENSE',
+  );
+  const markedVersion = fs.readFileSync(
+    path.join(root, 'skills/aipilot-jl-workflow-orchestrator/vendor/marked/VERSION'),
+    'utf8',
+  );
 
   assert.match(runtime, /npx -y ezreview@0\.1\.4 <file\.html>/);
   assert.match(runtime, /npx -y ezreview@0\.1\.4 wait <file\.html>/);
@@ -220,5 +234,35 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
   assert.doesNotMatch(runtime, /start `wait` as a \*\*foreground task\*\*/);
   assert.doesNotMatch(renderer, /queuePrompt|window\./i);
   assert.doesNotMatch(renderer, /review-banner|Document review — annotate|source: <code>/i);
+  assert.doesNotMatch(renderer, /\bnpx\b|spawnSync|child_process|npm install/i);
+  assert.match(renderer, /\.\.\/vendor\/marked\/marked\.esm\.mjs/);
+  assert.match(renderer, /marked\.parse\(markdown, \{ gfm: true \}\)/);
+  assert.ok(fs.statSync(markedVendor).size > 40_000);
+  assert.ok(fs.statSync(markedLicense).size > 2_000);
+  assert.match(markedVersion, /^version: 18\.0\.6$/m);
+  assert.match(markedVersion, /^marked\.esm\.mjs-sha256: 35398f546525d5e79a8f2f8738635d3ecbd277618cba2ada874e9d27dc9e88f0$/m);
   assert.match(renderer, /<body data-source-md=/);
+});
+
+test('review renderer works offline with bundled marked', () => {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'aipilot-render-review-'));
+  const input = path.join(scratch, 'sample.md');
+  const output = path.join(scratch, 'sample.html');
+  fs.writeFileSync(input, '# Offline\n\n| A | B |\n| - | - |\n| 1 | 2 |\n', 'utf8');
+
+  const result = spawnSync(
+    process.execPath,
+    [path.join(root, 'skills/aipilot-jl-workflow-orchestrator/scripts/render-review.js'), input, output],
+    {
+      encoding: 'utf8',
+      env: { ...process.env, PATH: '/nonexistent', npm_config_offline: 'true' },
+    },
+  );
+
+  assert.strictEqual(result.status, 0, result.stderr);
+  const html = fs.readFileSync(output, 'utf8');
+  assert.match(html, /<h1>Offline<\/h1>/);
+  assert.match(html, /<table>/);
+  assert.match(html, /data-source-md=/);
+  fs.rmSync(scratch, { recursive: true });
 });

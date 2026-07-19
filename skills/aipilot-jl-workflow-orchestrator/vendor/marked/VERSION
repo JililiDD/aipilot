@@ -1,0 +1,6 @@
+name: marked
+version: 18.0.6
+source: https://registry.npmjs.org/marked/-/marked-18.0.6.tgz
+tarball-shasum: 7faf26fd580b9c8daa75984f18db25631fc4ad63
+marked.esm.mjs-sha256: 35398f546525d5e79a8f2f8738635d3ecbd277618cba2ada874e9d27dc9e88f0
+license-sha256: 8e3a3f82f59a60958f56ca08f445647c32a4733dc7ca6c2c46f6eb898471ab9c

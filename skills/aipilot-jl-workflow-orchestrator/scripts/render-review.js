@@ -8,9 +8,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const { pathToFileURL } = require('url');
 
-const MARKED_VERSION = '18.0.6';
+const MARKED_PATH = path.resolve(__dirname, '../vendor/marked/marked.esm.mjs');
 
 function fail(message) {
   console.error(`render-review: ${message}`);
@@ -39,19 +39,18 @@ if (!title) {
   title = path.basename(inputPath);
 }
 
-const marked = spawnSync(`npx -y marked@${MARKED_VERSION} --gfm -i "${path.resolve(inputPath)}"`, {
-  shell: true,
-  encoding: 'utf8',
-  maxBuffer: 32 * 1024 * 1024,
-});
-if (marked.status !== 0) {
-  fail(`marked failed (exit ${marked.status}): ${marked.stderr}`);
-}
-const body = marked.stdout;
-
 function escapeHtml(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+async function render() {
+  if (!fs.existsSync(MARKED_PATH)) {
+    fail(`vendored marked not found: ${MARKED_PATH}`);
+  }
+
+  const { marked } = await import(pathToFileURL(MARKED_PATH).href);
+  const markdown = fs.readFileSync(inputPath, 'utf8');
+  const body = marked.parse(markdown, { gfm: true });
 
 const sourceMd = path.resolve(inputPath).replace(/\\/g, '/');
 
@@ -86,3 +85,6 @@ ${body}
 
 fs.writeFileSync(outputPath, html, 'utf8');
 console.log(`render-review: wrote ${outputPath} (${html.length} chars) from ${inputPath}`);
+}
+
+render().catch(error => fail(`marked failed: ${error.message}`));

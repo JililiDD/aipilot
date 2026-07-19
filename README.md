@@ -137,8 +137,8 @@ AIPilot uses the following external tools at runtime:
 
 - [ezreview](https://github.com/JililiDD/ezreview) `0.1.4` — local
   browser-based review sessions. Licensed under MIT.
-- [marked](https://github.com/markedjs/marked) `18.0.6` — Markdown-to-HTML
-  rendering. Licensed under MIT.
+- [marked](https://github.com/markedjs/marked) `18.0.6` — vendored
+  Markdown-to-HTML rendering with no runtime download. Licensed under MIT.
 
 ## License
 

@@ -73,7 +73,7 @@ Procedure:
    node <this-skill>/scripts/render-review.js <doc.md> <scratchpad>/review-<slug>.html --title "<Stage>: <doc name>"
    ```
 
-   The script pins `marked@18.0.6` internally and wraps the rendered document in a minimal review template. The markdown source path is stored only in the non-visual `data-source-md` attribute; do not add a document banner or duplicate review instructions above the content. Review controls are provided by ezreview's browser shell.
+   The script loads the bundled `vendor/marked/marked.esm.mjs` from `marked@18.0.6`; Markdown rendering does not call `npx`, install packages, or require network access. Always use this renderer for Markdown review artifacts instead of calling marked directly or hand-writing a converter. It wraps the rendered document in a minimal review template. The markdown source path is stored only in the non-visual `data-source-md` attribute; do not add a document banner or duplicate review instructions above the content. Review controls are provided by ezreview's browser shell.
 3. **Open and wait** per the Commands section above.
 4. **Back-map annotations**: each feedback row carries the annotated element's text. Locate that text in the markdown source (headings anchor sections; fall back to unique-substring search) and edit the **markdown**. If the text matches more than one place, ask instead of guessing.
 5. **Re-render and reply**: after each markdown edit, re-render to the same HTML path so the browser refreshes, then send the required outcome reply to every annotation ID from that batch. Run `wait` again only after all replies are visible to the review channel.
