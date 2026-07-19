@@ -133,10 +133,13 @@ node skills/workflow-orchestrator/scripts/render-review.js \
 
 ## Third-party tools
 
-AIPilot uses the following external tools at runtime:
+AIPilot vendors the following third-party tools:
 
-- [ezreview](https://github.com/JililiDD/ezreview) `0.1.8` — local
-  browser-based review sessions. Licensed under MIT.
+- [ezreview](https://github.com/JililiDD/ezreview) `0.2.1` — vendored
+  standalone browser-based review runtime with embedded assets. It executes
+  directly with Node and requires no runtime npm/npx install or download.
+  The vendored payload is limited to `ezreview.mjs`, `LICENSE`, and `VERSION`.
+  Licensed under MIT.
 - [marked](https://github.com/markedjs/marked) `18.0.6` — vendored
   Markdown-to-HTML rendering with no runtime download. Licensed under MIT.
 

@@ -9,13 +9,15 @@ Shared regimen for opening browser-based review sessions where the user annotate
 
 ## Commands
 
-Version is pinned. Upgrades are deliberate: test the new version against this regimen, then update the pin here. `ezreview` requires Node.js 20 or newer.
+Version is pinned. Upgrades are deliberate: test the new standalone build against this regimen, then replace the vendored file, license, and version record together. `ezreview` requires Node.js 20 or newer.
 
 ```
-npx -y ezreview@0.1.8 <file.html>                                  # open the file in a review session
-npx -y ezreview@0.1.8 wait <file.html>                              # wait for the next feedback batch
-npx -y ezreview@0.1.8 reply <file.html> --to <annotation-id> "<message>"  # reply to a question
+node <this-skill>/vendor/ezreview/ezreview.mjs <file.html>                                  # open the file in a review session
+node <this-skill>/vendor/ezreview/ezreview.mjs wait <file.html>                              # wait for the next feedback batch
+node <this-skill>/vendor/ezreview/ezreview.mjs reply <file.html> --to <annotation-id> "<message>"  # reply to a question
 ```
+
+The CLI is the plugin-vendored `ezreview` 0.2.1 standalone file. It contains the complete runtime and embedded browser assets and is executed directly with Node. Do not substitute `npm`, `npx`, a global `ezreview` command, or any runtime download. The adjacent `LICENSE` and `VERSION` files travel with it.
 
 Place review HTML files in the session scratchpad, not the project tree.
 
@@ -70,12 +72,13 @@ After approval or explicit cancellation, stop any live `wait` and server/open-se
 
 ## Degradation Path
 
-The review runtime is an enhancement, never a gate-blocker. If `npx` fails, no browser is available, or the session is headless: fall back to the pre-runtime behavior — open/attach the HTML directly (or show a screenshot) and collect feedback as chat text. The workflow remains at the same confirmation gate until the user confirms or cancels; tool failure and fallback are never implicit approval. State the fallback in the stage summary.
+The review runtime is an enhancement, never a gate-blocker. If the vendored CLI fails, no browser is available, or the session is headless: fall back to the pre-runtime behavior — open/attach the HTML directly (or show a screenshot) and collect feedback as chat text. The workflow remains at the same confirmation gate until the user confirms or cancels; tool failure and fallback are never implicit approval. State the fallback in the stage summary.
 
 ## Non-Goals
 
 - No use of export/share features or any third-party hosted review service.
 - No custom-built replacement runtime.
+- No runtime package-manager install or download; both ezreview and marked execute from plugin-vendored files.
 - No review-runtime state committed to the project tree.
 
 ## Document Review

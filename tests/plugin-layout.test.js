@@ -2,6 +2,7 @@
 
 const assert = require('assert');
 const { spawnSync } = require('child_process');
+const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -231,10 +232,32 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
     path.join(root, 'skills/workflow-orchestrator/vendor/marked/VERSION'),
     'utf8',
   );
+  const ezreviewRoot = path.join(root, 'skills/workflow-orchestrator/vendor/ezreview');
+  const ezreviewStandalone = path.join(ezreviewRoot, 'ezreview.mjs');
+  const ezreviewLicense = path.join(ezreviewRoot, 'LICENSE');
+  const ezreviewVersion = fs.readFileSync(path.join(ezreviewRoot, 'VERSION'), 'utf8');
 
-  assert.match(runtime, /npx -y ezreview@0\.1\.8 <file\.html>/);
-  assert.match(runtime, /npx -y ezreview@0\.1\.8 wait <file\.html>/);
-  assert.match(runtime, /npx -y ezreview@0\.1\.8 reply/);
+  assert.match(runtime, /node <this-skill>\/vendor\/ezreview\/ezreview\.mjs <file\.html>/);
+  assert.match(runtime, /node <this-skill>\/vendor\/ezreview\/ezreview\.mjs wait <file\.html>/);
+  assert.match(runtime, /node <this-skill>\/vendor\/ezreview\/ezreview\.mjs reply/);
+  assert.match(runtime, /plugin-vendored `ezreview` 0\.2\.1 standalone file/);
+  assert.match(runtime, /Do not substitute `npm`, `npx`, a global `ezreview` command, or any runtime download/);
+  assert.doesNotMatch(runtime, /npx -y ezreview|npm (?:install|exec) ezreview/);
+  assert.strictEqual(ezreviewVersion, '0.2.1\n');
+  assert.strictEqual(fs.statSync(ezreviewStandalone).size, 193_107);
+  if (process.platform !== 'win32') {
+    assert.ok((fs.statSync(ezreviewStandalone).mode & 0o111) !== 0, 'vendored ezreview must stay executable');
+  }
+  assert.ok(fs.statSync(ezreviewLicense).size > 1_000);
+  assert.strictEqual(
+    crypto.createHash('sha256').update(fs.readFileSync(ezreviewStandalone)).digest('hex'),
+    '3c205b9f2deff49fb837c45806280b4121c16efe28ade8e7de229d6131c375f4',
+  );
+  assert.strictEqual(
+    crypto.createHash('sha256').update(fs.readFileSync(ezreviewLicense)).digest('hex'),
+    '0c9523d00cb807e39b5a6e71e145dd413cd251cd341304aefea7c5dcf603b4a0',
+  );
+  assert.deepStrictEqual(fs.readdirSync(ezreviewRoot).sort(), ['LICENSE', 'VERSION', 'ezreview.mjs']);
   assert.match(runtime, /must remain \*\*attached to the current agent execution\*\*/);
   assert.match(runtime, /Do not launch it through ordinary shell detachment such as `&`, `nohup`, or `disown`/);
   assert.match(runtime, /managed continuation mechanism/);
@@ -280,6 +303,34 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
   assert.match(markedVersion, /^version: 18\.0\.6$/m);
   assert.match(markedVersion, /^marked\.esm\.mjs-sha256: 35398f546525d5e79a8f2f8738635d3ecbd277618cba2ada874e9d27dc9e88f0$/m);
   assert.match(renderer, /<body data-source-md=/);
+});
+
+test('vendored ezreview standalone works offline without npm or npx', () => {
+  const standalone = path.join(root, 'skills/workflow-orchestrator/vendor/ezreview/ezreview.mjs');
+  const bundle = fs.readFileSync(standalone, 'utf8');
+  const result = spawnSync(process.execPath, [standalone, '--help'], {
+    encoding: 'utf8',
+    env: { ...process.env, PATH: '/nonexistent', npm_config_offline: 'true' },
+  });
+
+  assert.strictEqual(result.status, 0, result.stderr);
+  assert.match(result.stdout, /ezreview <file\.html>/);
+  assert.match(result.stdout, /ezreview wait <file\.html>/);
+  assert.match(result.stdout, /ezreview reply <file\.html>/);
+  assert.match(bundle, /^#!\/usr\/bin\/env node/);
+  assert.doesNotMatch(bundle, /\bfrom\s+["']\./);
+  assert.doesNotMatch(bundle, /\bimport\s*\(\s*["']\./);
+  for (const favicon of [
+    '/favicon.svg',
+    '/favicon.ico',
+    '/favicon-16x16.png',
+    '/favicon-32x32.png',
+    '/favicon-64x64.png',
+    '/favicon-192x192.png',
+    '/favicon-512x512.png',
+  ]) {
+    assert.ok(bundle.includes(favicon), `standalone bundle must embed ${favicon}`);
+  }
 });
 
 test('review renderer works offline with bundled marked', () => {
