@@ -233,7 +233,9 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
   assert.match(runtime, /End the loop only when the user clicks ezreview's \*\*Approve\*\*/);
   assert.doesNotMatch(runtime, /start `wait` as a \*\*foreground task\*\*/);
   assert.doesNotMatch(renderer, /queuePrompt|window\./i);
-  assert.doesNotMatch(renderer, /review-banner|Document review — annotate|source: <code>/i);
+  assert.doesNotMatch(renderer, /review-banner|Document review — annotate/i);
+  assert.match(renderer, /source-banner/);
+  assert.match(renderer, /source: <code>/);
   assert.doesNotMatch(renderer, /\bnpx\b|spawnSync|child_process|npm install/i);
   assert.match(renderer, /\.\.\/vendor\/marked\/marked\.esm\.mjs/);
   assert.match(renderer, /marked\.parse\(markdown, \{ gfm: true \}\)/);
@@ -264,5 +266,6 @@ test('review renderer works offline with bundled marked', () => {
   assert.match(html, /<h1>Offline<\/h1>/);
   assert.match(html, /<table>/);
   assert.match(html, /data-source-md=/);
+  assert.match(html, /<header class="source-banner">source: <code>/);
   fs.rmSync(scratch, { recursive: true });
 });

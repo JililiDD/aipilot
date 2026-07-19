@@ -63,6 +63,8 @@ const html = `<!DOCTYPE html>
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, "Segoe UI", "Noto Sans SC", sans-serif; color: #1f2328; background: #f6f8fa; }
+  .source-banner { background: #0969da; color: #fff; padding: 12px 24px; font-size: 13px; line-height: 1.35; }
+  .source-banner code { color: inherit; font-family: Consolas, monospace; font-weight: 600; overflow-wrap: anywhere; }
   main { max-width: 860px; margin: 24px auto 120px; background: #fff; border: 1px solid #d1d9e0; border-radius: 6px; padding: 32px 40px; line-height: 1.6; }
   main h1, main h2, main h3 { line-height: 1.25; }
   main h1 { border-bottom: 1px solid #d1d9e0; padding-bottom: 8px; }
@@ -76,6 +78,7 @@ const html = `<!DOCTYPE html>
 </style>
 </head>
 <body data-source-md="${escapeHtml(sourceMd)}">
+<header class="source-banner">source: <code>${escapeHtml(sourceMd)}</code></header>
 <main>
 ${body}
 </main>
