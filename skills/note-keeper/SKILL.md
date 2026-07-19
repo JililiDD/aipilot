@@ -1,5 +1,5 @@
 ---
-name: aipilot-jl-note-keeper
+name: note-keeper
 description: Use when the user states a discovered project constraint, a choice that will bind future work, or a lasting project-specific preference for how AIPilot should work. Captures the memory in lessons.md, decisions.md, or agent-guideline.md without starting a separate workflow stage.
 ---
 
@@ -9,9 +9,9 @@ description: Use when the user states a discovered project constraint, a choice 
 
 A capture reflex, not a stage. Resolve the documents root, classify one durable memory, record it in the right project file, and return control to whatever the conversation was already doing.
 
-If another AIPilot skill is already active and owns this recording per its own rules (`aipilot-jl-dev-builder`, `aipilot-jl-dev-plan-builder`), let it — do not double-record.
+If another AIPilot skill is already active and owns this recording per its own rules (`dev-builder`, `dev-plan-builder`), let it — do not double-record.
 
-Product facts and scope are not notes; route them to `aipilot-jl-product-spec-builder` and the relevant state/work-item documents. Plugin-wide workflow changes are not project notes either; change the plugin's source rules only when the user explicitly asks to change AIPilot for every project.
+Product facts and scope are not notes; route them to `product-spec-builder` and the relevant state/work-item documents. Plugin-wide workflow changes are not project notes either; change the plugin's source rules only when the user explicitly asks to change AIPilot for every project.
 
 ## Classify
 

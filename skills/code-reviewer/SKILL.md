@@ -1,5 +1,5 @@
 ---
-name: aipilot-jl-code-reviewer
+name: code-reviewer
 description: Use when independently reviewing implemented changes inside the implementation-review loop — story-level, task-level, or final work-item review, checking code against the work-item's Requirement, Design, and Plan sections and the recorded evidence.
 ---
 
@@ -19,7 +19,7 @@ A review request must name: the **target work-item** (filename), the **scope** (
 
 Project-document paths mean the resolved documents root; the constitution path is plugin-relative:
 
-- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `agent-guideline.md` at the documents root separately for project overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `agent-guideline.md` at the documents root separately for project overrides.
 - the target work-item — all four sections. Its Requirement, Design, and Plan sections are authoritative over the master specs until merge-back; the master documents lagging an active work-item is by design, never a staleness finding.
 - `product-spec.md` and `design-spec.md` for surrounding state; `decisions.md` and `lessons.md` whole (small by design).
 - For UI-facing changes, explicitly use the target work-item's Design section plus `design-spec.md` as the UI review lens; do not rely on conversation memory or screenshots alone.
@@ -53,7 +53,7 @@ Project-document paths mean the resolved documents root; the constitution path i
 
 **Robustness** — the failure paths, where generated code most often breaks: errors handled rather than swallowed, external input validated at trust boundaries, resources closed on every path, concurrent access to shared state safe.
 
-**Java diffs** — load the `aipilot-jl-java-backend-expert` overlay and apply its checks (transactions, N+1, layering, concurrency).
+**Java diffs** — load the `java-backend-expert` overlay and apply its checks (transactions, N+1, layering, concurrency).
 
 ## Circuit Breaker
 

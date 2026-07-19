@@ -1,5 +1,5 @@
 ---
-name: aipilot-jl-product-spec-builder
+name: product-spec-builder
 description: Use when product idea, scope, users, workflow, AI authority, data boundary, or acceptance criteria are unclear — whenever the user wants to define a new product/feature, change existing behavior, or fix/refactor something not yet fully specified. Grills the user through structured interviewing until an implementation-ready Product Spec exists. Do NOT run the full interview for trivially clear one-line fixes; use the fast track.
 ---
 
@@ -15,12 +15,12 @@ Eliminate implementation uncertainty before development begins. Help the user di
 
 Read, when they exist:
 
-- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
 - `docs/aipilot/product-spec.md`
 - `decisions.md` and `lessons.md` — the append-only logs of choices and pits; always read both whole (small by design).
 - for existing-project changes, the target work-item in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Merged history lives under `work-items/merged/`
 
-Then read `references/interview-doctrine.md` — the canonical interview doctrine, also read by `aipilot-jl-design-spec-builder` via relative path. It governs the entire interview discipline. Follow it throughout.
+Then read `references/interview-doctrine.md` — the canonical interview doctrine, also read by `design-spec-builder` via relative path. It governs the entire interview discipline. Follow it throughout.
 
 Never ask for information that already exists in these documents. If a document conflicts with the user's request, surface the conflict and ask which stands. Summarize your understanding before proceeding.
 
@@ -51,7 +51,7 @@ Each iteration: identify the biggest unknown → challenge or question it per th
 
 ## Boundary with Design
 
-This skill owns anything the backend must know: behaviors, capabilities, data, contracts, permissions. Design owns presentation: layout, visual system, density, interaction styling. Test: "user can cancel a running job" is spec (it creates an API contract and rollback semantics); "the cancel button lives in the step tree" is design. When visual or taste topics surface during the interview, park them as deferred to design and leave a one-line pointer in the Requirement section — `aipilot-jl-design-spec-builder` will handle them in the work-item's Design section. Do not grill them here.
+This skill owns anything the backend must know: behaviors, capabilities, data, contracts, permissions. Design owns presentation: layout, visual system, density, interaction styling. Test: "user can cancel a running job" is spec (it creates an API contract and rollback semantics); "the cancel button lives in the step tree" is design. When visual or taste topics surface during the interview, park them as deferred to design and leave a one-line pointer in the Requirement section — `design-spec-builder` will handle them in the work-item's Design section. Do not grill them here.
 
 ## Pre-Spec Gate
 
@@ -69,7 +69,7 @@ The scope decides the destination, not the interview length — fast track and f
 - **Master spec** (`docs/aipilot/product-spec.md`): write or rewrite only for New Product scope, or changes that redefine the product's core model, primary workflow, or MVP boundary.
 - **Work item** (`docs/aipilot/work-items/`): every bounded change to an existing product — feature addition, behavior change, removal, refactor, bug fix. File naming, metadata head, and lifecycle follow the canonical plugin constitution §3 (`YYYY-MM-DD-HHMM-slug.md`, frontmatter `created`/`scope`/`status: active`, root = active, `merged/` = done).
 
-**Creating a work-item**: create the file with the metadata head and the full four-section skeleton — `## Requirement`, `## Design`, `## Plan`, `## Execution Record` — so downstream skills append into fixed headings. This skill fills **only the Requirement section** and leaves the other three empty. Never write into Design, Plan, or Execution Record; their owners are `aipilot-jl-design-spec-builder`, `aipilot-jl-dev-plan-builder`, and `aipilot-jl-dev-builder`/`bug-fixer`.
+**Creating a work-item**: create the file with the metadata head and the full four-section skeleton — `## Requirement`, `## Design`, `## Plan`, `## Execution Record` — so downstream skills append into fixed headings. This skill fills **only the Requirement section** and leaves the other three empty. Never write into Design, Plan, or Execution Record; their owners are `design-spec-builder`, `dev-plan-builder`, and `dev-builder`/`bug-fixer`.
 
 The Requirement section ends with an **Impact on Product-Spec** subsection: the merge map listing which master-spec sections describe behavior this change alters. Do not edit the master spec during the interview — the change is not yet real; the orchestrator merges the state-level outcome back after review passes. This skill only prepares the merge map, never performs the merge-back.
 
@@ -77,7 +77,7 @@ The Requirement section ends with an **Impact on Product-Spec** subsection: the 
 
 Include only sections that add value — no empty template sections. Candidate content (master-spec sections, or subsections inside the work-item's Requirement section): Summary, Existing Context, Scope, Problem/Reason, Proposed Behavior, Affected Users, Affected Flows/APIs/Data/Components, Functional Requirements, Data Changes, Permissions, Edge Cases, Compatibility/Migration, **Acceptance Criteria**, **Assumptions**, Open Questions (risk-tagged), Deferred-to-Design pointers, **Impact on Product-Spec** (work items only), Implementation Notes.
 
-- **Acceptance Criteria** are requirement-level and verifiable — the contract QA tests against. Downstream, `aipilot-jl-dev-plan-builder` decomposes and references them per story and task; it must not invent new ones. Writing them precisely is part of the interview: if a criterion cannot be phrased verifiably, the requirement is not resolved yet.
+- **Acceptance Criteria** are requirement-level and verifiable — the contract QA tests against. Downstream, `dev-plan-builder` decomposes and references them per story and task; it must not invent new ones. Writing them precisely is part of the interview: if a criterion cannot be phrased verifiably, the requirement is not resolved yet.
 - **Assumptions** lists every Assumed entry in the Decision Notes, explicitly labeled unconfirmed.
 
 **Final user review**: before delivering, highlight the 2–3 highest-risk decisions — typically the ones decided fastest or adopted from your suggestions — in the completion summary. Do not request confirmation before the browser-review offer required by Workflow Handoff; confirmation follows the completed review or the user's explicit skip.
@@ -88,4 +88,4 @@ Record decisions per constitution §2 when a spec decision meets the bar there.
 
 ## Workflow Handoff
 
-After the Requirement content is written, report per the orchestrator's pattern: completed stage, documents updated (name the work-item file when one was created), open questions, and the recommended next stage — `aipilot-jl-design-spec-builder` to fill the work-item's Design section when the requirement has a UI surface, otherwise `aipilot-jl-dev-plan-builder` to fill its Plan section. Explain why the next stage is unblocked. Apply the canonical constitution §8 at the stage boundary; do not restate or bypass its review and confirmation policy. If the next stage is blocked by an unresolved decision, ask the smallest useful question and stop.
+After the Requirement content is written, report per the orchestrator's pattern: completed stage, documents updated (name the work-item file when one was created), open questions, and the recommended next stage — `design-spec-builder` to fill the work-item's Design section when the requirement has a UI surface, otherwise `dev-plan-builder` to fill its Plan section. Explain why the next stage is unblocked. Apply the canonical constitution §8 at the stage boundary; do not restate or bypass its review and confirmation policy. If the next stage is blocked by an unresolved decision, ask the smallest useful question and stop.

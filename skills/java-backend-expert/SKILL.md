@@ -1,5 +1,5 @@
 ---
-name: aipilot-jl-java-backend-expert
+name: java-backend-expert
 description: Load as a domain overlay whenever another stage's work touches Java backend — Spring Boot, REST APIs, service/repository layering, DTOs, validation, exception mapping, transactions, persistence, Maven/Gradle builds, JUnit tests, or backend security boundaries.
 ---
 
@@ -7,7 +7,7 @@ description: Load as a domain overlay whenever another stage's work touches Java
 
 ## What this is
 
-A **domain overlay**, not a workflow stage. Like `aipilot-jl-dev-builder`'s Diagnosis Mode, it is worn on top of whatever stage is running when that stage's material touches Java backend, then taken off — it is never routed to, never in the stage order, has no handoff of its own. The calling stage (`aipilot-jl-dev-plan-builder`, `aipilot-jl-dev-builder`, `aipilot-jl-code-reviewer`) keeps ownership of the flow, the documents it already read, and the final judgment; this overlay only sharpens the Java/Spring decisions inside that work.
+A **domain overlay**, not a workflow stage. Like `dev-builder`'s Diagnosis Mode, it is worn on top of whatever stage is running when that stage's material touches Java backend, then taken off — it is never routed to, never in the stage order, has no handoff of its own. The calling stage (`dev-plan-builder`, `dev-builder`, `code-reviewer`) keeps ownership of the flow, the documents it already read, and the final judgment; this overlay only sharpens the Java/Spring decisions inside that work.
 
 Because the caller has already read the product/design/plan documents and the target work-item, this overlay does not re-read them. It reads the **Java material**: relevant source and test files; build files (`pom.xml`, `build.gradle`, `settings.gradle`, `gradle.properties`); API contracts, OpenAPI, DTOs, migrations, and error models when present; and the project's existing package layout, naming, test conventions, dependency choices, and framework versions. For Spring/JUnit/Maven/Gradle specifics, consult `references/backend-checks.md`.
 
@@ -17,10 +17,10 @@ Any durable Java decision or discovered constraint surfaced here is recorded by 
 
 Same body of Java knowledge, different facet depending on who loaded it:
 
-- **In planning** (`aipilot-jl-dev-plan-builder`): backend phase/task boundaries, API contracts defined before parallel work, DTO/validation/status/error shapes named, transaction and persistence strategy decided, speculative framework additions deferred.
-- **In building** (`aipilot-jl-dev-builder` Build Mode): the smallest correct change that preserves existing patterns; controllers thin, business rules in services, explicit mapping.
-- **In review** (`aipilot-jl-code-reviewer`): backend diffs for correctness, API contract, transaction, validation, persistence, security, and test risk. Findings must attach to a requirement, AC, or concrete named risk and use the reviewer's P0–P3 severities — style preference is not a finding.
-- **In diagnosis** (`aipilot-jl-dev-builder` Diagnosis Mode): Maven, Gradle, compiler, JUnit, Spring context, migration, or runtime failures traced from evidence — reproduce and root-cause before fixing.
+- **In planning** (`dev-plan-builder`): backend phase/task boundaries, API contracts defined before parallel work, DTO/validation/status/error shapes named, transaction and persistence strategy decided, speculative framework additions deferred.
+- **In building** (`dev-builder` Build Mode): the smallest correct change that preserves existing patterns; controllers thin, business rules in services, explicit mapping.
+- **In review** (`code-reviewer`): backend diffs for correctness, API contract, transaction, validation, persistence, security, and test risk. Findings must attach to a requirement, AC, or concrete named risk and use the reviewer's P0–P3 severities — style preference is not a finding.
+- **In diagnosis** (`dev-builder` Diagnosis Mode): Maven, Gradle, compiler, JUnit, Spring context, migration, or runtime failures traced from evidence — reproduce and root-cause before fixing.
 
 ## Rules
 

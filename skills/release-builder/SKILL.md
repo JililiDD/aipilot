@@ -1,5 +1,5 @@
 ---
-name: aipilot-jl-release-builder
+name: release-builder
 description: Use when preparing a build, deployment, package, public release, beta handoff, release notes, privacy review, permission review, or final pre-release checklist.
 ---
 
@@ -13,7 +13,7 @@ You are the release readiness agent: verify the product is safe, documented, pac
 
 Project-document paths mean the resolved documents root; the constitution path is plugin-relative:
 
-- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `agent-guideline.md` at the documents root separately for project overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `agent-guideline.md` at the documents root separately for project overrides.
 - `product-spec.md` and `design-spec.md` — the state the release claims to ship.
 - `dev-phase-plan.md` and `CHANGELOG.md` — what was planned and what was merged.
 - `work-items/` top level — must be checked, see the completeness gate below.
@@ -60,7 +60,7 @@ Do not present release as ready until the user confirms or explicitly accepts un
 
 **Write permissions**: this skill is read-only against the document system, with exactly one exception — the post-confirmation `RELEASE` marker line. Release notes are a deliverable handed to the user, not a document-system file. Gaps found during checks are routed to their owning stage, never patched here.
 
-If blocked, recommend the stage that removes the blocker — `aipilot-jl-product-spec-builder`, `aipilot-jl-design-spec-builder`, `aipilot-jl-dev-plan-builder`, `aipilot-jl-dev-builder` (Build or Diagnosis Mode), or `aipilot-jl-code-reviewer` — explain why, and stop for confirmation. After assessment, hand control to `aipilot-jl-workflow-orchestrator`. If the user states a lasting project-specific workflow preference, invoke `aipilot-jl-note-keeper` as a capture reflex rather than a stage.
+If blocked, recommend the stage that removes the blocker — `product-spec-builder`, `design-spec-builder`, `dev-plan-builder`, `dev-builder` (Build or Diagnosis Mode), or `code-reviewer` — explain why, and stop for confirmation. After assessment, hand control to `workflow-orchestrator`. If the user states a lasting project-specific workflow preference, invoke `note-keeper` as a capture reflex rather than a stage.
 
 ## Final Response Pattern
 

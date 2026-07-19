@@ -1,6 +1,6 @@
 # Interview Doctrine
 
-Shared discipline for all interviewing skills in this workflow (`aipilot-jl-product-spec-builder`, `aipilot-jl-design-spec-builder`). Skill-specific rules live in each SKILL.md; this file governs how any requirement interview behaves.
+Shared discipline for all interviewing skills in this workflow (`product-spec-builder`, `design-spec-builder`). Skill-specific rules live in each SKILL.md; this file governs how any requirement interview behaves.
 
 ## Stance
 

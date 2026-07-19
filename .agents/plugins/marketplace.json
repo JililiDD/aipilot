@@ -1,8 +1,8 @@
 {
-  "name": "aipilot-jl-local",
+  "name": "aipilot-local",
   "plugins": [
     {
-      "name": "aipilot-jl",
+      "name": "aipilot",
       "source": {
         "url": "./"
       }

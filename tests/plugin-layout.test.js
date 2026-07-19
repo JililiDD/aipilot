@@ -25,23 +25,23 @@ function test(name, fn) {
 
 test('codex manifest exists and points at shared skills', () => {
   const manifest = readJson('.codex-plugin/plugin.json');
-  assert.strictEqual(manifest.name, 'aipilot-jl');
+  assert.strictEqual(manifest.name, 'aipilot');
   assert.strictEqual(manifest.skills, './skills/');
   assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'hooks'));
   assert.strictEqual(manifest.interface.displayName, 'AIPilot');
 });
 
-test('claude manifest remains unchanged as the claude adapter', () => {
+test('claude manifest points at shared skills and keeps hooks', () => {
   const manifest = readJson('.claude-plugin/plugin.json');
-  assert.strictEqual(manifest.name, 'aipilot-jl');
+  assert.strictEqual(manifest.name, 'aipilot');
   assert.strictEqual(manifest.skills, './skills/');
   assert.strictEqual(manifest.interface.displayName, 'AIPilot');
 });
 
-test('local marketplace exposes the namespaced plugin', () => {
+test('local marketplace exposes the AIPilot plugin', () => {
   const marketplace = readJson('.agents/plugins/marketplace.json');
-  assert.strictEqual(marketplace.name, 'aipilot-jl-local');
-  assert.strictEqual(marketplace.plugins[0].name, 'aipilot-jl');
+  assert.strictEqual(marketplace.name, 'aipilot-local');
+  assert.strictEqual(marketplace.plugins[0].name, 'aipilot');
   assert.strictEqual(marketplace.plugins[0].source.url, './');
 });
 
@@ -49,8 +49,20 @@ test('every skill directory contains a SKILL.md file', () => {
   const skillsRoot = path.join(root, 'skills');
   const skillDirs = fs.readdirSync(skillsRoot, { withFileTypes: true })
     .filter(entry => entry.isDirectory())
-    .map(entry => entry.name);
-  assert.ok(skillDirs.every(name => name.startsWith('aipilot-jl-')));
+    .map(entry => entry.name)
+    .sort();
+  assert.deepStrictEqual(skillDirs, [
+    'code-reviewer',
+    'design-spec-builder',
+    'dev-builder',
+    'dev-plan-builder',
+    'java-backend-expert',
+    'note-keeper',
+    'product-spec-builder',
+    'release-builder',
+    'workflow-orchestrator',
+  ]);
+  assert.ok(skillDirs.every(name => !name.startsWith('aipilot-')));
   const missing = skillDirs
     .map(name => path.join(skillsRoot, name, 'SKILL.md'))
     .filter(skillPath => !fs.existsSync(skillPath));
@@ -58,8 +70,8 @@ test('every skill directory contains a SKILL.md file', () => {
 });
 
 test('clean-context review requires inspectable returned output before delegation', () => {
-  const devBuilder = fs.readFileSync(path.join(root, 'skills/aipilot-jl-dev-builder/SKILL.md'), 'utf8');
-  const orchestrator = fs.readFileSync(path.join(root, 'skills/aipilot-jl-workflow-orchestrator/SKILL.md'), 'utf8');
+  const devBuilder = fs.readFileSync(path.join(root, 'skills/dev-builder/SKILL.md'), 'utf8');
+  const orchestrator = fs.readFileSync(path.join(root, 'skills/workflow-orchestrator/SKILL.md'), 'utf8');
 
   for (const contents of [devBuilder, orchestrator]) {
     assert.ok(contents.includes('report is returned to the main agent'));
@@ -69,15 +81,15 @@ test('clean-context review requires inspectable returned output before delegatio
 });
 
 test('ui-facing reviews read the design lens explicitly', () => {
-  const reviewer = fs.readFileSync(path.join(root, 'skills/aipilot-jl-code-reviewer/SKILL.md'), 'utf8');
+  const reviewer = fs.readFileSync(path.join(root, 'skills/code-reviewer/SKILL.md'), 'utf8');
 
   assert.ok(reviewer.includes('UI review lens'));
   assert.ok(reviewer.includes("target work-item's Design section plus `design-spec.md`"));
 });
 
 test('implementation granularity is confirmed at first dev-builder entry each session', () => {
-  const devBuilder = fs.readFileSync(path.join(root, 'skills/aipilot-jl-dev-builder/SKILL.md'), 'utf8');
-  const orchestrator = fs.readFileSync(path.join(root, 'skills/aipilot-jl-workflow-orchestrator/SKILL.md'), 'utf8');
+  const devBuilder = fs.readFileSync(path.join(root, 'skills/dev-builder/SKILL.md'), 'utf8');
+  const orchestrator = fs.readFileSync(path.join(root, 'skills/workflow-orchestrator/SKILL.md'), 'utf8');
 
   assert.ok(orchestrator.includes("ask the user to confirm the Plan's recorded execution granularity for this session"));
   assert.ok(orchestrator.includes('wait for their reply before routing'));
@@ -87,8 +99,8 @@ test('implementation granularity is confirmed at first dev-builder entry each se
 });
 
 test('note keeper persists only durable project workflow preferences', () => {
-  const noteKeeper = fs.readFileSync(path.join(root, 'skills/aipilot-jl-note-keeper/SKILL.md'), 'utf8');
-  const orchestrator = fs.readFileSync(path.join(root, 'skills/aipilot-jl-workflow-orchestrator/SKILL.md'), 'utf8');
+  const noteKeeper = fs.readFileSync(path.join(root, 'skills/note-keeper/SKILL.md'), 'utf8');
+  const orchestrator = fs.readFileSync(path.join(root, 'skills/workflow-orchestrator/SKILL.md'), 'utf8');
   const coldStart = fs.readFileSync(path.join(root, 'commands/aipilot.md'), 'utf8');
 
   assert.ok(noteKeeper.includes('`agent-guideline.md`'));
@@ -103,18 +115,18 @@ test('note keeper persists only durable project workflow preferences', () => {
 
 test('canonical constitution exclusively owns the markdown stage review gate', () => {
   const constitution = fs.readFileSync(
-    path.join(root, 'skills/aipilot-jl-workflow-orchestrator/references/document-system-spec.md'),
+    path.join(root, 'skills/workflow-orchestrator/references/document-system-spec.md'),
     'utf8',
   );
-  const orchestrator = fs.readFileSync(path.join(root, 'skills/aipilot-jl-workflow-orchestrator/SKILL.md'), 'utf8');
+  const orchestrator = fs.readFileSync(path.join(root, 'skills/workflow-orchestrator/SKILL.md'), 'utf8');
   const runtime = fs.readFileSync(
-    path.join(root, 'skills/aipilot-jl-workflow-orchestrator/references/review-runtime.md'),
+    path.join(root, 'skills/workflow-orchestrator/references/review-runtime.md'),
     'utf8',
   );
   const stageSkills = [
-    'skills/aipilot-jl-product-spec-builder/SKILL.md',
-    'skills/aipilot-jl-design-spec-builder/SKILL.md',
-    'skills/aipilot-jl-dev-plan-builder/SKILL.md',
+    'skills/product-spec-builder/SKILL.md',
+    'skills/design-spec-builder/SKILL.md',
+    'skills/dev-plan-builder/SKILL.md',
   ].map(relativePath => fs.readFileSync(path.join(root, relativePath), 'utf8'));
 
   const offerIndex = constitution.indexOf('offer the optional browser review **before** requesting next-stage confirmation');
@@ -140,16 +152,16 @@ test('canonical constitution exclusively owns the markdown stage review gate', (
 test('constitution stays plugin-owned and is never installed into a project', () => {
   const coldStart = fs.readFileSync(path.join(root, 'commands/aipilot.md'), 'utf8');
   const constitution = fs.readFileSync(
-    path.join(root, 'skills/aipilot-jl-workflow-orchestrator/references/document-system-spec.md'),
+    path.join(root, 'skills/workflow-orchestrator/references/document-system-spec.md'),
     'utf8',
   );
   const directReaders = [
-    'skills/aipilot-jl-product-spec-builder/SKILL.md',
-    'skills/aipilot-jl-design-spec-builder/SKILL.md',
-    'skills/aipilot-jl-dev-plan-builder/SKILL.md',
-    'skills/aipilot-jl-dev-builder/SKILL.md',
-    'skills/aipilot-jl-code-reviewer/SKILL.md',
-    'skills/aipilot-jl-release-builder/SKILL.md',
+    'skills/product-spec-builder/SKILL.md',
+    'skills/design-spec-builder/SKILL.md',
+    'skills/dev-plan-builder/SKILL.md',
+    'skills/dev-builder/SKILL.md',
+    'skills/code-reviewer/SKILL.md',
+    'skills/release-builder/SKILL.md',
   ].map(relativePath => fs.readFileSync(path.join(root, relativePath), 'utf8'));
 
   assert.ok(coldStart.includes('never copy or refresh it in the project documents root'));
@@ -157,7 +169,7 @@ test('constitution stays plugin-owned and is never installed into a project', ()
   assert.ok(constitution.includes('legacy project-local `document-system-spec.md` is non-authoritative and ignored'));
 
   for (const contents of directReaders) {
-    assert.ok(contents.includes('../aipilot-jl-workflow-orchestrator/references/document-system-spec.md'));
+    assert.ok(contents.includes('../workflow-orchestrator/references/document-system-spec.md'));
     assert.ok(!contents.includes('`document-system-spec.md` at the documents root'));
   }
 });
@@ -166,12 +178,12 @@ test('plugin ships no workflow signal capture path', () => {
   const skillDirs = fs.readdirSync(path.join(root, 'skills'), { withFileTypes: true })
     .filter(entry => entry.isDirectory())
     .map(entry => entry.name);
-  assert.ok(!skillDirs.includes('aipilot-jl-workflow-evolver'));
+  assert.ok(!skillDirs.includes('workflow-evolver'));
 
   const sourceFiles = [
     path.join(root, 'commands/aipilot.md'),
     ...skillDirs.map(name => path.join(root, 'skills', name, 'SKILL.md')),
-    path.join(root, 'skills/aipilot-jl-workflow-orchestrator/references/document-system-spec.md'),
+    path.join(root, 'skills/workflow-orchestrator/references/document-system-spec.md'),
   ];
   const workflowText = sourceFiles.map(file => fs.readFileSync(file, 'utf8')).join('\n');
   assert.doesNotMatch(workflowText, /signals\.jsonl|workflow-evolver/i);
@@ -194,23 +206,23 @@ test('plugin root resolver prefers host-specific environment variables', () => {
 
 test('review runtime uses ezreview commands and no injected browser bridge', () => {
   const runtime = fs.readFileSync(
-    path.join(root, 'skills/aipilot-jl-workflow-orchestrator/references/review-runtime.md'),
+    path.join(root, 'skills/workflow-orchestrator/references/review-runtime.md'),
     'utf8',
   );
   const renderer = fs.readFileSync(
-    path.join(root, 'skills/aipilot-jl-workflow-orchestrator/scripts/render-review.js'),
+    path.join(root, 'skills/workflow-orchestrator/scripts/render-review.js'),
     'utf8',
   );
   const markedVendor = path.join(
     root,
-    'skills/aipilot-jl-workflow-orchestrator/vendor/marked/marked.esm.mjs',
+    'skills/workflow-orchestrator/vendor/marked/marked.esm.mjs',
   );
   const markedLicense = path.join(
     root,
-    'skills/aipilot-jl-workflow-orchestrator/vendor/marked/LICENSE',
+    'skills/workflow-orchestrator/vendor/marked/LICENSE',
   );
   const markedVersion = fs.readFileSync(
-    path.join(root, 'skills/aipilot-jl-workflow-orchestrator/vendor/marked/VERSION'),
+    path.join(root, 'skills/workflow-orchestrator/vendor/marked/VERSION'),
     'utf8',
   );
 
@@ -254,7 +266,7 @@ test('review renderer works offline with bundled marked', () => {
 
   const result = spawnSync(
     process.execPath,
-    [path.join(root, 'skills/aipilot-jl-workflow-orchestrator/scripts/render-review.js'), input, output],
+    [path.join(root, 'skills/workflow-orchestrator/scripts/render-review.js'), input, output],
     {
       encoding: 'utf8',
       env: { ...process.env, PATH: '/nonexistent', npm_config_offline: 'true' },

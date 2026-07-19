@@ -1,5 +1,5 @@
 ---
-name: aipilot-jl-dev-builder
+name: dev-builder
 description: Use when implementing a work-item's Plan section or diagnosing and fixing defects — building tasks and stories with verification, driving the implementation-review loop, and root-causing failures and bugs (Build Mode / Diagnosis Mode).
 ---
 
@@ -25,13 +25,13 @@ Exit: the defect no longer reproduces **and** the original failing check is gree
 
 **Dead-end protocol**: when the root cause cannot be located with the information available, the only legal exit is to add observability — logging and traceability at the key points of the suspect path — and honestly report that the information is insufficient and what the new instrumentation will reveal on the next occurrence. A surface fix that makes the symptom disappear without a written root cause is never an exit; it hides an unknown defect in the system.
 
-**Independent bugs** — any defect not caused by the active change (user-reported, in merged work, or uncovered in passing): never create work-item files — route to `aipilot-jl-product-spec-builder`'s fast track (it confirms expected behavior and creates the bug work-item), `aipilot-jl-dev-plan-builder` Breakdown fills its Plan, then execute it like any work-item — normal loop mechanics, with Diagnosis Discipline governing the work itself. Never absorb an unrelated defect into the current work-item. **Pre-existing-cause rule**: when diagnosis shows the root cause pre-dates the current change — if it blocks the current work-item's verification, fix it in-loop and note "pre-existing defect, not introduced here"; if not, it is an independent bug, or `BACKLOG.md` with the user's approval.
+**Independent bugs** — any defect not caused by the active change (user-reported, in merged work, or uncovered in passing): never create work-item files — route to `product-spec-builder`'s fast track (it confirms expected behavior and creates the bug work-item), `dev-plan-builder` Breakdown fills its Plan, then execute it like any work-item — normal loop mechanics, with Diagnosis Discipline governing the work itself. Never absorb an unrelated defect into the current work-item. **Pre-existing-cause rule**: when diagnosis shows the root cause pre-dates the current change — if it blocks the current work-item's verification, fix it in-loop and note "pre-existing defect, not introduced here"; if not, it is an independent bug, or `BACKLOG.md` with the user's approval.
 
 ## Required Reading
 
 Read, when they exist (project-document paths mean the resolved documents root; the constitution path is plugin-relative):
 
-- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, execution granularity, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, execution granularity, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
 - the **target work-item** in the top level of `work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Its Requirement, Design, and Plan sections are the authoritative input and supersede the master specs for this change until merge-back. An empty Design section on a phase work-item is normal — the master `design-spec.md` is its design source.
 - `product-spec.md` and `design-spec.md` — surrounding product and design state.
 - `dev-phase-plan.md` when executing a phase work-item.
@@ -44,8 +44,8 @@ Read, when they exist (project-document paths mean the resolved documents root; 
 All four sections live inside the target work-item file resolved above; this skill touches no other document's sections.
 
 - **The target work-item's Execution Record section** — yours to write.
-- **Its Plan section** — you may: tick task checkboxes (progress marks); split an existing task; add small tasks within the current story's scope, marked `[builder-added]`; mark a task skipped with a reason (never delete). Anything beyond the current story's scope → route to `aipilot-jl-dev-plan-builder` and stop.
-- **Its Requirement and Design sections — never.** If implementation must deviate from specified behavior, that is a requirement change → `aipilot-jl-product-spec-builder`; from specified presentation → `aipilot-jl-design-spec-builder`. Route and stop; do not improvise.
+- **Its Plan section** — you may: tick task checkboxes (progress marks); split an existing task; add small tasks within the current story's scope, marked `[builder-added]`; mark a task skipped with a reason (never delete). Anything beyond the current story's scope → route to `dev-plan-builder` and stop.
+- **Its Requirement and Design sections — never.** If implementation must deviate from specified behavior, that is a requirement change → `product-spec-builder`; from specified presentation → `design-spec-builder`. Route and stop; do not improvise.
 
 ## Execution Granularity
 
@@ -67,11 +67,11 @@ Read the recorded granularity and `Commit policy` from the Plan section (constit
 
 **Per user story/task group:** confirm the Done-when line holds and run the project's test suite (suite-green evidence recorded, beyond the per-task verifies); run review per the Review Cadence. Review findings do not un-tick tasks — the tick records "done and verified once", which stays true; instead, fix the finding, **rerun the affected task's original `— Verify:` method**, and append the finding-fix-reverify sequence to the Execution Record. Then rerun the review until it passes or a blocker needs user input. **After a review passes, act per the Plan's recorded `Commit policy`** — `manual`: do not commit; record the reviewed file set in the Execution Record as the next round's review anchor and leave the working tree for the user's own review and commit; `branch`: commit (message: work-item slug + user story/task group) on the work-item branch — never mainline — and record the commit ref as the anchor; the user reviews and merges; `auto`: commit the same way directly and record the commit ref as the anchor. At a stop granularity, report and wait.
 
-**Work-item completion:** run the Exit Criteria fresh; pass the final full review; complete the Execution Record; hand to `aipilot-jl-workflow-orchestrator` — merge-back is its job, never performed here.
+**Work-item completion:** run the Exit Criteria fresh; pass the final full review; complete the Execution Record; hand to `workflow-orchestrator` — merge-back is its job, never performed here.
 
 ## Review Cadence
 
-Review cadence per constitution §5 — machine gates, not user stops: automatic `aipilot-jl-code-reviewer` run at every user story/task group completion (even at whole-work-item granularity), after every task at per-task granularity, and always a final full work-item review before merge-back covering cross-story coherence and Exit Criteria evidence.
+Review cadence per constitution §5 — machine gates, not user stops: automatic `code-reviewer` run at every user story/task group completion (even at whole-work-item granularity), after every task at per-task granularity, and always a final full work-item review before merge-back covering cross-story coherence and Exit Criteria evidence.
 
 Reviews **must** use a clean-context reviewer only when its report is returned to the main agent and can be inspected as review evidence — no separate confirmation inside the loop; log the delegation and scope. Spawn-only delegation without returned output is not enough. If no inspectable clean-context report is available, run main-agent fallback and record `clean-context result unavailable`.
 
@@ -108,7 +108,7 @@ Execute Story 0's stop marker as planned: `[stop: user-confirm]` (the default) �
 - `BACKLOG.md` capture only with explicit user approval.
 - Record the moment it happens — whoever discovers, records; context is freshest at discovery: an implementation choice that constrains future work-items → dated entry in `decisions.md`; a discovered constraint (a flaky library, a rate limit, a deadlock) → dated entry in `lessons.md`.
 - **Implementation never runs in sub-agents** — one main agent writes all code. The only sub-agent is the clean-context reviewer.
-- When the work touches Java backend, load the `aipilot-jl-java-backend-expert` overlay and apply its checks (both Build and Diagnosis Mode).
+- When the work touches Java backend, load the `java-backend-expert` overlay and apply its checks (both Build and Diagnosis Mode).
 - Never claim complete, fixed, or passing without fresh verification evidence from this run.
 
 ## Execution Record Contents
@@ -118,8 +118,8 @@ An **append-only** running record inside the work-item — never rewrite past en
 ## Reporting
 
 - **Stop report** (per unit): what was done, verification evidence, progress ticked, the next unit — then wait.
-- **Final report**: implemented scope against the Plan; Exit Criteria evidence; final review result; Execution Record completeness; remaining risks; hand-off to `aipilot-jl-workflow-orchestrator` for merge-back.
+- **Final report**: implemented scope against the Plan; Exit Criteria evidence; final review result; Execution Record completeness; remaining risks; hand-off to `workflow-orchestrator` for merge-back.
 
 ## Workflow Handoff
 
-Plan section missing or incomplete → recommend `aipilot-jl-dev-plan-builder` Breakdown Mode and stop. Cannot reproduce a defect or hypotheses exhausted → present the evidence and hypotheses, ask the user the smallest useful question, and stop. After the final review passes → hand control to `aipilot-jl-workflow-orchestrator`.
+Plan section missing or incomplete → recommend `dev-plan-builder` Breakdown Mode and stop. Cannot reproduce a defect or hypotheses exhausted → present the evidence and hypotheses, ask the user the smallest useful question, and stop. After the final review passes → hand control to `workflow-orchestrator`.

@@ -13,7 +13,7 @@ function readJson(relativePath) {
 
 function assertManifest(relativePath, expected) {
   const manifest = readJson(relativePath);
-  assert.strictEqual(manifest.name, 'aipilot-jl', `${relativePath} name`);
+  assert.strictEqual(manifest.name, 'aipilot', `${relativePath} name`);
   assert.strictEqual(manifest.version, '2.0.0', `${relativePath} version`);
   assert.strictEqual(manifest.skills, './skills/', `${relativePath} skills`);
   assert.strictEqual(manifest.interface.displayName, 'AIPilot', `${relativePath} displayName`);
@@ -47,16 +47,28 @@ function assertSkills() {
   const skillsRoot = path.join(root, 'skills');
   const skillDirs = fs.readdirSync(skillsRoot, { withFileTypes: true })
     .filter(entry => entry.isDirectory())
-    .map(entry => entry.name);
+    .map(entry => entry.name)
+    .sort();
 
   assert.ok(skillDirs.length > 0, 'skills directory must contain at least one skill');
+  assert.deepStrictEqual(skillDirs, [
+    'code-reviewer',
+    'design-spec-builder',
+    'dev-builder',
+    'dev-plan-builder',
+    'java-backend-expert',
+    'note-keeper',
+    'product-spec-builder',
+    'release-builder',
+    'workflow-orchestrator',
+  ]);
+  assert.ok(skillDirs.every(name => !name.startsWith('aipilot-')), 'skill dirs must not use plugin prefixes');
   assert.ok(
-    !skillDirs.includes('aipilot-jl-workflow-evolver'),
+    !skillDirs.includes('workflow-evolver'),
     'removed workflow evolver skill must not be packaged',
   );
 
   for (const skillName of skillDirs) {
-    assert.ok(skillName.startsWith('aipilot-jl-'), `${skillName} must use aipilot-jl namespace`);
     const skillPath = path.join(skillsRoot, skillName, 'SKILL.md');
     assert.ok(fs.existsSync(skillPath), `${skillName} must include SKILL.md`);
 
@@ -69,22 +81,22 @@ function assertSkills() {
 
 function assertMarketplace() {
   const marketplace = readJson('.agents/plugins/marketplace.json');
-  assert.strictEqual(marketplace.name, 'aipilot-jl-local', 'marketplace name');
-  assert.strictEqual(marketplace.plugins[0].name, 'aipilot-jl', 'marketplace plugin name');
+  assert.strictEqual(marketplace.name, 'aipilot-local', 'marketplace name');
+  assert.strictEqual(marketplace.plugins[0].name, 'aipilot', 'marketplace plugin name');
   assert.strictEqual(marketplace.plugins[0].source.url, './', 'marketplace local source');
 }
 
 function assertCanonicalConstitution() {
-  const canonicalRelativePath = 'skills/aipilot-jl-workflow-orchestrator/references/document-system-spec.md';
+  const canonicalRelativePath = 'skills/workflow-orchestrator/references/document-system-spec.md';
   const constitution = fs.readFileSync(path.join(root, canonicalRelativePath), 'utf8');
   const coldStart = fs.readFileSync(path.join(root, 'commands/aipilot.md'), 'utf8');
   const readers = [
-    'skills/aipilot-jl-product-spec-builder/SKILL.md',
-    'skills/aipilot-jl-design-spec-builder/SKILL.md',
-    'skills/aipilot-jl-dev-plan-builder/SKILL.md',
-    'skills/aipilot-jl-dev-builder/SKILL.md',
-    'skills/aipilot-jl-code-reviewer/SKILL.md',
-    'skills/aipilot-jl-release-builder/SKILL.md',
+    'skills/product-spec-builder/SKILL.md',
+    'skills/design-spec-builder/SKILL.md',
+    'skills/dev-plan-builder/SKILL.md',
+    'skills/dev-builder/SKILL.md',
+    'skills/code-reviewer/SKILL.md',
+    'skills/release-builder/SKILL.md',
   ];
 
   assert.ok(constitution.includes('## 8. Stage Boundary Review Gate'), 'constitution must own the review gate');
@@ -95,7 +107,7 @@ function assertCanonicalConstitution() {
   for (const relativePath of readers) {
     const contents = fs.readFileSync(path.join(root, relativePath), 'utf8');
     assert.ok(
-      contents.includes('../aipilot-jl-workflow-orchestrator/references/document-system-spec.md'),
+      contents.includes('../workflow-orchestrator/references/document-system-spec.md'),
       `${relativePath} must read the canonical plugin constitution directly`,
     );
     assert.ok(

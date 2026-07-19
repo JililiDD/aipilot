@@ -4,7 +4,7 @@ Shared regimen for opening browser-based review sessions where the user annotate
 
 ## Scope
 
-- **Visual review** (`aipilot-jl-design-spec-builder`): visual direction / HTML prototype review. The HTML under review IS the deliverable; feedback edits it directly.
+- **Visual review** (`design-spec-builder`): visual direction / HTML prototype review. The HTML under review IS the deliverable; feedback edits it directly.
 - **Document review** (orchestrator stage confirmations): spec / work-item / plan documents rendered to a one-off review HTML. The markdown stays the source of truth; the HTML is a disposable projection (see Document Review section).
 
 ## Commands

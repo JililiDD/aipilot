@@ -1,5 +1,5 @@
 ---
-name: aipilot-jl-dev-plan-builder
+name: dev-plan-builder
 description: Use when a requirement needs an executable development plan — either the phase roadmap of a project or large feature (dev-phase-plan.md), or the story/task breakdown of a specific work-item's Plan section — covering implementation order, reuse, verification, and testing strategy.
 ---
 
@@ -13,7 +13,7 @@ You are a senior engineering planner. Convert confirmed requirements and design 
 
 Read, when they exist (project-document paths mean the resolved documents root; the constitution path is plugin-relative):
 
-- `../aipilot-jl-workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, roadmap/breakdown routing, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, roadmap/breakdown routing, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
 - `product-spec.md` — current product state.
 - the **target work-item** in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Its Requirement and Design sections are the authoritative input; they supersede the master specs for this change until merge-back.
 - `design-spec.md` — current design state, when the work has a UI surface.
@@ -25,7 +25,7 @@ For detailed rules, load on demand: `references/planning-rules.md` (split catego
 
 ## Mode Selection
 
-**Hard order: resolve the requirement source before choosing a mode.** Each mode has a different source: Breakdown consumes a work-item; Roadmap consumes a confirmed `product-spec.md`. If the source for the work at hand is missing — "plan feature X" with no work-item for X, or "plan the project" with no confirmed master spec — the requirement stage has not happened: route to `aipilot-jl-product-spec-builder` and stop. Mode selection never applies to un-specced work.
+**Hard order: resolve the requirement source before choosing a mode.** Each mode has a different source: Breakdown consumes a work-item; Roadmap consumes a confirmed `product-spec.md`. If the source for the work at hand is missing — "plan feature X" with no work-item for X, or "plan the project" with no confirmed master spec — the requirement stage has not happened: route to `product-spec-builder` and stop. Mode selection never applies to un-specced work.
 
 Then choose:
 
@@ -47,27 +47,27 @@ Write or update `dev-phase-plan.md` — **the map only**, structured per `refere
 
 ## Breakdown Mode
 
-Fill the **Plan section** of the target work-item. This mode produces plans, never code — no implementation, no file-by-file checklists; that belongs to `aipilot-jl-dev-builder`. Never write into Requirement, Design, or Execution Record; if Requirement (or Design, for UI work) is missing or not buildable, route to its owner and stop.
+Fill the **Plan section** of the target work-item. This mode produces plans, never code — no implementation, no file-by-file checklists; that belongs to `dev-builder`. Never write into Requirement, Design, or Execution Record; if Requirement (or Design, for UI work) is missing or not buildable, route to its owner and stop.
 
 The Plan section contains:
 
 - **User stories → tasks.** A task is the smallest execution unit and always carries its own verification method; every story/group carries a Done-when line. Hierarchy, the two middle-layer flavors, and naming discipline per constitution §3 and `references/planning-rules.md`; headings are `### User Story n:` / `### Task Group n:`.
 - **Story 0 — visual direction smoke**, required when the change introduces a new page or screen. Ask the direction-source question and record markers per `references/planning-rules.md` (Story 0 section).
-- **Execution granularity default** — ask one structured low-risk question with these choices before handing to `aipilot-jl-dev-builder`: whole work-item, per user story/task group, or per task. In the same batch, ask the **commit policy**: `manual` (recommended — the agent never commits; after each passing review the working tree is left for the user's own review and commit), `branch` (the agent commits freely on a work-item branch, never mainline; the user reviews and merges), or `auto` (commit after each passing review). Record both choices here (`Commit policy: <manual | branch | auto>`).
+- **Execution granularity default** — ask one structured low-risk question with these choices before handing to `dev-builder`: whole work-item, per user story/task group, or per task. In the same batch, ask the **commit policy**: `manual` (recommended — the agent never commits; after each passing review the working tree is left for the user's own review and commit), `branch` (the agent commits freely on a work-item branch, never mainline; the user reviews and merges), or `auto` (commit after each passing review). Record both choices here (`Commit policy: <manual | branch | auto>`).
 - **Reuse notes** — what existing code, helpers, dependencies, or native features each story builds on; new implementation states why reuse is insufficient.
 - **Explicit non-goals.**
 - **Exit Criteria and Stop Conditions** — the work-item's final verification pass, and the shared halt-and-ask triggers every level inherits.
 
 **Goal-ready at every level**: each unit — task, user story/task group, whole work-item — carries its own convergence plus the inherited Stop Conditions (mechanics in the template), so any single level can be delegated to an autonomous run without rewriting the plan. Running "a whole phase" means running that phase's work-item; grouping multiple phases into one autonomous target is this skill's **Goal Wrap** (below). A unit that cannot run from the work-item file plus what it explicitly names is not fully broken down.
 
-**Acceptance-criteria traceability (excluded middle)**: every story or task AC must trace to a criterion in the Requirement or Design section. A criterion with no source is either a missing requirement — route to `aipilot-jl-product-spec-builder` or `aipilot-jl-design-spec-builder` — or scope creep — drop it. There is no third option; planning time never invents requirements.
+**Acceptance-criteria traceability (excluded middle)**: every story or task AC must trace to a criterion in the Requirement or Design section. A criterion with no source is either a missing requirement — route to `product-spec-builder` or `design-spec-builder` — or scope creep — drop it. There is no third option; planning time never invents requirements.
 
 ## Goal Wrap (autonomous runs)
 
 A single task, story, or work-item is already goal-ready. Two shapes of autonomous permission exist; both keep every gate intact — Story 0 stop markers, granularity, Stop Conditions, review cadence, and merge-backs all apply; autonomy never skips gates.
 
 - **Single work-item, full pipeline** (Requirement → Design → Plan → Build → Review → merge-back): granted when the orchestrator's execution-mode question at intake (constitution §4 / routing rules) is answered with the autonomous option, or asked for explicitly. No document — the choice is recorded for the session; the orchestrator's per-stage stops are waived in favor of running straight through to a blocker, a failing review with no convergence, or completion.
-- **Multiple phases** ("do all remaining phases"): produces a short wrap document containing the objective in one sentence; the phases in order, each with its work-item filename (derive missing ones first) and its own Exit Criteria as the per-phase exit; the aggregate exit — the last phase merged; and one instruction: *follow the `aipilot-jl-workflow-orchestrator` stages throughout — Story 0 stop markers, granularity, Stop Conditions, review cadence, and merge-backs all apply; autonomy never skips gates.* The wrap points at the system, never restates it. It is a **derived delivery artifact**: hand it to the user for the runtime's goal feature; do not store it in the document system.
+- **Multiple phases** ("do all remaining phases"): produces a short wrap document containing the objective in one sentence; the phases in order, each with its work-item filename (derive missing ones first) and its own Exit Criteria as the per-phase exit; the aggregate exit — the last phase merged; and one instruction: *follow the `workflow-orchestrator` stages throughout — Story 0 stop markers, granularity, Stop Conditions, review cadence, and merge-backs all apply; autonomy never skips gates.* The wrap points at the system, never restates it. It is a **derived delivery artifact**: hand it to the user for the runtime's goal feature; do not store it in the document system.
 
 ## Valves
 
@@ -80,7 +80,7 @@ Both are normal outcomes, not failures; that is why ambiguity defaults to the sm
 
 - Run a Material Uncertainty Scan before writing. Stop and ask the smallest useful question when a missing decision affects behavior, acceptance, data boundaries, integration, verification expectations, trust, cost, or data-loss risk — do not infer material requirements from convention or convenience, and never silently turn uncertainty into plan text. Low-risk implementation defaults may be chosen but must be labeled as assumptions.
 - Question format: per constitution §7.
-- When planning Java backend work, load the `aipilot-jl-java-backend-expert` overlay for backend phase/task boundaries, API contracts, and transaction/persistence strategy.
+- When planning Java backend work, load the `java-backend-expert` overlay for backend phase/task boundaries, API contracts, and transaction/persistence strategy.
 - Apply YAGNI and first principles per `references/planning-rules.md`: no speculative features, abstractions, providers, modes, or dependencies without current requirement evidence; smallest user-visible outcome, minimal state and surface, explicit data flow, verification at trust boundaries.
 - Record per constitution §2: a planning choice → dated entry in `decisions.md`; a constraint discovered while planning → dated entry in `lessons.md`.
 
@@ -90,7 +90,7 @@ The plan is not ready if: any task lacks a verification method; any story lacks 
 
 ## Workflow Handoff
 
-After Roadmap Mode: recommend deriving and breaking down the first unbuilt phase (this skill, Breakdown Mode). After Breakdown Mode: summarize the decisions affecting scope, architecture, data boundaries, verification, and non-goals — **lead with the decisions the user is most likely to change** (data model, interfaces, user-facing behavior) and put mechanical work last; recommend `aipilot-jl-dev-builder` for the target work-item (name it), or produce a Goal Wrap when the user wants one autonomous run across multiple phases. Apply the canonical constitution §8 at the stage boundary; do not restate or bypass its review and confirmation policy. If blocked, ask the smallest useful question and stop.
+After Roadmap Mode: recommend deriving and breaking down the first unbuilt phase (this skill, Breakdown Mode). After Breakdown Mode: summarize the decisions affecting scope, architecture, data boundaries, verification, and non-goals — **lead with the decisions the user is most likely to change** (data model, interfaces, user-facing behavior) and put mechanical work last; recommend `dev-builder` for the target work-item (name it), or produce a Goal Wrap when the user wants one autonomous run across multiple phases. Apply the canonical constitution §8 at the stage boundary; do not restate or bypass its review and confirmation policy. If blocked, ask the smallest useful question and stop.
 
 ## Final Response Pattern
 
