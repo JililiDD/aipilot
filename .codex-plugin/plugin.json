@@ -1,10 +1,13 @@
 {
   "name": "aipilot",
-  "version": "2.0.0+codex.20260719141919",
+  "version": "1.0.0",
   "description": "Document-driven product development workflow skills for specs, planning, implementation, review, and release.",
   "author": {
-    "name": "AIPilot contributors"
+    "name": "JililiDD",
+    "url": "https://github.com/JililiDD"
   },
+  "homepage": "https://github.com/JililiDD/aipilot#readme",
+  "repository": "https://github.com/JililiDD/aipilot",
   "license": "MIT",
   "keywords": [
     "workflow",
@@ -17,7 +20,7 @@
     "displayName": "AIPilot",
     "shortDescription": "Document-driven development workflow skills.",
     "longDescription": "AIPilot provides coordinated skills for product specs, design specs, development planning, implementation, review, release readiness, and durable project memory.",
-    "developerName": "AIPilot contributors",
+    "developerName": "JililiDD",
     "category": "Productivity",
     "capabilities": [
       "Planning",
@@ -29,6 +32,13 @@
       "Use AIPilot to plan this project.",
       "Use AIPilot to continue the current workflow.",
       "Use AIPilot to review release readiness."
-    ]
+    ],
+    "brandColor": "#18C9E8",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo-dark.png",
+    "websiteURL": "https://github.com/JililiDD/aipilot",
+    "privacyPolicyURL": "https://github.com/JililiDD/aipilot/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/JililiDD/aipilot/blob/main/TERMS.md"
   }
 }

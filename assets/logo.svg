@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title description">
+  <title id="title">AIPilot workflow loop</title>
+  <desc id="description">Four workflow nodes surrounding a forward control.</desc>
+  <g fill="none" stroke="#2868F0" stroke-width="56" stroke-linecap="round">
+    <path d="M 620 205 A 340 340 0 0 1 819 404"/>
+    <path d="M 819 620 A 340 340 0 0 1 620 819"/>
+    <path d="M 404 819 A 340 340 0 0 1 205 620"/>
+    <path d="M 205 404 A 340 340 0 0 1 404 205"/>
+  </g>
+  <circle cx="512" cy="120" r="72" fill="#18C9E8"/>
+  <circle cx="904" cy="512" r="72" fill="#7357E8"/>
+  <circle cx="512" cy="904" r="72" fill="#18C9E8"/>
+  <circle cx="120" cy="512" r="72" fill="#2868F0"/>
+  <path fill="#22C7E8" d="M 476 411 Q 448 395 448 428 L 448 596 Q 448 629 476 613 L 621 529 Q 650 512 621 495 Z"/>
+</svg>

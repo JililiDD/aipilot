@@ -14,9 +14,10 @@ function readJson(relativePath) {
 function assertManifest(relativePath, expected) {
   const manifest = readJson(relativePath);
   assert.strictEqual(manifest.name, 'aipilot', `${relativePath} name`);
-  assert.match(manifest.version, /^2\.0\.0(?:\+codex\.[A-Za-z0-9.-]+)?$/, `${relativePath} version`);
+  assert.strictEqual(manifest.version, '1.0.0', `${relativePath} version`);
   assert.strictEqual(manifest.skills, './skills/', `${relativePath} skills`);
-  assert.strictEqual(manifest.interface.displayName, 'AIPilot', `${relativePath} displayName`);
+  assert.strictEqual(manifest.author.name, 'JililiDD', `${relativePath} author`);
+  assert.strictEqual(manifest.repository, 'https://github.com/JililiDD/aipilot', `${relativePath} repository`);
 
   for (const field of expected.absentFields || []) {
     assert.ok(!Object.prototype.hasOwnProperty.call(manifest, field), `${relativePath} must not declare ${field}`);
@@ -26,28 +27,31 @@ function assertManifest(relativePath, expected) {
 function assertManifestsInSync() {
   const claudeManifest = readJson('.claude-plugin/plugin.json');
   const codexManifest = readJson('.codex-plugin/plugin.json');
-  // README documents this carve-out: Codex's plugin validator rejects fields
-  // it doesn't recognize, so those fields may legitimately be absent from the
-  // codex manifest. Everything else must stay identical between the two.
-  const CODEX_INCOMPATIBLE_FIELDS = ['hooks'];
+  const sharedFields = [
+    'name',
+    'version',
+    'description',
+    'author',
+    'homepage',
+    'repository',
+    'license',
+    'keywords',
+    'skills',
+  ];
 
-  const claudeComparable = { ...claudeManifest };
-  for (const field of CODEX_INCOMPATIBLE_FIELDS) {
-    delete claudeComparable[field];
+  for (const field of sharedFields) {
+    assert.deepStrictEqual(
+      codexManifest[field],
+      claudeManifest[field],
+      `codex and Claude manifests disagree on ${field}`,
+    );
   }
 
-  const normalizeVersion = version => version.replace(/\+codex\.[A-Za-z0-9.-]+$/, '');
-  const codexComparable = {
-    ...codexManifest,
-    version: normalizeVersion(codexManifest.version),
-  };
-  claudeComparable.version = normalizeVersion(claudeComparable.version);
-
-  assert.deepStrictEqual(
-    codexComparable,
-    claudeComparable,
-    'codex manifest has drifted from claude manifest outside the documented carve-out (hooks and codex cachebuster)',
-  );
+  assert.strictEqual(claudeManifest.displayName, 'AIPilot', 'Claude displayName');
+  assert.strictEqual(claudeManifest.commands, './commands/', 'Claude commands');
+  assert.ok(!Object.prototype.hasOwnProperty.call(claudeManifest, 'interface'), 'Claude manifest must not use Codex interface metadata');
+  assert.ok(!Object.prototype.hasOwnProperty.call(claudeManifest, 'hooks'), 'Claude manifest must not declare absent hooks');
+  assert.strictEqual(codexManifest.interface.displayName, 'AIPilot', 'Codex displayName');
 }
 
 function assertSkills() {
@@ -88,15 +92,23 @@ function assertSkills() {
 
 function assertMarketplace() {
   const marketplace = readJson('.agents/plugins/marketplace.json');
-  assert.strictEqual(marketplace.name, 'aipilot-local', 'marketplace name');
-  assert.strictEqual(marketplace.interface.displayName, 'AIPilot Local', 'marketplace display name');
+  assert.strictEqual(marketplace.name, 'aipilot', 'marketplace name');
+  assert.strictEqual(marketplace.interface.displayName, 'AIPilot', 'marketplace display name');
   assert.strictEqual(marketplace.plugins[0].name, 'aipilot', 'marketplace plugin name');
   assert.strictEqual(marketplace.plugins[0].source.source, 'local', 'marketplace source type');
   assert.strictEqual(marketplace.plugins[0].source.path, './', 'marketplace local source path');
   assert.strictEqual(marketplace.plugins[0].policy.installation, 'AVAILABLE', 'marketplace installation policy');
   assert.strictEqual(marketplace.plugins[0].policy.authentication, 'ON_INSTALL', 'marketplace auth policy');
-  assert.deepStrictEqual(marketplace.plugins[0].policy.products, ['CODEX'], 'marketplace products');
+  assert.ok(!Object.prototype.hasOwnProperty.call(marketplace.plugins[0].policy, 'products'), 'marketplace products override');
   assert.strictEqual(marketplace.plugins[0].category, 'Productivity', 'marketplace category');
+
+  const claudeMarketplace = readJson('.claude-plugin/marketplace.json');
+  assert.strictEqual(claudeMarketplace.name, 'aipilot', 'Claude marketplace name');
+  assert.strictEqual(claudeMarketplace.plugins.length, 1, 'Claude marketplace plugin count');
+  assert.strictEqual(claudeMarketplace.plugins[0].name, 'aipilot', 'Claude marketplace plugin name');
+  assert.strictEqual(claudeMarketplace.plugins[0].source, './', 'Claude marketplace source');
+  assert.strictEqual(claudeMarketplace.plugins[0].version, '1.0.0', 'Claude marketplace version');
+  assert.strictEqual(claudeMarketplace.plugins[0].strict, true, 'Claude marketplace strict mode');
 }
 
 function assertCanonicalConstitution() {
@@ -130,7 +142,7 @@ function assertCanonicalConstitution() {
   }
 }
 
-assertManifest('.claude-plugin/plugin.json', {});
+assertManifest('.claude-plugin/plugin.json', { absentFields: ['interface', 'hooks'] });
 assertManifest('.codex-plugin/plugin.json', { absentFields: ['hooks'] });
 assertManifestsInSync();
 assertMarketplace();

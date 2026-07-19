@@ -4,6 +4,7 @@ const ROOT_ENV_KEYS = [
   'AIPILOT_PLUGIN_ROOT',
   'CODEX_PLUGIN_ROOT',
   'CLAUDE_PLUGIN_ROOT',
+  'GROK_PLUGIN_ROOT',
   'ANTIGRAVITY_PLUGIN_ROOT',
   'CURSOR_PLUGIN_ROOT',
 ];
@@ -20,6 +21,7 @@ function resolvePluginRoot(env = process.env, fallback = process.cwd()) {
 
 function detectHost(env = process.env) {
   if (env.CODEX_PLUGIN_ROOT) return 'codex';
+  if (env.GROK_PLUGIN_ROOT) return 'grok';
   if (env.CURSOR_PLUGIN_ROOT) return 'cursor';
   if (env.CLAUDE_PLUGIN_ROOT) return 'claude';
   if (env.ANTIGRAVITY_PLUGIN_ROOT) return 'antigravity';

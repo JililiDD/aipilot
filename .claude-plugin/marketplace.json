@@ -1,0 +1,29 @@
+{
+  "name": "aipilot",
+  "description": "Official marketplace for the AIPilot document-driven development workflow plugin.",
+  "owner": {
+    "name": "JililiDD"
+  },
+  "plugins": [
+    {
+      "name": "aipilot",
+      "source": "./",
+      "description": "Document-driven product development workflows for specs, planning, implementation, review, and release.",
+      "version": "1.0.0",
+      "author": {
+        "name": "JililiDD"
+      },
+      "homepage": "https://github.com/JililiDD/aipilot#readme",
+      "repository": "https://github.com/JililiDD/aipilot",
+      "license": "MIT",
+      "keywords": [
+        "workflow",
+        "product-development",
+        "planning",
+        "code-review"
+      ],
+      "category": "Productivity",
+      "strict": true
+    }
+  ]
+}

@@ -1,10 +1,15 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "aipilot",
-  "version": "2.0.0",
+  "displayName": "AIPilot",
+  "version": "1.0.0",
   "description": "Document-driven product development workflow skills for specs, planning, implementation, review, and release.",
   "author": {
-    "name": "AIPilot contributors"
+    "name": "JililiDD",
+    "url": "https://github.com/JililiDD"
   },
+  "homepage": "https://github.com/JililiDD/aipilot#readme",
+  "repository": "https://github.com/JililiDD/aipilot",
   "license": "MIT",
   "keywords": [
     "workflow",
@@ -13,23 +18,5 @@
     "code-review"
   ],
   "skills": "./skills/",
-  "interface": {
-    "displayName": "AIPilot",
-    "shortDescription": "Document-driven development workflow skills.",
-    "longDescription": "AIPilot provides coordinated skills for product specs, design specs, development planning, implementation, review, release readiness, and durable project memory.",
-    "developerName": "AIPilot contributors",
-    "category": "Productivity",
-    "capabilities": [
-      "Planning",
-      "Writing",
-      "Code Review",
-      "Project Memory"
-    ],
-    "defaultPrompt": [
-      "Use AIPilot to plan this project.",
-      "Use AIPilot to continue the current workflow.",
-      "Use AIPilot to review release readiness."
-    ]
-  },
-  "hooks": "./hooks/"
+  "commands": "./commands/"
 }

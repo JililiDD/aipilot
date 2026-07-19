@@ -27,29 +27,44 @@ function test(name, fn) {
 test('codex manifest exists and points at shared skills', () => {
   const manifest = readJson('.codex-plugin/plugin.json');
   assert.strictEqual(manifest.name, 'aipilot');
+  assert.strictEqual(manifest.version, '1.0.0');
   assert.strictEqual(manifest.skills, './skills/');
   assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'hooks'));
   assert.strictEqual(manifest.interface.displayName, 'AIPilot');
 });
 
-test('claude manifest points at shared skills and keeps hooks', () => {
+test('claude manifest points at shared skills without invalid cross-host fields', () => {
   const manifest = readJson('.claude-plugin/plugin.json');
   assert.strictEqual(manifest.name, 'aipilot');
+  assert.strictEqual(manifest.displayName, 'AIPilot');
+  assert.strictEqual(manifest.version, '1.0.0');
   assert.strictEqual(manifest.skills, './skills/');
-  assert.strictEqual(manifest.interface.displayName, 'AIPilot');
+  assert.strictEqual(manifest.commands, './commands/');
+  assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'interface'));
+  assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'hooks'));
 });
 
-test('local marketplace exposes the AIPilot plugin', () => {
+test('Codex marketplace exposes the AIPilot plugin', () => {
   const marketplace = readJson('.agents/plugins/marketplace.json');
-  assert.strictEqual(marketplace.name, 'aipilot-local');
-  assert.strictEqual(marketplace.interface.displayName, 'AIPilot Local');
+  assert.strictEqual(marketplace.name, 'aipilot');
+  assert.strictEqual(marketplace.interface.displayName, 'AIPilot');
   assert.strictEqual(marketplace.plugins[0].name, 'aipilot');
   assert.strictEqual(marketplace.plugins[0].source.source, 'local');
   assert.strictEqual(marketplace.plugins[0].source.path, './');
   assert.strictEqual(marketplace.plugins[0].policy.installation, 'AVAILABLE');
   assert.strictEqual(marketplace.plugins[0].policy.authentication, 'ON_INSTALL');
-  assert.deepStrictEqual(marketplace.plugins[0].policy.products, ['CODEX']);
+  assert.ok(!Object.prototype.hasOwnProperty.call(marketplace.plugins[0].policy, 'products'));
   assert.strictEqual(marketplace.plugins[0].category, 'Productivity');
+});
+
+test('Claude marketplace exposes the AIPilot 1.0.0 plugin', () => {
+  const marketplace = readJson('.claude-plugin/marketplace.json');
+  assert.strictEqual(marketplace.name, 'aipilot');
+  assert.strictEqual(marketplace.plugins.length, 1);
+  assert.strictEqual(marketplace.plugins[0].name, 'aipilot');
+  assert.strictEqual(marketplace.plugins[0].source, './');
+  assert.strictEqual(marketplace.plugins[0].version, '1.0.0');
+  assert.strictEqual(marketplace.plugins[0].strict, true);
 });
 
 test('every skill directory contains a SKILL.md file', () => {
@@ -197,7 +212,7 @@ test('plugin ships no workflow signal capture path', () => {
 });
 
 test('plugin root resolver prefers host-specific environment variables', () => {
-  const { resolvePluginRoot } = require('../hooks/plugin-root');
+  const { detectHost, resolvePluginRoot } = require('../hooks/plugin-root');
   assert.strictEqual(
     resolvePluginRoot({
       AIPILOT_PLUGIN_ROOT: '/tmp/aipilot',
@@ -206,6 +221,8 @@ test('plugin root resolver prefers host-specific environment variables', () => {
     '/tmp/aipilot',
   );
   assert.strictEqual(resolvePluginRoot({ CODEX_PLUGIN_ROOT: '/tmp/codex' }), '/tmp/codex');
+  assert.strictEqual(resolvePluginRoot({ GROK_PLUGIN_ROOT: '/tmp/grok' }), '/tmp/grok');
+  assert.strictEqual(detectHost({ GROK_PLUGIN_ROOT: '/tmp/grok' }), 'grok');
   assert.strictEqual(resolvePluginRoot({ CLAUDE_PLUGIN_ROOT: '/tmp/claude' }), '/tmp/claude');
   assert.strictEqual(resolvePluginRoot({ ANTIGRAVITY_PLUGIN_ROOT: '/tmp/antigravity' }), '/tmp/antigravity');
   assert.strictEqual(resolvePluginRoot({ CURSOR_PLUGIN_ROOT: '/tmp/cursor' }), '/tmp/cursor');
