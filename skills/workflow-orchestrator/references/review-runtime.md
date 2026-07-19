@@ -12,9 +12,9 @@ Shared regimen for opening browser-based review sessions where the user annotate
 Version is pinned. Upgrades are deliberate: test the new version against this regimen, then update the pin here. `ezreview` requires Node.js 20 or newer.
 
 ```
-npx -y ezreview@0.1.4 <file.html>                                  # open the file in a review session
-npx -y ezreview@0.1.4 wait <file.html>                              # wait for the next feedback batch
-npx -y ezreview@0.1.4 reply <file.html> --to <annotation-id> "<message>"  # reply to a question
+npx -y ezreview@0.1.8 <file.html>                                  # open the file in a review session
+npx -y ezreview@0.1.8 wait <file.html>                              # wait for the next feedback batch
+npx -y ezreview@0.1.8 reply <file.html> --to <annotation-id> "<message>"  # reply to a question
 ```
 
 Place review HTML files in the session scratchpad, not the project tree.
@@ -62,7 +62,7 @@ The review runtime is an enhancement, never a gate-blocker. If `npx` fails, no b
 
 Stage confirmations whose deliverable is a markdown document (product spec, design spec or Design section, work-item, plan, roadmap) may run through a browser review instead of chat-only confirmation.
 
-Invariant: **edits land in the markdown source only; the review HTML is a disposable projection**, written to the scratchpad and discarded after the session — never committed, never edited by hand.
+Invariant: **edits land in the markdown source only; the review HTML is a disposable projection**, written to the scratchpad and deleted from local disk after the session — never committed, never edited by hand.
 
 Procedure:
 
@@ -77,4 +77,4 @@ Procedure:
 3. **Open and wait** per the Commands section above.
 4. **Back-map annotations**: each feedback row carries the annotated element's text. Locate that text in the markdown source (headings anchor sections; fall back to unique-substring search) and edit the **markdown**. If the text matches more than one place, ask instead of guessing.
 5. **Re-render and reply**: after each markdown edit, re-render to the same HTML path so the browser refreshes, then send the required outcome reply to every annotation ID from that batch. Run `wait` again only after all replies are visible to the review channel.
-6. **Close**: an ezreview confirmation from **Approve** (or explicit document confirmation in chat) ends the review. Return to constitution §8 for the separate next-stage confirmation; document approval alone does not authorize the next stage. Delete or ignore the scratchpad HTML.
+6. **Close**: an ezreview confirmation from **Approve** (or explicit document confirmation in chat) ends the review. Delete the exact scratchpad HTML created for this review from local disk before returning to constitution §8; use `rm -f -- <exact-review-html-path>` and do not retain or merely ignore it. Document approval alone does not authorize the next stage.

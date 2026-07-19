@@ -41,8 +41,14 @@ test('claude manifest points at shared skills and keeps hooks', () => {
 test('local marketplace exposes the AIPilot plugin', () => {
   const marketplace = readJson('.agents/plugins/marketplace.json');
   assert.strictEqual(marketplace.name, 'aipilot-local');
+  assert.strictEqual(marketplace.interface.displayName, 'AIPilot Local');
   assert.strictEqual(marketplace.plugins[0].name, 'aipilot');
-  assert.strictEqual(marketplace.plugins[0].source.url, './');
+  assert.strictEqual(marketplace.plugins[0].source.source, 'local');
+  assert.strictEqual(marketplace.plugins[0].source.path, './');
+  assert.strictEqual(marketplace.plugins[0].policy.installation, 'AVAILABLE');
+  assert.strictEqual(marketplace.plugins[0].policy.authentication, 'ON_INSTALL');
+  assert.deepStrictEqual(marketplace.plugins[0].policy.products, ['CODEX']);
+  assert.strictEqual(marketplace.plugins[0].category, 'Productivity');
 });
 
 test('every skill directory contains a SKILL.md file', () => {
@@ -144,7 +150,7 @@ test('canonical constitution exclusively owns the markdown stage review gate', (
   }
 
   assert.ok(runtime.includes('constitution §8 owns whether and when browser review is offered'));
-  assert.ok(runtime.includes('document approval alone does not authorize the next stage'));
+  assert.ok(runtime.includes('Document approval alone does not authorize the next stage'));
   assert.ok(!runtime.includes('treat it as the stage confirmation'));
   assert.ok(!runtime.includes('**Ask first**'));
 });
@@ -226,9 +232,9 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
     'utf8',
   );
 
-  assert.match(runtime, /npx -y ezreview@0\.1\.4 <file\.html>/);
-  assert.match(runtime, /npx -y ezreview@0\.1\.4 wait <file\.html>/);
-  assert.match(runtime, /npx -y ezreview@0\.1\.4 reply/);
+  assert.match(runtime, /npx -y ezreview@0\.1\.8 <file\.html>/);
+  assert.match(runtime, /npx -y ezreview@0\.1\.8 wait <file\.html>/);
+  assert.match(runtime, /npx -y ezreview@0\.1\.8 reply/);
   assert.match(runtime, /must remain \*\*attached to the current agent execution\*\*/);
   assert.match(runtime, /Do not launch it through ordinary shell detachment such as `&`, `nohup`, or `disown`/);
   assert.match(runtime, /managed continuation mechanism/);
@@ -243,6 +249,10 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
   assert.match(runtime, /Run `wait` again only after all replies are visible to the review channel/);
   assert.match(runtime, /Keep the current review turn open across every batch/);
   assert.match(runtime, /End the loop only when the user clicks ezreview's \*\*Approve\*\*/);
+  assert.match(runtime, /deleted from local disk after the session/);
+  assert.match(runtime, /Delete the exact scratchpad HTML created for this review from local disk/);
+  assert.match(runtime, /`rm -f -- <exact-review-html-path>`/);
+  assert.doesNotMatch(runtime, /Delete or ignore the scratchpad HTML/);
   assert.doesNotMatch(runtime, /start `wait` as a \*\*foreground task\*\*/);
   assert.doesNotMatch(renderer, /queuePrompt|window\./i);
   assert.doesNotMatch(renderer, /review-banner|Document review — annotate/i);

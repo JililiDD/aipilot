@@ -120,8 +120,8 @@ directly in the plugin source only when the user explicitly requests them.
 
 AIPilot can offer browser-based review for HTML design previews and rendered
 markdown deliverables. The markdown remains the source of truth; review HTML is
-generated as a disposable projection in the session scratchpad. The shared
-procedure and fallback behavior are documented in
+generated as a disposable projection in the session scratchpad and is deleted
+from local disk once that review closes. The shared procedure and fallback behavior are documented in
 `skills/workflow-orchestrator/references/review-runtime.md`.
 
 For markdown documents, the deterministic renderer is:
@@ -135,7 +135,7 @@ node skills/workflow-orchestrator/scripts/render-review.js \
 
 AIPilot uses the following external tools at runtime:
 
-- [ezreview](https://github.com/JililiDD/ezreview) `0.1.4` — local
+- [ezreview](https://github.com/JililiDD/ezreview) `0.1.8` — local
   browser-based review sessions. Licensed under MIT.
 - [marked](https://github.com/markedjs/marked) `18.0.6` — vendored
   Markdown-to-HTML rendering with no runtime download. Licensed under MIT.

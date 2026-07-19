@@ -14,7 +14,7 @@ function readJson(relativePath) {
 function assertManifest(relativePath, expected) {
   const manifest = readJson(relativePath);
   assert.strictEqual(manifest.name, 'aipilot', `${relativePath} name`);
-  assert.strictEqual(manifest.version, '2.0.0', `${relativePath} version`);
+  assert.match(manifest.version, /^2\.0\.0(?:\+codex\.[A-Za-z0-9.-]+)?$/, `${relativePath} version`);
   assert.strictEqual(manifest.skills, './skills/', `${relativePath} skills`);
   assert.strictEqual(manifest.interface.displayName, 'AIPilot', `${relativePath} displayName`);
 
@@ -36,10 +36,17 @@ function assertManifestsInSync() {
     delete claudeComparable[field];
   }
 
+  const normalizeVersion = version => version.replace(/\+codex\.[A-Za-z0-9.-]+$/, '');
+  const codexComparable = {
+    ...codexManifest,
+    version: normalizeVersion(codexManifest.version),
+  };
+  claudeComparable.version = normalizeVersion(claudeComparable.version);
+
   assert.deepStrictEqual(
-    codexManifest,
+    codexComparable,
     claudeComparable,
-    'codex manifest has drifted from claude manifest outside the documented carve-out (hooks)',
+    'codex manifest has drifted from claude manifest outside the documented carve-out (hooks and codex cachebuster)',
   );
 }
 
@@ -82,8 +89,14 @@ function assertSkills() {
 function assertMarketplace() {
   const marketplace = readJson('.agents/plugins/marketplace.json');
   assert.strictEqual(marketplace.name, 'aipilot-local', 'marketplace name');
+  assert.strictEqual(marketplace.interface.displayName, 'AIPilot Local', 'marketplace display name');
   assert.strictEqual(marketplace.plugins[0].name, 'aipilot', 'marketplace plugin name');
-  assert.strictEqual(marketplace.plugins[0].source.url, './', 'marketplace local source');
+  assert.strictEqual(marketplace.plugins[0].source.source, 'local', 'marketplace source type');
+  assert.strictEqual(marketplace.plugins[0].source.path, './', 'marketplace local source path');
+  assert.strictEqual(marketplace.plugins[0].policy.installation, 'AVAILABLE', 'marketplace installation policy');
+  assert.strictEqual(marketplace.plugins[0].policy.authentication, 'ON_INSTALL', 'marketplace auth policy');
+  assert.deepStrictEqual(marketplace.plugins[0].policy.products, ['CODEX'], 'marketplace products');
+  assert.strictEqual(marketplace.plugins[0].category, 'Productivity', 'marketplace category');
 }
 
 function assertCanonicalConstitution() {
