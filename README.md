@@ -45,8 +45,7 @@ codex plugin add aipilot@aipilot
 Add the marketplace and install the plugin:
 
 ```bash
-grok plugin marketplace add JililiDD/aipilot
-grok plugin install aipilot@aipilot
+grok plugin install JililiDD/aipilot@v1.0.0 --trust
 ```
 
 For a local checkout, replace `JililiDD/aipilot` with the absolute path to this repository.
