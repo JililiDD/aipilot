@@ -11,7 +11,7 @@ A **domain overlay**, not a workflow stage. Like `dev-builder`'s Diagnosis Mode,
 
 Because the caller has already read the product/design/plan documents and the target work-item, this overlay does not re-read them. It reads the **Java material**: relevant source and test files; build files (`pom.xml`, `build.gradle`, `settings.gradle`, `gradle.properties`); API contracts, OpenAPI, DTOs, migrations, and error models when present; and the project's existing package layout, naming, test conventions, dependency choices, and framework versions. For Spring/JUnit/Maven/Gradle specifics, consult `references/backend-checks.md`.
 
-Any durable Java decision or discovered constraint surfaced here is recorded by the **calling stage** into `decisions.md` (a choice, e.g. "service-layer transaction boundary") or `lessons.md` (a pit, e.g. "repository X N+1 under lazy serialization") — this overlay names them; the caller writes them.
+Any durable Java decision or discovered constraint surfaced here is recorded by the **calling stage** into `memory/decisions.md` (a choice, e.g. "service-layer transaction boundary") or `memory/lessons.md` (a pit, e.g. "repository X N+1 under lazy serialization") — this overlay names them; the caller writes them.
 
 ## Emphasis by caller
 

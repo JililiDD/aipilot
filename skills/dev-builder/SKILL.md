@@ -31,11 +31,11 @@ Exit: the defect no longer reproduces **and** the original failing check is gree
 
 Read, when they exist (project-document paths mean the resolved documents root; the constitution path is plugin-relative):
 
-- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, execution granularity, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, execution granularity, merge-back, and stage-boundary review. It is not a project document. Read `memory/agent-guideline.md` at the documents root separately for project-specific overrides.
 - the **target work-item** in the top level of `work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Its Requirement, Design, and Plan sections are the authoritative input and supersede the master specs for this change until merge-back. An empty Design section on a phase work-item is normal — the master `design-spec.md` is its design source.
 - `product-spec.md` and `design-spec.md` — surrounding product and design state.
 - `dev-phase-plan.md` when executing a phase work-item.
-- `decisions.md` and `lessons.md` — always read both whole (small by design).
+- `memory/decisions.md` and `memory/lessons.md` — read each whole when present (small by design), and treat absence as no recorded entries.
 - `BACKLOG.md` when deferred tasks may affect scope.
 - Relevant source files, and existing components, utilities, tests, dependencies, and style/type/module/test conventions related to the active task.
 
@@ -106,7 +106,7 @@ Execute Story 0's stop marker as planned: `[stop: user-confirm]` (the default) �
 - First principles: minimal state and surface area, explicit data flow, verification at trust and integration boundaries.
 - Keep scope inside the target work-item.
 - `BACKLOG.md` capture only with explicit user approval.
-- Record the moment it happens — whoever discovers, records; context is freshest at discovery: an implementation choice that constrains future work-items → dated entry in `decisions.md`; a discovered constraint (a flaky library, a rate limit, a deadlock) → dated entry in `lessons.md`.
+- Record the moment it happens — whoever discovers, records; context is freshest at discovery: an implementation choice that constrains future work-items → dated entry in `memory/decisions.md`; a discovered constraint (a flaky library, a rate limit, a deadlock) → dated entry in `memory/lessons.md`. If the target memory file is absent, create `memory/` and the file with its H1 heading and the first dated entry instead of pre-creating empty memory infrastructure.
 - **Implementation never runs in sub-agents** — one main agent writes all code. The only sub-agent is the clean-context reviewer.
 - When the work touches Java backend, load the `java-backend-expert` overlay and apply its checks (both Build and Diagnosis Mode).
 - Never claim complete, fixed, or passing without fresh verification evidence from this run.

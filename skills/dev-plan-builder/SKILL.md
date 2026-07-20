@@ -13,12 +13,12 @@ You are a senior engineering planner. Convert confirmed requirements and design 
 
 Read, when they exist (project-document paths mean the resolved documents root; the constitution path is plugin-relative):
 
-- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, roadmap/breakdown routing, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, roadmap/breakdown routing, merge-back, and stage-boundary review. It is not a project document. Read `memory/agent-guideline.md` at the documents root separately for project-specific overrides.
 - `product-spec.md` — current product state.
 - the **target work-item** in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Its Requirement and Design sections are the authoritative input; they supersede the master specs for this change until merge-back.
 - `design-spec.md` — current design state, when the work has a UI surface.
 - `dev-phase-plan.md` — the existing roadmap, if any.
-- `decisions.md` and `lessons.md` — the append-only logs of choices and pits; always read both whole (small by design).
+- `memory/decisions.md` and `memory/lessons.md` — the append-only logs of choices and pits; read each whole when present (small by design), and treat absence as no recorded entries.
 - Existing code, components, tests, dependencies, and conventions relevant to the work.
 
 For detailed rules, load on demand: `references/planning-rules.md` (split categories, phase shapes, reuse order, YAGNI, verification); `references/roadmap-template.md` when writing `dev-phase-plan.md`; `references/plan-section-template.md` when writing a work-item's Plan section.
@@ -43,7 +43,7 @@ Write or update `dev-phase-plan.md` — **the map only**, structured per `refere
 - Each phase entry carries a status (`planned` / `in-progress` / `merged`) and, once its work-item exists, a pointer to it — **filename only, never a directory path** (the directory derives from the status; see the template).
 - Phases must be small enough to complete and review without holding the whole project in context; the first phase must produce an inspectable result.
 
-**Phase work-item derivation** (when a phase is next to build): create its work-item per the file convention (phase in the slug, `phase: <n>` in the frontmatter, full four-section skeleton). Fill the **Requirement section only by decomposing the master spec**: scope and acceptance criteria are quoted or referenced from `product-spec.md`'s confirmed content — never invented; every phase AC must trace to a master-spec AC. Design input for phase work-items is the master `design-spec.md` (the 0-to-1 pass already covers the product); leave the Design section empty unless this phase deviates from it — an empty Design section on a phase work-item is normal, not a blocker. Then proceed to Breakdown Mode for its Plan section, backfill the roadmap pointer, and flip the phase status to `in-progress`.
+**Phase work-item derivation** (when a phase is next to build): ensure `work-items/` and `work-items/merged/` exist, repairing either directory when missing, then create its work-item per the file convention (phase in the slug, `phase: <n>` in the frontmatter, full four-section skeleton). Fill the **Requirement section only by decomposing the master spec**: scope and acceptance criteria are quoted or referenced from `product-spec.md`'s confirmed content — never invented; every phase AC must trace to a master-spec AC. Design input for phase work-items is the master `design-spec.md` (the 0-to-1 pass already covers the product); leave the Design section empty unless this phase deviates from it — an empty Design section on a phase work-item is normal, not a blocker. Then proceed to Breakdown Mode for its Plan section, backfill the roadmap pointer, and flip the phase status to `in-progress`.
 
 ## Breakdown Mode
 
@@ -82,7 +82,7 @@ Both are normal outcomes, not failures; that is why ambiguity defaults to the sm
 - Question format: per constitution §7.
 - When planning Java backend work, load the `java-backend-expert` overlay for backend phase/task boundaries, API contracts, and transaction/persistence strategy.
 - Apply YAGNI and first principles per `references/planning-rules.md`: no speculative features, abstractions, providers, modes, or dependencies without current requirement evidence; smallest user-visible outcome, minimal state and surface, explicit data flow, verification at trust boundaries.
-- Record per constitution §2: a planning choice → dated entry in `decisions.md`; a constraint discovered while planning → dated entry in `lessons.md`.
+- Record per constitution §2: a planning choice → dated entry in `memory/decisions.md`; a constraint discovered while planning → dated entry in `memory/lessons.md`. If the target memory file is absent, create `memory/` and the file with its H1 heading and the first dated entry instead of pre-creating empty memory infrastructure.
 
 ## Quality Gate
 

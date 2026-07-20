@@ -15,8 +15,9 @@ Run these in order at every session start:
 
 1. **Read the canonical constitution**: read `references/document-system-spec.md` from this skill. It is plugin-owned and never copied into a project. Ignore any legacy `document-system-spec.md` under the project documents root.
 2. **Resolve the documents root**: read the project-root `AGENTS.md` for a `Documents root:` entry under an `## AIPilot` heading (canonical in every runtime — an explicit file read; do not search `CLAUDE.md` or other runtime files); absent → default `docs/aipilot/`. Report the resolved root once. Every `docs/aipilot/` path below means the resolved root.
-3. **Self-healing scan** (constitution §6): before any routing, scan for interrupted merge-backs and complete them first.
-4. **Read project state** (when they exist): `agent-guideline.md` for project-specific overrides; `product-spec.md`; `design-spec.md`; `dev-phase-plan.md`; `CHANGELOG.md`; `BACKLOG.md` when deferred tasks may affect the recommendation; `decisions.md` and `lessons.md` — always read both whole (small by design); active work-items in the top level of `work-items/` (merged history under `work-items/merged/`, read only when it matters); relevant `design-assets/` images when a design direction is in play; `AGENTS.md`.
+3. **Repair the invariant directory skeleton**: ensure `work-items/` and `work-items/merged/` exist. Cold start creates them, but Git does not preserve empty directories and a skill may be invoked directly, so missing directories are repaired automatically rather than treated as project-state errors.
+4. **Self-healing scan** (constitution §6): before any routing, scan for interrupted merge-backs and complete them first.
+5. **Read project state** (when they exist): `memory/agent-guideline.md` for project-specific overrides; `product-spec.md`; `design-spec.md`; `dev-phase-plan.md`; `CHANGELOG.md`; `BACKLOG.md` when deferred tasks may affect the recommendation; `memory/decisions.md` and `memory/lessons.md` — read each whole when present (small by design), and treat absence as no recorded entries; active work-items in the top level of `work-items/` (merged history under `work-items/merged/`, read only when it matters); relevant `design-assets/` images when a design direction is in play; `AGENTS.md`.
 
 ## Stage Order
 
@@ -56,7 +57,7 @@ When routing any stage that operates on a work-item, **name the target file expl
 - If merge-back completes for a phase work-item and another planned phase remains, recommend `dev-plan-builder` Breakdown Mode for the next unbuilt phase.
 - If the user asks to package, publish, hand off, or release, route to `release-builder`.
 - If the active stage touches Java backend code or Java backend risk, load the `java-backend-expert` overlay inside that stage (see companion note above).
-- If current work introduces a choice or uncovers a constraint that binds future work-items and is not visible in the state documents, ensure the active stage records it per constitution §2 (`decisions.md` for choices, `lessons.md` for discovered constraints).
+- If current work introduces a choice or uncovers a constraint that binds future work-items and is not visible in the state documents, ensure the active stage records it per constitution §2 (`memory/decisions.md` for choices, `memory/lessons.md` for discovered constraints), lazily creating `memory/` and the target file with its first entry when absent.
 - If the user states a lasting project-specific preference for how AIPilot should work, invoke `note-keeper`; explicit durable wording authorizes the write, while ambiguous persistence intent requires confirmation. Plugin-wide changes target the plugin source instead.
 
 ## First Principles Gate

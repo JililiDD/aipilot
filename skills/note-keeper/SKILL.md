@@ -1,6 +1,6 @@
 ---
 name: note-keeper
-description: Use when the user states a discovered project constraint, a choice that will bind future work, or a lasting project-specific preference for how AIPilot should work. Captures the memory in lessons.md, decisions.md, or agent-guideline.md without starting a separate workflow stage.
+description: Use when the user states a discovered project constraint, a choice that will bind future work, or a lasting project-specific preference for how AIPilot should work. Captures the memory in memory/lessons.md, memory/decisions.md, or memory/agent-guideline.md without starting a separate workflow stage.
 ---
 
 # Note Keeper
@@ -15,11 +15,11 @@ Product facts and scope are not notes; route them to `product-spec-builder` and 
 
 ## Classify
 
-- A discovered constraint or pit that binds future work → `lessons.md`.
-- A technical or architectural choice that binds future work and is not already visible in a state document → `decisions.md`.
-- A lasting, project-specific preference for how AIPilot should plan, question, stop, review, or otherwise operate → `agent-guideline.md`.
+- A discovered constraint or pit that binds future work → `memory/lessons.md`.
+- A technical or architectural choice that binds future work and is not already visible in a state document → `memory/decisions.md`.
+- A lasting, project-specific preference for how AIPilot should plan, question, stop, review, or otherwise operate → `memory/agent-guideline.md`.
 
-Current-task instructions are not durable memory. A correction such as "not this time" changes the current action only. Product behavior belongs in the product spec or work-item. A request that all AIPilot projects behave differently targets the plugin source, not `agent-guideline.md`.
+Current-task instructions are not durable memory. A correction such as "not this time" changes the current action only. Product behavior belongs in the product spec or work-item. A request that all AIPilot projects behave differently targets the plugin source, not `memory/agent-guideline.md`.
 
 ## Persistence Intent for Workflow Preferences
 
@@ -33,7 +33,7 @@ Do not persist an ordinary correction or infer a permanent rule from one inciden
 
 1. Resolve the documents root: read the project-root `AGENTS.md` for a `Documents root:` line under an `## AIPilot` heading; absent → default `docs/aipilot/`. If that root doesn't exist either, there is nothing to append to — say so briefly and stop.
 2. Classify the memory and, for a workflow preference, resolve persistence intent using the rules above.
-3. Read the target file before writing. If the same active rule or note already exists, do not duplicate it. If a proposed workflow rule conflicts with or weakens an existing rule, show the conflict and get explicit confirmation before replacing it.
-4. For `decisions.md` and `lessons.md`, append one dated entry using `## YYYY-MM-DD <title>`. Never rewrite history; supersede old entries per constitution §2.
-5. For `agent-guideline.md`, create it if absent. Keep current rules under `## Active Workflow Overrides`, using a short heading plus `Added`, `Scope`, `Rule`, and `Supersedes` fields. Move a replaced rule under `## Superseded Overrides`; do not leave conflicting rules active.
+3. If the target file exists under `memory/`, read it before writing. If it is absent, treat that memory category as empty; do not create `memory/` or the file until this step has a confirmed entry to record. If the same active rule or note already exists, do not duplicate it. If a proposed workflow rule conflicts with or weakens an existing rule, show the conflict and get explicit confirmation before replacing it.
+4. For `memory/decisions.md` and `memory/lessons.md`, append one dated entry using `## YYYY-MM-DD <title>`. When the target is absent, create `memory/` and the file with `# Decisions` or `# Lessons` followed by the first dated entry. Never rewrite history; supersede old entries per constitution §2.
+5. For `memory/agent-guideline.md`, create `memory/` and the file if absent with `# Agent Guidelines`, `## Active Workflow Overrides`, and `## Superseded Overrides`, placing the first rule under the active section. Keep current rules under `## Active Workflow Overrides`, using a short heading plus `Added`, `Scope`, `Rule`, and `Supersedes` fields. Move a replaced rule under `## Superseded Overrides`; do not leave conflicting rules active.
 6. Say in one line what was recorded and where. Continue the conversation as normal.

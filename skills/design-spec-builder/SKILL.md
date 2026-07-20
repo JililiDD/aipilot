@@ -13,11 +13,11 @@ Turn vague taste language into concrete design decisions. Never accept words lik
 
 Read, when they exist:
 
-- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, merge-back, and stage-boundary review. It is not a project document. Read `memory/agent-guideline.md` at the documents root separately for project-specific overrides.
 - `docs/aipilot/product-spec.md` — the current product state.
 - the **target work-item** in the top level of `docs/aipilot/work-items/` when this session serves an in-flight change, identified per the Target Resolution rule (constitution §3); never guess. Its **Requirement section** is the authoritative behavior input for this design session — those behaviors are not yet merged into the master spec.
 - `docs/aipilot/design-spec.md` — the current design state.
-- `decisions.md` and `lessons.md` — the append-only logs of choices and pits; always read both whole (small by design).
+- `memory/decisions.md` and `memory/lessons.md` — the append-only logs of choices and pits; read each whole when present (small by design), and treat absence as no recorded entries.
 
 Then read `../product-spec-builder/references/interview-doctrine.md` — the canonical interview doctrine, shared with `product-spec-builder`. It governs the entire interview discipline.
 
@@ -71,7 +71,7 @@ Preview policy:
 
 Design Acceptance Criteria are observable checks a reviewer can verify on screen; `dev-plan-builder` references them per story and task and must not invent new ones.
 
-Record decisions per constitution §2 when a design decision meets the bar there.
+Record decisions per constitution §2 when a design decision meets the bar there. If `memory/decisions.md` is absent, create `memory/` and the file with `# Decisions` and the first dated entry instead of pre-creating empty memory infrastructure.
 
 ## Completion Standard
 

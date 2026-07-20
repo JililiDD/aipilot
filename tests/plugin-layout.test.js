@@ -124,15 +124,39 @@ test('note keeper persists only durable project workflow preferences', () => {
   const noteKeeper = fs.readFileSync(path.join(root, 'skills/note-keeper/SKILL.md'), 'utf8');
   const orchestrator = fs.readFileSync(path.join(root, 'skills/workflow-orchestrator/SKILL.md'), 'utf8');
   const coldStart = fs.readFileSync(path.join(root, 'commands/aipilot.md'), 'utf8');
+  const constitution = fs.readFileSync(
+    path.join(root, 'skills/workflow-orchestrator/references/document-system-spec.md'),
+    'utf8',
+  );
+  const productSpecBuilder = fs.readFileSync(
+    path.join(root, 'skills/product-spec-builder/SKILL.md'),
+    'utf8',
+  );
+  const devPlanBuilder = fs.readFileSync(
+    path.join(root, 'skills/dev-plan-builder/SKILL.md'),
+    'utf8',
+  );
 
-  assert.ok(noteKeeper.includes('`agent-guideline.md`'));
+  assert.ok(noteKeeper.includes('`memory/agent-guideline.md`'));
   assert.ok(noteKeeper.includes('as both the request and approval to write'));
   assert.ok(noteKeeper.includes('use it only for the current task'));
   assert.ok(noteKeeper.includes('it never authorizes a silent write'));
+  assert.ok(noteKeeper.includes('If the target file exists under `memory/`, read it before writing'));
+  assert.ok(noteKeeper.includes('create `memory/` and the file with `# Decisions` or `# Lessons`'));
+  assert.ok(noteKeeper.includes('For `memory/agent-guideline.md`, create `memory/` and the file if absent'));
   assert.ok(orchestrator.includes('explicit durable wording authorizes the write'));
   assert.ok(!orchestrator.includes('evolution/signals.jsonl'));
-  assert.ok(coldStart.includes('## Active Workflow Overrides'));
-  assert.ok(coldStart.includes('## Superseded Overrides'));
+  assert.ok(coldStart.includes('Do not create an empty `memory/` directory or empty memory files'));
+  assert.ok(coldStart.includes('are created lazily'));
+  assert.ok(!coldStart.includes('empty `decisions.md`'));
+  assert.ok(!coldStart.includes('Initialize `agent-guideline.md`'));
+  assert.ok(constitution.includes('Memory lifecycle is lazy'));
+  assert.ok(constitution.includes('A reader treats a missing directory or file as an empty memory category'));
+  assert.ok(constitution.includes('The skill recording the first entry creates `memory/` and the target file'));
+  assert.ok(constitution.includes('Work-item directories are invariant infrastructure'));
+  assert.ok(orchestrator.includes('ensure `work-items/` and `work-items/merged/` exist'));
+  assert.ok(productSpecBuilder.includes('ensure `docs/aipilot/work-items/` and `docs/aipilot/work-items/merged/` exist'));
+  assert.ok(devPlanBuilder.includes('ensure `work-items/` and `work-items/merged/` exist'));
 });
 
 test('canonical constitution exclusively owns the markdown stage review gate', () => {

@@ -19,9 +19,9 @@ A review request must name: the **target work-item** (filename), the **scope** (
 
 Project-document paths mean the resolved documents root; the constitution path is plugin-relative:
 
-- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `agent-guideline.md` at the documents root separately for project overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `memory/agent-guideline.md` at the documents root separately for project overrides.
 - the target work-item — all four sections. Its Requirement, Design, and Plan sections are authoritative over the master specs until merge-back; the master documents lagging an active work-item is by design, never a staleness finding.
-- `product-spec.md` and `design-spec.md` for surrounding state; `decisions.md` and `lessons.md` whole (small by design).
+- `product-spec.md` and `design-spec.md` for surrounding state; `memory/decisions.md` and `memory/lessons.md` whole when present (small by design), with absence meaning no recorded entries.
 - For UI-facing changes, explicitly use the target work-item's Design section plus `design-spec.md` as the UI review lens; do not rely on conversation memory or screenshots alone.
 - The diff, and the source files and tests it touches.
 
@@ -61,4 +61,4 @@ The same finding surviving **two** fix-review rounds without convergence → sto
 
 ## Response Pattern
 
-If the review uncovers a durable constraint worth remembering (a `lessons.md` entry), state it as a note — the builder records it; you remain read-only. Reply only, no file writes: verdict — **pass means no open P0–P2 within the given scope** (P3s never block an interim review) — or fail with the blocking findings; findings grouped by severity, each with location and its attached requirement/AC/risk; out-of-scope notes (non-blocking); which evidence was spot-checked.
+If the review uncovers a durable constraint worth remembering (a `memory/lessons.md` entry), state it as a note — the builder records it; you remain read-only. Reply only, no file writes: verdict — **pass means no open P0–P2 within the given scope** (P3s never block an interim review) — or fail with the blocking findings; findings grouped by severity, each with location and its attached requirement/AC/risk; out-of-scope notes (non-blocking); which evidence was spot-checked.

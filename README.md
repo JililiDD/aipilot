@@ -118,23 +118,23 @@ The workflow orchestrator selects these skills from the current project state. Y
 
 ## Keep project memory between conversations
 
-AIPilot stores durable context in project documents instead of relying on chat history. The workflow orchestrator reads the memory files when a later session starts.
+AIPilot stores durable context in project documents instead of relying on chat history. The workflow orchestrator reads the memory files when a later session starts. These files are created only when their first entry is recorded, so a new project does not begin with empty memory documents.
 
-### `decisions.md` records choices that shape future work
+### `memory/decisions.md` records choices that shape future work
 
-Use `decisions.md` for technical or architectural choices that constrain future implementation and are not already clear in the product or design specs. Examples include a service boundary, persistence strategy, authentication model, transaction boundary, or a decision that changes the product's long-term design direction.
+Use `memory/decisions.md` for technical or architectural choices that constrain future implementation and are not already clear in the product or design specs. Examples include a service boundary, persistence strategy, authentication model, transaction boundary, or a decision that changes the product's long-term design direction.
 
 A decision remains history even when the project replaces it. A later entry supersedes the old choice instead of rewriting the record.
 
-### `lessons.md` records constraints and pitfalls
+### `memory/lessons.md` records constraints and pitfalls
 
-Use `lessons.md` for facts discovered through implementation, diagnosis, or integration work. Examples include a third-party API limitation, an undocumented SDK behavior, a build-system trap, a platform permission requirement, or a repository convention that future work must respect.
+Use `memory/lessons.md` for facts discovered through implementation, diagnosis, or integration work. Examples include a third-party API limitation, an undocumented SDK behavior, a build-system trap, a platform permission requirement, or a repository convention that future work must respect.
 
 Lessons prevent later sessions from rediscovering the same failure through another round of debugging.
 
-### `agent-guideline.md` records workflow improvements
+### `memory/agent-guideline.md` records workflow improvements
 
-Use `agent-guideline.md` for project-specific instructions about how AIPilot should plan, question, stop, review, or report work. These rules change the workflow for this project without changing AIPilot for every repository.
+Use `memory/agent-guideline.md` for project-specific instructions about how AIPilot should plan, question, stop, review, or report work. These rules change the workflow for this project without changing AIPilot for every repository.
 
 If the workflow has a defect, tell AIPilot what should change and make the intent durable. For example:
 
@@ -144,7 +144,7 @@ For this project, always show API contract changes before writing the implementa
 
 The [`note-keeper`](skills/note-keeper/SKILL.md) skill normalizes that request and records it under `Active Workflow Overrides`. A later session reads the rule and follows it when the same situation occurs. If your wording might apply only to the current task, Note Keeper shows the proposed rule and asks whether to save it.
 
-Product behavior does not belong in `agent-guideline.md`. Put product requirements in `product-spec.md` or the active work item. Put a plugin-wide workflow change in the AIPilot source.
+Product behavior does not belong in `memory/agent-guideline.md`. Put product requirements in `product-spec.md` or the active work item. Put a plugin-wide workflow change in the AIPilot source.
 
 ## Choose where AIPilot stores project documents
 
@@ -159,9 +159,10 @@ docs/aipilot/
 ├── product-spec.md
 ├── design-spec.md
 ├── dev-phase-plan.md
-├── decisions.md
-├── lessons.md
-├── agent-guideline.md
+├── memory/               # appears when the first memory is recorded
+│   ├── decisions.md
+│   ├── lessons.md
+│   └── agent-guideline.md
 ├── design-assets/
 └── work-items/
     ├── active-change.md
@@ -169,6 +170,8 @@ docs/aipilot/
 ```
 
 Master specs describe the approved product state. An active work item owns the pending Requirement, Design, Plan, and Execution Record until review finishes. Merge-back updates the master documents and moves the completed work item into `work-items/merged/`.
+
+Cold start creates `work-items/`, `work-items/merged/`, and `design-assets/`. AIPilot repairs the two work-item directories on later starts because Git does not preserve empty directories, and the responsible Skill checks them again before creating or merging a work item. The `memory/` directory remains lazy: the Skill that captures the first memory creates it together with the corresponding Markdown file and required headings.
 
 ## Third-party software
 

@@ -15,9 +15,9 @@ Eliminate implementation uncertainty before development begins. Help the user di
 
 Read, when they exist:
 
-- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, merge-back, and stage-boundary review. It is not a project document. Read `agent-guideline.md` at the documents root separately for project-specific overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution governing file conventions, section ownership, target resolution, merge-back, and stage-boundary review. It is not a project document. Read `memory/agent-guideline.md` at the documents root separately for project-specific overrides.
 - `docs/aipilot/product-spec.md`
-- `decisions.md` and `lessons.md` — the append-only logs of choices and pits; always read both whole (small by design).
+- `memory/decisions.md` and `memory/lessons.md` — the append-only logs of choices and pits; read each whole when present (small by design), and treat absence as no recorded entries.
 - for existing-project changes, the target work-item in the top level of `docs/aipilot/work-items/`, identified per the Target Resolution rule (constitution §3); never guess. Merged history lives under `work-items/merged/`
 
 Then read `references/interview-doctrine.md` — the canonical interview doctrine, also read by `design-spec-builder` via relative path. It governs the entire interview discipline. Follow it throughout.
@@ -69,7 +69,7 @@ The scope decides the destination, not the interview length — fast track and f
 - **Master spec** (`docs/aipilot/product-spec.md`): write or rewrite only for New Product scope, or changes that redefine the product's core model, primary workflow, or MVP boundary.
 - **Work item** (`docs/aipilot/work-items/`): every bounded change to an existing product — feature addition, behavior change, removal, refactor, bug fix. File naming, metadata head, and lifecycle follow the canonical plugin constitution §3 (`YYYY-MM-DD-HHMM-slug.md`, frontmatter `created`/`scope`/`status: active`, root = active, `merged/` = done).
 
-**Creating a work-item**: create the file with the metadata head and the full four-section skeleton — `## Requirement`, `## Design`, `## Plan`, `## Execution Record` — so downstream skills append into fixed headings. This skill fills **only the Requirement section** and leaves the other three empty. Never write into Design, Plan, or Execution Record; their owners are `design-spec-builder`, `dev-plan-builder`, and `dev-builder`/`bug-fixer`.
+**Creating a work-item**: ensure `docs/aipilot/work-items/` and `docs/aipilot/work-items/merged/` exist, repairing either directory when missing, then create the file with the metadata head and the full four-section skeleton — `## Requirement`, `## Design`, `## Plan`, `## Execution Record` — so downstream skills append into fixed headings. This skill fills **only the Requirement section** and leaves the other three empty. Never write into Design, Plan, or Execution Record; their owners are `design-spec-builder`, `dev-plan-builder`, and `dev-builder`/`bug-fixer`.
 
 The Requirement section ends with an **Impact on Product-Spec** subsection: the merge map listing which master-spec sections describe behavior this change alters. Do not edit the master spec during the interview — the change is not yet real; the orchestrator merges the state-level outcome back after review passes. This skill only prepares the merge map, never performs the merge-back.
 
@@ -84,7 +84,7 @@ Include only sections that add value — no empty template sections. Candidate c
 
 **Versioning**: stamp the document with version and date and the line: "This spec reflects decisions confirmed as of this date; subsequent changes should record what changed and why." For direct master-spec writes (New Product / core re-scoping), append a one-line entry to `docs/aipilot/CHANGELOG.md` (`YYYY-MM-DDTHH:MM:SS` local time); for work items, the merge-back writes the CHANGELOG line later — do not write it now. Do not claim the spec is frozen — enforcement belongs to version control, not this document.
 
-Record decisions per constitution §2 when a spec decision meets the bar there.
+Record decisions per constitution §2 when a spec decision meets the bar there. If `memory/decisions.md` is absent, create `memory/` and the file with `# Decisions` and the first dated entry instead of pre-creating empty memory infrastructure.
 
 ## Workflow Handoff
 

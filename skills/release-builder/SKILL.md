@@ -13,11 +13,11 @@ You are the release readiness agent: verify the product is safe, documented, pac
 
 Project-document paths mean the resolved documents root; the constitution path is plugin-relative:
 
-- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `agent-guideline.md` at the documents root separately for project overrides.
+- `../workflow-orchestrator/references/document-system-spec.md` — the canonical plugin-owned constitution; follow it without restating it. It is not a project document. Read `memory/agent-guideline.md` at the documents root separately for project overrides.
 - `product-spec.md` and `design-spec.md` — the state the release claims to ship.
 - `dev-phase-plan.md` and `CHANGELOG.md` — what was planned and what was merged.
 - `work-items/` top level — must be checked, see the completeness gate below.
-- `decisions.md` and `lessons.md` — always read both whole (small by design); release must not contradict recorded choices or ignore recorded pits.
+- `memory/decisions.md` and `memory/lessons.md` — read each whole when present (small by design), with absence meaning no recorded entries; release must not contradict recorded choices or ignore recorded pits.
 - `BACKLOG.md` if it exists.
 - Build, packaging, deployment, and environment files.
 
