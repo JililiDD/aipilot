@@ -30,3 +30,5 @@ Versioning.
 
 [1.1.0]: https://github.com/JililiDD/aipilot/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/JililiDD/aipilot/releases/tag/v1.0.0
+
+RELEASE 1.1.0 — 2026-07-21T23:08:19
