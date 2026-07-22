@@ -5,7 +5,7 @@
 <h1 align="center">AIPilot</h1>
 
 <p align="center">
-  A document-driven product development workflow for coding agents.
+  A document-driven, stage-gated product development workflow for coding agents.
 </p>
 
 <p align="center">
@@ -57,13 +57,13 @@ You don't need to choose a skill before you understand the work. The `workflow-o
 Start or resume work in Claude Code and Grok Build:
 
 ```text
-/aipilot Build an account recovery flow
+/aipilot Build a TODO list app
 ```
 
-Codex plugins currently can't register an arbitrary slash command such as `/aipilot`. Codex has built-in slash commands, while reusable plugin workflows are exposed as skills. Use the equivalent natural-language entry point:
+In Codex, select the AIPilot plugin from the plugin list or type `/aipilot` in the chatbox and then select `Aipilot: Workflow Orchestrator` as the entry point or type natural language prompt like:
 
 ```text
-Use AIPilot to build an account recovery flow.
+Use AIPilot to build a TODO list app.
 ```
 
 ```mermaid

@@ -60,19 +60,6 @@ When routing any stage that operates on a work-item, **name the target file expl
 - If current work introduces a choice or uncovers a constraint that binds future work-items and is not visible in the state documents, ensure the active stage records it per constitution §2 (`memory/decisions.md` for choices, `memory/lessons.md` for discovered constraints), lazily creating `memory/` and the target file with its first entry when absent.
 - If the user states a lasting project-specific preference for how AIPilot should work, invoke `note-keeper`; explicit durable wording authorizes the write, while ambiguous persistence intent requires confirmation. Plugin-wide changes target the plugin source instead.
 
-## First Principles Gate
-
-Before routing into planning, implementation, or review, confirm the next stage preserves software first principles:
-
-- The next action is tied to a current product document, design document, work item, phase, goal, or explicit user request.
-- The workflow prefers the smallest user-visible outcome that satisfies the requirement.
-- Existing project code, Story-0 `base` code, design assets, installed dependencies, native platform features, and standard-library capabilities are considered before new ownership.
-- State, modes, configuration, public surface area, and dependencies stay minimal.
-- Data flow and trust, persistence, UI, or integration boundaries can be verified.
-- Performance work is based on evidence, not guesswork.
-
-If the next stage would add speculative features, extension points, abstractions, modes, providers, dependencies, or broad public APIs, route back to `product-spec-builder` or `dev-plan-builder` to narrow it before implementation. Recommend a `dev-plan-builder` Goal Wrap only when the user wants one autonomous run spanning multiple phases.
-
 ## Sub-Agent Policy
 
 One main agent owns the workflow end to end, including all implementation. **The only sub-agent in this system is the clean-context `code-reviewer`**. Use a clean-context reviewer only when its report is returned to the main agent and can be inspected as review evidence. Spawn-only delegation without returned output is not enough. If no inspectable clean-context report is available, run main-agent fallback and record `clean-context result unavailable`. Sub-agents never make final decisions: findings return to the main agent, which fixes, records, and decides.

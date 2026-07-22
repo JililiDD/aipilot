@@ -1,6 +1,6 @@
 {
   "name": "aipilot",
-  "description": "Official marketplace for the AIPilot document-driven development workflow plugin.",
+  "description": "Official marketplace for the AIPilot document-driven, stage-gated development workflow plugin.",
   "owner": {
     "name": "JililiDD"
   },
@@ -8,8 +8,8 @@
     {
       "name": "aipilot",
       "source": "./",
-      "description": "Document-driven product development workflows for specs, planning, implementation, review, and release.",
-      "version": "1.0.0",
+      "description": "Document-driven, stage-gated product development workflows for specs, planning, implementation, review, and release.",
+      "version": "1.1.0",
       "author": {
         "name": "JililiDD"
       },

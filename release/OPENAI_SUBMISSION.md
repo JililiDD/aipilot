@@ -1,7 +1,7 @@
-# OpenAI Plugin Submission — AIPilot 1.0.0
+# OpenAI Plugin Submission — AIPilot 1.1.0
 
 This document contains the copy and test matrix for the first skills-only
-submission. Confirm every field against the final `v1.0.0` archive before
+submission. Confirm every field against the final `v1.1.0` archive before
 submitting it through the OpenAI plugin portal.
 
 ## Listing
@@ -14,7 +14,7 @@ submitting it through the OpenAI plugin portal.
 - Support: https://github.com/JililiDD/aipilot/issues
 - Privacy: https://github.com/JililiDD/aipilot/blob/main/PRIVACY.md
 - Terms: https://github.com/JililiDD/aipilot/blob/main/TERMS.md
-- Short description: Document-driven development workflow skills.
+- Short description: Document-driven, stage-gated development workflow skills.
 - Long description: AIPilot coordinates product requirements, design
   direction, development planning, implementation, independent review, release
   readiness, and durable project memory through a staged workflow.
@@ -93,9 +93,9 @@ submitting it through the OpenAI plugin portal.
   and identify the work still required.
 - Why: Completion claims must be supported by verification.
 
-## Initial release notes
+## Release notes
 
-Initial public release of AIPilot's document-driven development workflow,
-including nine coordinated skills for requirements, design, planning,
-implementation, review, release readiness, project memory, orchestration, and
-Java backend work.
+AIPilot 1.1.0 adds task-scoped implementation self-review, disciplined selection
+between materially different implementation approaches, and stable numbered
+requirement and design acceptance criteria while preserving the existing
+stage-gated workflow.

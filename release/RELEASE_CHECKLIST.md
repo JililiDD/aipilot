@@ -13,8 +13,8 @@
 
 ## Release
 
-- [ ] Create signed or annotated tag `v1.0.0`.
-- [ ] Run `scripts/package-release.sh 1.0.0`.
+- [ ] Create signed or annotated tag `v1.1.0`.
+- [ ] Run `scripts/package-release.sh 1.1.0`.
 - [ ] Verify the ZIP and SHA-256 file from a clean temporary directory.
 - [ ] Publish the GitHub release using the `CHANGELOG.md` entry.
 

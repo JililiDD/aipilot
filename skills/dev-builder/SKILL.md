@@ -55,19 +55,37 @@ Read the recorded granularity and `Commit policy` from the Plan section (constit
 
 **On starting a work-item:** record the current git ref in the Execution Record as the first review anchor (repo-less projects: note the starting file state instead).
 
-**Per task:**
+**Per task — Stop Conditions and the Approach Decision Discipline apply throughout:**
 
 1. Reuse Scan: existing project code, Story-0 `base` code, helpers, installed dependencies, native/standard-library features — choose the smallest reuse-first path; new code states why reuse is insufficient.
 2. Maintainability Scan when the task touches domain logic, architecture, or a large refactor: domain types, raw strings, module boundaries, unit size, pattern justification.
 3. YAGNI check: name anything deferred because current requirements do not prove it.
 4. Implement the smallest coherent change.
-5. Run the task's `— Verify:` method; inspect the output and quote the decisive evidence. A failing verification is fixed in place when its cause is evident in this task's own change, otherwise handled in Diagnosis Mode — a failed task is **never ticked**.
-6. Tick the checkbox only after its verification passes; append the facts to the Execution Record.
-7. If any Stop Condition **from the Plan section's Stop Conditions block** fires at any point, halt and ask — execute the Plan's list, not a memorized one.
+5. Self-review the task-scoped diff once before verification. Check the changed code against the confirmed Requirement, Design, Plan, project conventions, reuse decision, and YAGNI boundary. Correct defects and simplify accidental complexity, duplication, unclear naming, dead code, or debug residue introduced by this task. Keep refactoring inside the task's changed code and scope; do not improve unrelated code or invent alternative approaches merely to satisfy this step. If a genuinely different implementation approach with materially different trade-offs becomes apparent during this review, run the Approach Decision Discipline.
+6. Run the task's `— Verify:` method; inspect the output and quote the decisive evidence. A failing verification is fixed in place when its cause is evident in this task's own change, otherwise handled in Diagnosis Mode — a failed task is **never ticked**.
+7. Tick the checkbox only after its verification passes; append the facts to the Execution Record.
+
+If any Stop Condition **from the Plan section's Stop Conditions block** fires at any point, halt and ask — execute the Plan's list, not a memorized one. If two or more materially different implementation approaches become apparent at any point, run the Approach Decision Discipline before continuing.
 
 **Per user story/task group:** confirm the Done-when line holds and run the project's test suite (suite-green evidence recorded, beyond the per-task verifies); run review per the Review Cadence. Review findings do not un-tick tasks — the tick records "done and verified once", which stays true; instead, fix the finding, **rerun the affected task's original `— Verify:` method**, and append the finding-fix-reverify sequence to the Execution Record. Then rerun the review until it passes or a blocker needs user input. **After a review passes, act per the Plan's recorded `Commit policy`** — `manual`: do not commit; record the reviewed file set in the Execution Record as the next round's review anchor and leave the working tree for the user's own review and commit; `branch`: commit (message: work-item slug + user story/task group) on the work-item branch — never mainline — and record the commit ref as the anchor; the user reviews and merges; `auto`: commit the same way directly and record the commit ref as the anchor. At a stop granularity, report and wait.
 
 **Work-item completion:** run the Exit Criteria fresh; pass the final full review; complete the Execution Record; hand to `workflow-orchestrator` — merge-back is its job, never performed here.
+
+## Approach Decision Discipline
+
+Scope: apply this discipline only to implementation-level alternatives for satisfying the confirmed Requirement, Design, and Plan. Every candidate must preserve the specified behavior, acceptance criteria, UI and interaction decisions, contracts, and current story scope. Do not treat changing or redesigning those specifications as an implementation approach. If implementation reveals that a specification is missing, contradictory, or infeasible, leave this discipline and follow the existing Section Ownership and Stop Conditions rules.
+
+Trigger: when two or more materially different implementation approaches appear, evaluate each against the authoritative documents, recorded decisions, project conventions, Reuse Scan, applicable Maintainability Scan, and YAGNI check. Do not reopen a choice already resolved by those sources unless new evidence invalidates its assumptions or materially changes its trade-offs. Discard candidates that violate a source, add unproved scope or abstraction, are dominated on every material dimension, or are near-duplicates. If fewer than two viable candidates remain, continue with the survivor without involving the user.
+
+Self-assessment: weigh the remaining candidates against trade-offs specific to this decision, such as reliability, complexity, consistency, testability, and reversibility — not a fixed checklist. If more than constitution §7's 4-option cap remain, narrow to the strongest 2–4 and note in one line why each dropped candidate was excluded. Form a recommendation with its reasoning among the narrowed set.
+
+Default: stop, present the candidates as a multiple-choice question per constitution §7 (Question Format) — leading with the self-assessed recommendation and its trade-off — and wait for the user's choice.
+
+Under an active Goal Wrap, do not stop for an implementation approach decision. Proceed with the self-assessed recommendation and record the rationale. Specification gaps remain governed separately by Section Ownership and the Plan's Stop Conditions.
+
+Recording: follow the existing decision/lesson capture rule (Engineering Rules) — an implementation choice that constrains future work-items and is not visible in the state documents → `memory/decisions.md`; a choice scoped to this task only → the Execution Record. If candidates were narrowed before selection, include the dropped candidates and one-line reasons in the same record.
+
+Resuming: if new information or the resolved choice invalidates an earlier Reuse, Maintainability, or YAGNI assessment, re-run the affected scan before implementing.
 
 ## Review Cadence
 

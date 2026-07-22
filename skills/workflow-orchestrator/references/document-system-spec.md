@@ -1,6 +1,5 @@
 # Document System Specification
 
-Status: APPROVED · Version 2.2 · 2026-07-17 (v1.0 frozen 2026-07-02; v2.2 makes the constitution plugin-owned and centralizes the stage-boundary review gate)
 This plugin reference is the single authority on the document system and workflow constitution. It remains at `skills/workflow-orchestrator/references/document-system-spec.md`; cold start never copies it into a project's documents root. Every skill reads this canonical plugin file directly and reads `memory/agent-guideline.md` separately for project-specific overrides. A legacy project-local `document-system-spec.md` is non-authoritative and ignored; removing it is a user-owned cleanup, never an automatic migration. Changes to this spec are plugin-source changes and require an explicit user request.
 
 ## 1. Three Layers

@@ -9,7 +9,7 @@
 Run `swift scripts/render-logo.swift` from the repository root after editing
 the logo geometry or palette to rebuild the PNG assets.
 
-The 1.0.0 mark uses four nodes and four separated arcs to represent a repeating
+The AIPilot mark uses four nodes and four separated arcs to represent a repeating
 development workflow. The center control represents forward execution. Keep
 the fills flat, preserve clear space around the mark, and do not add text,
 gradients, shadows, or a containing border.

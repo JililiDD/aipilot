@@ -3,7 +3,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-version="${1:-1.0.0}"
+version="${1:-1.1.0}"
 tag="v${version}"
 output_dir="${repo_root}/dist"
 archive="${output_dir}/aipilot-${version}.zip"

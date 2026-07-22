@@ -33,7 +33,7 @@ The Product Spec owns behavior: capabilities, data, contracts, permissions. This
 ## Operating Modes
 
 - **0-to-1 Mode** — `design-spec.md` is empty or missing and the session's goal is the product-wide design baseline, not a single bounded change. Create the complete spec directly from the product spec and the user's taste decisions, using `references/design-spec-template.md`. There is no change to track yet, so the spec is written in place.
-- **Iteration Mode** — an in-flight change (the target work-item) alters presentation. Write the outcome into the **work-item's Design section only**: design decision deltas, Design Acceptance Criteria for this change, and an **Impact on Design-Spec** subsection — the merge map listing which spec sections these deltas alter. **Do not edit `design-spec.md` in this mode** — the change is not yet real; the orchestrator merges the deltas into the spec after review passes. Never write into the work-item's Requirement, Plan, or Execution Record sections; their owners are `product-spec-builder`, `dev-plan-builder`, and `dev-builder`/`bug-fixer`.
+- **Iteration Mode** — an in-flight change (the target work-item) alters presentation. Write the outcome into the **work-item's Design section only**: design decision deltas, Design Acceptance Criteria for this change, and an **Impact on Design-Spec** subsection — the merge map listing which spec sections these deltas alter. **Do not edit `design-spec.md` in this mode** — the change is not yet real; the orchestrator merges the deltas into the spec after review passes. Never write into the work-item's Requirement, Plan, or Execution Record sections; their owners are `product-spec-builder`, `dev-plan-builder`, and `dev-builder`.
 
 **Missing baseline**: if `design-spec.md` does not exist but the target is a bounded work-item (e.g. a backend project gaining its first page), still use Iteration Mode — interview only what this change needs, and let the Impact map list spec sections **to be created**; merge-back will create the file. Do not force a full 0-to-1 interview for one page. Recommend a 0-to-1 pass only when the user wants a product-wide design baseline.
 
@@ -65,11 +65,12 @@ Preview policy:
 - **New page in the requirement**: ask whether to build the mock following the existing design style (the usual answer when the project already has pages and a `design-spec.md`) or to explore freely (typical when a new project is still finding its UX direction). If exploring freely, ask how many candidate HTML mocks to generate for selection; keep losing candidates as anti-reference evidence per the interview rules.
 - **Bounded UI component change**: preview only the minimal affected component — e.g. a text-style change inside a card previews that card, not the whole page. Scope the mock to what the decision needs.
 
+## Output Routing
 
 - **0-to-1 Mode**: write `docs/aipilot/design-spec.md` using the template.
 - **Iteration Mode**: write the target work-item's Design section — deltas, Design Acceptance Criteria, Impact on Design-Spec merge map. The orchestrator applies the merge map to the spec at merge-back; this skill never performs the merge-back.
 
-Design Acceptance Criteria are observable checks a reviewer can verify on screen; `dev-plan-builder` references them per story and task and must not invent new ones.
+Design Acceptance Criteria are observable checks a reviewer can verify on screen. Number them sequentially as `D-1`, `D-2`, ... — `dev-plan-builder` and `code-reviewer` cite them by that number for traceability. Preserve existing IDs during revisions, assign the next unused number to a new criterion, and never renumber a criterion already referenced by a Plan or Execution Record. `dev-plan-builder` references them per story and task and must not invent new ones.
 
 Record decisions per constitution §2 when a design decision meets the bar there. If `memory/decisions.md` is absent, create `memory/` and the file with `# Decisions` and the first dated entry instead of pre-creating empty memory infrastructure.
 

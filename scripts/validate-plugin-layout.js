@@ -14,7 +14,7 @@ function readJson(relativePath) {
 function assertManifest(relativePath, expected) {
   const manifest = readJson(relativePath);
   assert.strictEqual(manifest.name, 'aipilot', `${relativePath} name`);
-  assert.strictEqual(manifest.version, '1.0.0', `${relativePath} version`);
+  assert.strictEqual(manifest.version, '1.1.0', `${relativePath} version`);
   assert.strictEqual(manifest.skills, './skills/', `${relativePath} skills`);
   assert.strictEqual(manifest.author.name, 'JililiDD', `${relativePath} author`);
   assert.strictEqual(manifest.repository, 'https://github.com/JililiDD/aipilot', `${relativePath} repository`);
@@ -107,7 +107,7 @@ function assertMarketplace() {
   assert.strictEqual(claudeMarketplace.plugins.length, 1, 'Claude marketplace plugin count');
   assert.strictEqual(claudeMarketplace.plugins[0].name, 'aipilot', 'Claude marketplace plugin name');
   assert.strictEqual(claudeMarketplace.plugins[0].source, './', 'Claude marketplace source');
-  assert.strictEqual(claudeMarketplace.plugins[0].version, '1.0.0', 'Claude marketplace version');
+  assert.strictEqual(claudeMarketplace.plugins[0].version, '1.1.0', 'Claude marketplace version');
   assert.strictEqual(claudeMarketplace.plugins[0].strict, true, 'Claude marketplace strict mode');
 }
 

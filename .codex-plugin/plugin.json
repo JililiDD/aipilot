@@ -1,7 +1,7 @@
 {
   "name": "aipilot",
-  "version": "1.0.0",
-  "description": "Document-driven product development workflow skills for specs, planning, implementation, review, and release.",
+  "version": "1.1.0",
+  "description": "Document-driven, stage-gated product development workflow skills for specs, planning, implementation, review, and release.",
   "author": {
     "name": "JililiDD",
     "url": "https://github.com/JililiDD"
@@ -18,7 +18,7 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "AIPilot",
-    "shortDescription": "Document-driven development workflow skills.",
+    "shortDescription": "Document-driven, stage-gated development workflow skills.",
     "longDescription": "AIPilot provides coordinated skills for product specs, design specs, development planning, implementation, review, release readiness, and durable project memory.",
     "developerName": "JililiDD",
     "category": "Productivity",

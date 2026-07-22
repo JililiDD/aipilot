@@ -27,7 +27,7 @@ function test(name, fn) {
 test('codex manifest exists and points at shared skills', () => {
   const manifest = readJson('.codex-plugin/plugin.json');
   assert.strictEqual(manifest.name, 'aipilot');
-  assert.strictEqual(manifest.version, '1.0.0');
+  assert.strictEqual(manifest.version, '1.1.0');
   assert.strictEqual(manifest.skills, './skills/');
   assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'hooks'));
   assert.strictEqual(manifest.interface.displayName, 'AIPilot');
@@ -37,7 +37,7 @@ test('claude manifest points at shared skills without invalid cross-host fields'
   const manifest = readJson('.claude-plugin/plugin.json');
   assert.strictEqual(manifest.name, 'aipilot');
   assert.strictEqual(manifest.displayName, 'AIPilot');
-  assert.strictEqual(manifest.version, '1.0.0');
+  assert.strictEqual(manifest.version, '1.1.0');
   assert.strictEqual(manifest.skills, './skills/');
   assert.strictEqual(manifest.commands, './commands/');
   assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'interface'));
@@ -57,13 +57,13 @@ test('Codex marketplace exposes the AIPilot plugin', () => {
   assert.strictEqual(marketplace.plugins[0].category, 'Productivity');
 });
 
-test('Claude marketplace exposes the AIPilot 1.0.0 plugin', () => {
+test('Claude marketplace exposes the AIPilot 1.1.0 plugin', () => {
   const marketplace = readJson('.claude-plugin/marketplace.json');
   assert.strictEqual(marketplace.name, 'aipilot');
   assert.strictEqual(marketplace.plugins.length, 1);
   assert.strictEqual(marketplace.plugins[0].name, 'aipilot');
   assert.strictEqual(marketplace.plugins[0].source, './');
-  assert.strictEqual(marketplace.plugins[0].version, '1.0.0');
+  assert.strictEqual(marketplace.plugins[0].version, '1.1.0');
   assert.strictEqual(marketplace.plugins[0].strict, true);
 });
 
@@ -118,6 +118,37 @@ test('implementation granularity is confirmed at first dev-builder entry each se
   assert.ok(orchestrator.includes('confirmed-this-session granularity'));
   assert.ok(devBuilder.includes('first implementation entry in a session'));
   assert.ok(devBuilder.includes('granularity was confirmed this session'));
+});
+
+test('dev-builder self-reviews each task and keeps approach decisions implementation-only', () => {
+  const devBuilder = fs.readFileSync(path.join(root, 'skills/dev-builder/SKILL.md'), 'utf8');
+
+  assert.ok(devBuilder.includes('Self-review the task-scoped diff once before verification'));
+  assert.ok(devBuilder.includes('do not improve unrelated code or invent alternative approaches'));
+  assert.ok(devBuilder.includes('only to implementation-level alternatives'));
+  assert.ok(devBuilder.includes('Do not treat changing or redesigning those specifications as an implementation approach'));
+  assert.ok(devBuilder.includes('If fewer than two viable candidates remain'));
+  assert.ok(devBuilder.includes('Under an active Goal Wrap, do not stop for an implementation approach decision'));
+  assert.ok(!devBuilder.includes("the same carve-out precedent as Story 0's stop marker"));
+});
+
+test('requirement and design acceptance-criteria identifiers stay stable', () => {
+  const productSpecBuilder = fs.readFileSync(
+    path.join(root, 'skills/product-spec-builder/SKILL.md'),
+    'utf8',
+  );
+  const designSpecBuilder = fs.readFileSync(
+    path.join(root, 'skills/design-spec-builder/SKILL.md'),
+    'utf8',
+  );
+
+  assert.ok(productSpecBuilder.includes('Number them sequentially as `R-1`, `R-2`, ...'));
+  assert.ok(designSpecBuilder.includes('Number them sequentially as `D-1`, `D-2`, ...'));
+  for (const contents of [productSpecBuilder, designSpecBuilder]) {
+    assert.ok(contents.includes('Preserve existing IDs during revisions'));
+    assert.ok(contents.includes('assign the next unused number'));
+    assert.ok(contents.includes('never renumber a criterion already referenced by a Plan or Execution Record'));
+  }
 });
 
 test('note keeper persists only durable project workflow preferences', () => {

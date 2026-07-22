@@ -1,4 +1,4 @@
-# Claude Plugin Submission — AIPilot 1.0.0
+# Claude Plugin Submission — AIPilot 1.1.0
 
 ## Listing
 
@@ -10,8 +10,8 @@
 - Support: https://github.com/JililiDD/aipilot/issues
 - License: MIT
 - Category: Productivity
-- Description: Document-driven product development workflow skills for specs,
-  planning, implementation, review, and release.
+- Description: Document-driven, stage-gated product development workflow skills
+  for specs, planning, implementation, review, and release.
 
 ## Pre-submission checks
 
@@ -20,6 +20,6 @@
 - Exercise `/aipilot` plus every namespaced skill in a fresh session.
 - Confirm that no hook, MCP, LSP, or external service is advertised.
 - Confirm the release tag, manifest version, marketplace version, README, and
-  changelog all say `1.0.0`.
+  changelog all say `1.1.0`.
 - Submit through `https://claude.ai/settings/plugins/submit` or
   `https://platform.claude.com/plugins/submit`.
