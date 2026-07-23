@@ -236,7 +236,7 @@ function renderClientScript() {
   highlightBox.style.border = "2px solid var(--accent)";
   highlightBox.style.background = "var(--accent-soft)";
   highlightBox.style.pointerEvents = "none";
-  highlightBox.style.zIndex = "1000";
+  highlightBox.style.zIndex = "var(--z-review-element)";
   highlightBox.style.display = "none";
   highlightBox.style.boxSizing = "border-box";
   document.body.appendChild(highlightBox);
@@ -249,8 +249,17 @@ function renderClientScript() {
     }
   }
 
+  function getReviewTarget(target) {
+    var doc = getIframeDoc();
+    if (!target || !doc || target === doc || target === doc.documentElement || target === doc.body) {
+      return null;
+    }
+    return target;
+  }
+
   function positionHighlight(target) {
-    if (!target || target === getIframeDoc()) {
+    target = getReviewTarget(target);
+    if (!target) {
       hideHighlight();
       return;
     }
@@ -258,10 +267,27 @@ function renderClientScript() {
     var frameRect = frame.getBoundingClientRect();
     var left = frameRect.left + rect.left;
     var top = frameRect.top + rect.top;
+    var right = left + rect.width;
+    var bottom = top + rect.height;
+    if (
+      right <= frameRect.left ||
+      left >= frameRect.right ||
+      bottom <= frameRect.top ||
+      top >= frameRect.bottom
+    ) {
+      hideHighlight();
+      return;
+    }
+    var clipTop = Math.max(0, frameRect.top - top);
+    var clipRight = Math.max(0, right - frameRect.right);
+    var clipBottom = Math.max(0, bottom - frameRect.bottom);
+    var clipLeft = Math.max(0, frameRect.left - left);
     highlightBox.style.left = left + "px";
     highlightBox.style.top = top + "px";
     highlightBox.style.width = rect.width + "px";
     highlightBox.style.height = rect.height + "px";
+    highlightBox.style.clipPath =
+      "inset(" + clipTop + "px " + clipRight + "px " + clipBottom + "px " + clipLeft + "px)";
     highlightBox.style.display = "block";
   }
 
@@ -279,7 +305,7 @@ function renderClientScript() {
 
   function onIframeMouseMove(e) {
     if (!reviewOn) return;
-    currentHoverTarget = e.target;
+    currentHoverTarget = getReviewTarget(e.target);
     if (mouseMoveFramePending) return;
     mouseMoveFramePending = true;
     window.requestAnimationFrame(function () {
@@ -308,6 +334,109 @@ function renderClientScript() {
   var textHighlightSet = null;
   var textHighlightHoverSet = null;
 
+  // CSS Custom Highlight supplies the translucent fill behind the glyphs,
+  // while this shell-owned overlay adds a two-tone edge around each rendered
+  // line box. Keeping the edge outside the iframe makes it independent of an
+  // artifact's theme, CSP, stacking contexts, transforms, and pointer events.
+  var textHighlightOverlayRoot = document.createElement("div");
+  textHighlightOverlayRoot.id = "text-highlight-overlay";
+  textHighlightOverlayRoot.setAttribute("aria-hidden", "true");
+  textHighlightOverlayRoot.style.position = "fixed";
+  textHighlightOverlayRoot.style.pointerEvents = "none";
+  textHighlightOverlayRoot.style.overflow = "hidden";
+  textHighlightOverlayRoot.style.zIndex = "var(--z-review-text)";
+  textHighlightOverlayRoot.style.display = "none";
+  document.body.appendChild(textHighlightOverlayRoot);
+
+  var textHighlightOverlayFrameId = null;
+
+  function clearTextHighlightOverlay() {
+    if (textHighlightOverlayFrameId !== null) {
+      window.cancelAnimationFrame(textHighlightOverlayFrameId);
+      textHighlightOverlayFrameId = null;
+    }
+    textHighlightOverlayRoot.textContent = "";
+    textHighlightOverlayRoot.style.display = "none";
+  }
+
+  function appendTextHighlightEdges(highlightSet, state) {
+    if (!highlightSet || !highlightSet.forEach) return;
+    var seenRects = {};
+    highlightSet.forEach(function (range) {
+      if (!range || !range.getClientRects) return;
+      var rects = range.getClientRects();
+      for (var i = 0; i < rects.length; i++) {
+        var rect = rects[i];
+        if (rect.width <= 0 || rect.height <= 0) continue;
+        var key = [
+          Math.round(rect.left * 10),
+          Math.round(rect.top * 10),
+          Math.round(rect.width * 10),
+          Math.round(rect.height * 10),
+        ].join(":");
+        if (seenRects[key]) continue;
+        seenRects[key] = true;
+
+        var edge = document.createElement("div");
+        edge.className = "text-highlight-edge text-highlight-edge-" + state;
+        edge.style.position = "absolute";
+        edge.style.left = rect.left - 2 + "px";
+        edge.style.top = rect.top - 1 + "px";
+        edge.style.width = rect.width + 4 + "px";
+        edge.style.height = rect.height + 2 + "px";
+        edge.style.boxSizing = "border-box";
+        edge.style.border = "1px solid rgba(255,255,255,.96)";
+        edge.style.borderRadius = "2px";
+        edge.style.boxShadow = state === "hover"
+          ? "0 0 0 2px rgba(0,0,0,.94)"
+          : "0 0 0 1px rgba(0,0,0,.88)";
+        textHighlightOverlayRoot.appendChild(edge);
+      }
+    });
+  }
+
+  function refreshTextHighlightOverlay() {
+    textHighlightOverlayFrameId = null;
+    var frameRect = frame.getBoundingClientRect();
+    textHighlightOverlayRoot.style.left = frameRect.left + "px";
+    textHighlightOverlayRoot.style.top = frameRect.top + "px";
+    textHighlightOverlayRoot.style.width = frameRect.width + "px";
+    textHighlightOverlayRoot.style.height = frameRect.height + "px";
+    textHighlightOverlayRoot.textContent = "";
+    appendTextHighlightEdges(textHighlightSet, "normal");
+    appendTextHighlightEdges(textHighlightHoverSet, "hover");
+    textHighlightOverlayRoot.style.display = textHighlightOverlayRoot.childNodes.length ? "block" : "none";
+  }
+
+  function scheduleTextHighlightOverlayRefresh() {
+    if (textHighlightOverlayFrameId !== null) return;
+    textHighlightOverlayFrameId = window.requestAnimationFrame(refreshTextHighlightOverlay);
+  }
+
+  function addTextHighlight(range) {
+    if (!textHighlightSet) return;
+    textHighlightSet.add(range);
+    scheduleTextHighlightOverlayRefresh();
+  }
+
+  function removeTextHighlight(range) {
+    if (textHighlightSet) textHighlightSet.delete(range);
+    if (textHighlightHoverSet) textHighlightHoverSet.delete(range);
+    scheduleTextHighlightOverlayRefresh();
+  }
+
+  function setTextHighlightHovered(range, hovered) {
+    if (!textHighlightSet || !textHighlightHoverSet) return;
+    if (hovered) {
+      textHighlightSet.delete(range);
+      textHighlightHoverSet.add(range);
+    } else {
+      textHighlightHoverSet.delete(range);
+      textHighlightSet.add(range);
+    }
+    scheduleTextHighlightOverlayRefresh();
+  }
+
   // Tracks which iframe *document* the registry was last built for \u2014 a real
   // frame reload gets a brand-new document (needs a fresh registry), but a
   // Review-toggle re-attach on the same still-loaded document must not
@@ -321,23 +450,25 @@ function renderClientScript() {
     var doc = getIframeDoc();
     if (!win || !doc || !win.Highlight || !win.CSS || !win.CSS.highlights) return;
     if (doc === textHighlightRegistryDoc) return;
+    clearTextHighlightOverlay();
     textHighlightRegistryDoc = doc;
 
     var style = doc.createElement("style");
+    style.setAttribute("data-ezreview-text-highlight", "");
     style.textContent =
-      // At rest: a neutral gray wash \u2014 just enough to mark "this text has an
-      // annotation" without fighting for attention. On hover: the warmer
-      // yellow, so the color itself changes (not just its opacity), giving
-      // a clearer "you're now pointing at this one" signal than deepening
-      // the same hue would.
-      "::highlight(" + HIGHLIGHT_NAME + ") { background-color: rgba(60,64,72,.12); }" +
-      "::highlight(" + HIGHLIGHT_HOVER_NAME + ") { background-color: rgba(255,204,0,.8); }";
+      // Fill locates the selected text; the shell-level black/white edge
+      // carries contrast across light, dark, saturated, and mixed artwork.
+      "::highlight(" + HIGHLIGHT_NAME + ") { background-color: rgba(255,196,0,.28); }" +
+      "::highlight(" + HIGHLIGHT_HOVER_NAME + ") { background-color: rgba(255,196,0,.58); }";
     doc.head.appendChild(style);
 
     textHighlightSet = new win.Highlight();
     textHighlightHoverSet = new win.Highlight();
     win.CSS.highlights.set(HIGHLIGHT_NAME, textHighlightSet);
     win.CSS.highlights.set(HIGHLIGHT_HOVER_NAME, textHighlightHoverSet);
+    doc.addEventListener("scroll", scheduleTextHighlightOverlayRefresh, true);
+    win.addEventListener("resize", scheduleTextHighlightOverlayRefresh);
+    scheduleTextHighlightOverlayRefresh();
   }
 
   function onIframeMouseUp() {
@@ -391,6 +522,9 @@ function renderClientScript() {
     // #rail-collapse without overlapping, and there is nothing to collapse
     // when every bubble is already hidden anyway.
     railCollapseAllBtn.style.display = railCollapsed ? "none" : "block";
+    if (railCollapsed) hideSourceTooltip();
+    else if (activeSourceTooltip) positionSourceTooltip(activeSourceTooltip.help, activeSourceTooltip.tooltip);
+    scheduleTextHighlightOverlayRefresh();
   }
 
   railCollapseBtn.addEventListener("click", function () {
@@ -569,6 +703,8 @@ function renderClientScript() {
     var answerBlock = document.createElement("div");
     answerBlock.className = "answer-block";
     answerBlock.style.marginTop = "6px";
+    answerBlock.style.paddingTop = "4px";
+    answerBlock.style.paddingBottom = "4px";
     answerBlock.style.paddingLeft = "8px";
     answerBlock.style.borderLeft = "3px solid var(--accent)";
     answerBlock.style.background = "var(--accent-soft)";
@@ -603,6 +739,8 @@ function renderClientScript() {
   function buildMeBlock(text) {
     var meBlock = document.createElement("div");
     meBlock.className = "me-block";
+    meBlock.style.paddingTop = "4px";
+    meBlock.style.paddingBottom = "4px";
     meBlock.style.paddingLeft = "8px";
     meBlock.style.borderLeft = "3px solid var(--disconnect-red)";
     meBlock.style.background = "var(--danger-soft)";
@@ -631,26 +769,116 @@ function renderClientScript() {
     container.scrollTop = container.scrollHeight;
   }
 
-  function setAnchorLost(node, lost) {
+  var TEXT_SOURCE_NOT_FOUND_DETAIL =
+    "The original selection not found because its text and the surrounding text changed.";
+  var ELEMENT_SOURCE_NOT_FOUND_DETAIL =
+    "The referenced element not found because it was removed or its element structure changed.";
+
+  var activeSourceTooltip = null;
+
+  function positionSourceTooltip(help, tooltip) {
+    var railRect = railScroll.getBoundingClientRect();
+    var helpRect = help.getBoundingClientRect();
+    var tooltipWidth = Math.max(120, Math.min(220, railRect.width - 16));
+    tooltip.style.width = tooltipWidth + "px";
+    var tooltipRect = tooltip.getBoundingClientRect();
+    var left = Math.min(
+      Math.max(helpRect.left, railRect.left + 8),
+      railRect.right - tooltipRect.width - 8,
+    );
+    var below = helpRect.bottom + 6;
+    var above = helpRect.top - tooltipRect.height - 6;
+    var top = below + tooltipRect.height <= railRect.bottom - 8
+      ? below
+      : Math.max(railRect.top + 8, above);
+    tooltip.style.left = Math.round(left) + "px";
+    tooltip.style.top = Math.round(top) + "px";
+  }
+
+  function showSourceTooltip(help, tooltip) {
+    hideSourceTooltip();
+    tooltip.classList.add("visible");
+    activeSourceTooltip = { help: help, tooltip: tooltip };
+    positionSourceTooltip(help, tooltip);
+  }
+
+  function hideSourceTooltip(tooltip) {
+    var target = tooltip || (activeSourceTooltip && activeSourceTooltip.tooltip);
+    if (target) target.classList.remove("visible");
+    if (!tooltip || (activeSourceTooltip && activeSourceTooltip.tooltip === tooltip)) {
+      activeSourceTooltip = null;
+    }
+  }
+
+  function removeSourceNotFoundBadge(node) {
+    var badge = node.querySelector(".anchor-lost-badge");
+    if (!badge) return;
+    var help = badge.querySelector(".anchor-lost-help");
+    var tooltipId = help && help.getAttribute("aria-describedby");
+    var tooltip = tooltipId && document.getElementById(tooltipId);
+    if (tooltip) {
+      hideSourceTooltip(tooltip);
+      tooltip.remove();
+    }
+    badge.remove();
+  }
+
+  function setAnchorLost(node, lost, detail) {
     var badge = node.querySelector(".anchor-lost-badge");
     if (lost) {
       if (!badge) {
         badge = document.createElement("span");
         badge.className = "anchor-lost-badge";
-        badge.textContent = "\u26A0 Anchor lost";
-        badge.style.display = "inline-block";
-        badge.style.marginTop = "4px";
-        badge.style.padding = "1px 6px";
-        badge.style.borderRadius = "4px";
-        badge.style.fontSize = "11px";
-        badge.style.color = "var(--stale-amber-fg)";
-        badge.style.background = "var(--stale-amber-bg)";
+
+        var label = document.createElement("span");
+        label.className = "anchor-lost-label";
+        label.textContent = "Source not found";
+        label.setAttribute("role", "status");
+        badge.appendChild(label);
+
+        var tooltipId = "source-not-found-" + node.getAttribute("data-annotation-id");
+        var help = document.createElement("button");
+        help.type = "button";
+        help.className = "anchor-lost-help";
+        help.textContent = "?";
+        help.setAttribute("aria-label", "Why the source could not be found");
+        help.setAttribute("aria-describedby", tooltipId);
+        badge.appendChild(help);
+
+        var tooltip = document.createElement("span");
+        tooltip.id = tooltipId;
+        tooltip.className = "anchor-lost-tooltip";
+        tooltip.setAttribute("role", "tooltip");
+        tooltip.textContent = detail || "The source changed, so this comment can no longer be linked to it.";
         node.appendChild(badge);
+        document.body.appendChild(tooltip);
+
+        help.addEventListener("mouseenter", function () {
+          showSourceTooltip(help, tooltip);
+        });
+        help.addEventListener("mouseleave", function () {
+          if (document.activeElement !== help) hideSourceTooltip(tooltip);
+        });
+        help.addEventListener("focus", function () {
+          showSourceTooltip(help, tooltip);
+        });
+        help.addEventListener("blur", function () {
+          hideSourceTooltip(tooltip);
+        });
+      } else {
+        var existingHelp = badge.querySelector(".anchor-lost-help");
+        var existingTooltipId = existingHelp && existingHelp.getAttribute("aria-describedby");
+        var existingTooltip = existingTooltipId && document.getElementById(existingTooltipId);
+        if (existingTooltip && detail) existingTooltip.textContent = detail;
       }
-    } else if (badge) {
-      badge.remove();
+    } else {
+      removeSourceNotFoundBadge(node);
     }
   }
+
+  railScroll.addEventListener("scroll", function () {
+    if (activeSourceTooltip) positionSourceTooltip(activeSourceTooltip.help, activeSourceTooltip.tooltip);
+  });
 
   // Drafts float over the content near where the user just clicked/selected
   // (position: fixed, appended to document.body) rather than appearing in
@@ -672,10 +900,10 @@ function renderClientScript() {
     node.style.marginBottom = "8px";
     node.style.position = "fixed";
     node.style.width = "260px";
-    // Above highlightBox's z-index (1000) \u2014 a floating draft opened right
+    // Above the review highlights \u2014 a floating draft opened right
     // where the hover highlight box currently sits must never be covered by
     // it.
-    node.style.zIndex = "1100";
+    node.style.zIndex = "var(--z-review-draft)";
     document.body.appendChild(node);
     return node;
   }
@@ -760,8 +988,8 @@ function renderClientScript() {
 
   function closeDraftBubble() {
     if (!draftBubble) return;
-    if (draftBubble.type === "text-annotation" && textHighlightSet) {
-      textHighlightSet.delete(draftBubble.range);
+    if (draftBubble.type === "text-annotation") {
+      removeTextHighlight(draftBubble.range);
     }
     draftBubble.node.remove();
     draftBubble = null;
@@ -781,6 +1009,9 @@ function renderClientScript() {
         }
       }
     }
+    if (textHighlightSet && textHighlightSet.clear) textHighlightSet.clear();
+    if (textHighlightHoverSet && textHighlightHoverSet.clear) textHighlightHoverSet.clear();
+    clearTextHighlightOverlay();
   }
 
   // ---- Text annotation re-anchoring after a reload ----
@@ -991,7 +1222,23 @@ function renderClientScript() {
           item.range = newRange;
           item.lost = false;
           setAnchorLost(item.node, false);
-          if (textHighlightSet) textHighlightSet.add(newRange);
+          addTextHighlight(newRange);
+        } else {
+          setAnchorLost(item.node, true, TEXT_SOURCE_NOT_FOUND_DETAIL);
+        }
+      }
+    }
+  }
+
+  function refreshSourceNotFoundStatuses() {
+    var lists = [queue, sentItems];
+    for (var l = 0; l < lists.length; l++) {
+      for (var i = 0; i < lists[l].length; i++) {
+        var item = lists[l][i];
+        if (item.type === "text-annotation") {
+          setAnchorLost(item.node, item.lost, TEXT_SOURCE_NOT_FOUND_DETAIL);
+        } else if (item.type === "element-annotation") {
+          setAnchorLost(item.node, !resolveAnnotationElement(item), ELEMENT_SOURCE_NOT_FOUND_DETAIL);
         }
       }
     }
@@ -1070,9 +1317,8 @@ function renderClientScript() {
     node.setAttribute("data-annotation-id", id);
 
     deleteBtn.addEventListener("click", function () {
-      if (item.type === "text-annotation" && textHighlightSet) {
-        textHighlightSet.delete(item.range);
-        textHighlightHoverSet.delete(item.range);
+      if (item.type === "text-annotation") {
+        removeTextHighlight(item.range);
       }
       removeFromQueue(id);
     });
@@ -1082,14 +1328,11 @@ function renderClientScript() {
         currentHoverTarget = null;
         hideHighlight();
         if (item.lost) {
-          setAnchorLost(node, true);
+          setAnchorLost(node, true, TEXT_SOURCE_NOT_FOUND_DETAIL);
           return;
         }
         setAnchorLost(node, false);
-        if (textHighlightSet && textHighlightHoverSet) {
-          textHighlightSet.delete(item.range);
-          textHighlightHoverSet.add(item.range);
-        }
+        setTextHighlightHovered(item.range, true);
       });
       node.addEventListener("click", function (event) {
         if (bubbleClickTargetsControl(event) || item.lost) return;
@@ -1098,10 +1341,7 @@ function renderClientScript() {
       });
       node.addEventListener("mouseleave", function () {
         if (item.lost) return;
-        if (textHighlightSet && textHighlightHoverSet) {
-          textHighlightHoverSet.delete(item.range);
-          textHighlightSet.add(item.range);
-        }
+        setTextHighlightHovered(item.range, false);
       });
     } else {
       node.addEventListener("mouseenter", function () {
@@ -1111,7 +1351,7 @@ function renderClientScript() {
           setAnchorLost(node, false);
           positionHighlight(el);
         } else {
-          setAnchorLost(node, true);
+          setAnchorLost(node, true, ELEMENT_SOURCE_NOT_FOUND_DETAIL);
           hideHighlight();
         }
       });
@@ -1123,7 +1363,7 @@ function renderClientScript() {
         currentHoverTarget = null;
         var el = resolveAnnotationElement(item);
         if (!el) {
-          setAnchorLost(node, true);
+          setAnchorLost(node, true, ELEMENT_SOURCE_NOT_FOUND_DETAIL);
           hideHighlight();
           return;
         }
@@ -1147,6 +1387,7 @@ function renderClientScript() {
       }
     }
     if (idx === -1) return;
+    removeSourceNotFoundBadge(queue[idx].node);
     queue[idx].node.remove();
     queue.splice(idx, 1);
     updateSubmitReviewLabel();
@@ -1230,7 +1471,7 @@ function renderClientScript() {
     var localOffsets = captureLocalOffsets(range, ancestorEl);
     var nearestSelectorResult = ancestorEl ? generateSelector(ancestorEl) : { selector: null, shadowHost: null };
 
-    if (textHighlightSet) textHighlightSet.add(range);
+    addTextHighlight(range);
 
     var node = createBubbleShell();
     node.className = "bubble bubble-draft";
@@ -1527,9 +1768,9 @@ function renderClientScript() {
     }
     e.preventDefault();
     e.stopPropagation();
-    // A real mousemove normally precedes a click; fall back to e.target
-    // defensively in case it somehow doesn't.
-    openDraftBubble(currentHoverTarget || e.target, e.clientX, e.clientY);
+    var target = getReviewTarget(e.target);
+    if (!target) return;
+    openDraftBubble(target, e.clientX, e.clientY);
   }
 
   function attachOverlayListeners() {
@@ -1557,6 +1798,7 @@ function renderClientScript() {
     if (reviewOn) attachOverlayListeners();
     attachSelectionListeners();
     reanchorLostTextAnnotations();
+    refreshSourceNotFoundStatuses();
   });
   if (reviewOn) attachOverlayListeners();
   attachSelectionListeners();
@@ -1573,7 +1815,11 @@ function renderClientScript() {
     }
   });
 
-  window.addEventListener("resize", refreshHighlightPosition);
+  window.addEventListener("resize", function () {
+    refreshHighlightPosition();
+    if (activeSourceTooltip) positionSourceTooltip(activeSourceTooltip.help, activeSourceTooltip.tooltip);
+    scheduleTextHighlightOverlayRefresh();
+  });
 })();
 `;
 }
@@ -1596,6 +1842,14 @@ function renderShellPage(fileName, filePath) {
 <link rel="alternate icon" href="/favicon.ico" />
 <link rel="apple-touch-icon" href="/favicon-192x192.png" sizes="192x192" />
 <style>
+  :root {
+    --z-review-text: 900;
+    --z-rail-controls: 950;
+    --z-review-element: 1000;
+    --z-review-draft: 1100;
+    --z-toolbar: 1200;
+    --z-modal: 2000;
+  }
   :root[data-theme="dark"] {
     --chrome-bg: rgba(18, 24, 38, 0.72);
     --chrome-bg-solid: #0f1420;
@@ -1695,6 +1949,7 @@ function renderShellPage(fileName, filePath) {
     gap: 16px;
     box-sizing: border-box;
     position: relative;
+    z-index: var(--z-toolbar);
   }
   #wordmark {
     display: flex;
@@ -1937,7 +2192,7 @@ function renderShellPage(fileName, filePath) {
     font-size: 11px;
     line-height: 1;
     cursor: pointer;
-    z-index: 950;
+    z-index: var(--z-rail-controls);
   }
   #rail-collapse-all {
     position: absolute;
@@ -1952,7 +2207,7 @@ function renderShellPage(fileName, filePath) {
     font-size: 12px;
     line-height: 1;
     cursor: pointer;
-    z-index: 950;
+    z-index: var(--z-rail-controls);
   }
   #rail-footer {
     position: absolute;
@@ -1993,12 +2248,73 @@ function renderShellPage(fileName, filePath) {
     max-height: 300px;
     overflow-y: auto;
   }
+  .answer-text,
+  .bubble-comment {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .anchor-lost-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    margin-top: 6px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 16px;
+    color: var(--stale-amber-fg);
+    background: var(--stale-amber-bg);
+    z-index: 2;
+  }
+  .anchor-lost-help {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+    cursor: help;
+  }
+  .anchor-lost-help:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .anchor-lost-tooltip {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: var(--z-toolbar);
+    width: 220px;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--chrome-bg-solid);
+    color: var(--chrome-fg);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.28);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: left;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .anchor-lost-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+  }
   #confirm-modal-backdrop {
     display: none;
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 2000;
+    z-index: var(--z-modal);
     align-items: center;
     justify-content: center;
   }
@@ -2210,7 +2526,7 @@ function loadFaviconAsset(pathname) {
 }
 
 // src/feedback-queue.ts
-import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 var QUEUE_FILENAME = "feedback-queue.jsonl";
 var SUBMITTED_IDS_FILENAME = "submitted-ids.jsonl";
@@ -2270,11 +2586,26 @@ function loadThreadHistory(sessionDir, threadId) {
   return lines.map((line) => JSON.parse(line)).filter((message) => message.threadId === threadId).sort((a, b) => a.timestamp - b.timestamp);
 }
 function resetSessionFiles(sessionDir) {
-  for (const filename of [QUEUE_FILENAME, SUBMITTED_IDS_FILENAME, THREADS_FILENAME, THREAD_ROOTS_FILENAME]) {
-    const path = join(sessionDir, filename);
-    if (existsSync(path)) {
-      unlinkSync(path);
+  if (!existsSync(sessionDir)) return;
+  const sessionStat = lstatSync(sessionDir);
+  if (!sessionStat.isDirectory() || sessionStat.isSymbolicLink()) return;
+  const ownedFiles = /* @__PURE__ */ new Set([
+    QUEUE_FILENAME,
+    SUBMITTED_IDS_FILENAME,
+    THREADS_FILENAME,
+    THREAD_ROOTS_FILENAME,
+    "session.json"
+  ]);
+  for (const entry of readdirSync(sessionDir, { withFileTypes: true })) {
+    const isInterruptedQueueWrite = /^feedback-queue\.jsonl\.\d+\.tmp$/.test(entry.name);
+    if (entry.isFile() && (ownedFiles.has(entry.name) || isInterruptedQueueWrite)) {
+      unlinkSync(join(sessionDir, entry.name));
     }
+  }
+  try {
+    rmdirSync(sessionDir);
+  } catch (error) {
+    if (error.code !== "ENOTEMPTY") throw error;
   }
 }
 function consumeNextBatch(sessionDir) {
@@ -2737,14 +3068,19 @@ var USAGE = `Usage:
   ezreview reply <file.html> --to <id> "<text>"  Respond to a submitted annotation
 
 Options:
-  -h, --help    Show this help message
+  -h, --help          Show this help message
+  --decode-newlines   In reply text, decode \\n and \\r\\n as line breaks
 `;
+function decodeReplyNewlines(text) {
+  return text.replace(/\\r\\n|\\n|\\r/g, "\n");
+}
 function parseCliArgs(argv) {
   const { values, positionals } = parseArgs({
     args: argv,
     options: {
       help: { type: "boolean", short: "h" },
-      to: { type: "string" }
+      to: { type: "string" },
+      "decode-newlines": { type: "boolean" }
     },
     allowPositionals: true
   });
@@ -2768,7 +3104,12 @@ function parseCliArgs(argv) {
     if (!third) {
       return { kind: "error", message: 'reply requires "<text>"' };
     }
-    return { kind: "reply", file: second, to: values.to, text: third };
+    return {
+      kind: "reply",
+      file: second,
+      to: values.to,
+      text: values["decode-newlines"] ? decodeReplyNewlines(third) : third
+    };
   }
   if (!first) {
     return { kind: "error", message: "missing required argument <file.html>" };
@@ -2879,6 +3220,7 @@ if (isMainModule()) {
 export {
   CliError,
   USAGE,
+  decodeReplyNewlines,
   main,
   openReview,
   parseCliArgs,

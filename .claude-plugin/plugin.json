@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "aipilot",
   "displayName": "AIPilot",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Document-driven, stage-gated product development workflow skills for specs, planning, implementation, review, and release.",
   "author": {
     "name": "JililiDD",

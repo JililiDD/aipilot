@@ -176,7 +176,7 @@ Cold start creates `work-items/`, `work-items/merged/`, and `design-assets/`. AI
 
 AIPilot vendors two MIT-licensed components for offline document review:
 
-- [ezreview](https://github.com/JililiDD/ezreview) `0.2.1` opens reviewable HTML and returns element-anchored annotations
+- [ezreview](https://github.com/JililiDD/ezreview) `0.2.2` opens reviewable HTML and returns element-anchored annotations
 - [marked](https://github.com/markedjs/marked) `18.0.6` renders Markdown without a runtime download
 
 See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for source and license details.

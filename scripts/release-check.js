@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const releaseVersion = '1.1.0';
+const releaseVersion = '1.1.1';
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -64,12 +64,6 @@ for (const relativePath of [
   'assets/logo.png',
   'assets/logo-dark.png',
   'scripts/render-logo.swift',
-  'adapters/claude/README.md',
-  'adapters/codex/README.md',
-  'adapters/grok/README.md',
-  'release/CLAUDE_SUBMISSION.md',
-  'release/OPENAI_SUBMISSION.md',
-  'release/RELEASE_CHECKLIST.md',
 ]) {
   requireFile(relativePath);
 }

@@ -27,7 +27,7 @@ function test(name, fn) {
 test('codex manifest exists and points at shared skills', () => {
   const manifest = readJson('.codex-plugin/plugin.json');
   assert.strictEqual(manifest.name, 'aipilot');
-  assert.strictEqual(manifest.version, '1.1.0');
+  assert.strictEqual(manifest.version, '1.1.1');
   assert.strictEqual(manifest.skills, './skills/');
   assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'hooks'));
   assert.strictEqual(manifest.interface.displayName, 'AIPilot');
@@ -37,7 +37,7 @@ test('claude manifest points at shared skills without invalid cross-host fields'
   const manifest = readJson('.claude-plugin/plugin.json');
   assert.strictEqual(manifest.name, 'aipilot');
   assert.strictEqual(manifest.displayName, 'AIPilot');
-  assert.strictEqual(manifest.version, '1.1.0');
+  assert.strictEqual(manifest.version, '1.1.1');
   assert.strictEqual(manifest.skills, './skills/');
   assert.strictEqual(manifest.commands, './commands/');
   assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'interface'));
@@ -57,13 +57,13 @@ test('Codex marketplace exposes the AIPilot plugin', () => {
   assert.strictEqual(marketplace.plugins[0].category, 'Productivity');
 });
 
-test('Claude marketplace exposes the AIPilot 1.1.0 plugin', () => {
+test('Claude marketplace exposes the AIPilot 1.1.1 plugin', () => {
   const marketplace = readJson('.claude-plugin/marketplace.json');
   assert.strictEqual(marketplace.name, 'aipilot');
   assert.strictEqual(marketplace.plugins.length, 1);
   assert.strictEqual(marketplace.plugins[0].name, 'aipilot');
   assert.strictEqual(marketplace.plugins[0].source, './');
-  assert.strictEqual(marketplace.plugins[0].version, '1.1.0');
+  assert.strictEqual(marketplace.plugins[0].version, '1.1.1');
   assert.strictEqual(marketplace.plugins[0].strict, true);
 });
 
@@ -312,18 +312,18 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
   assert.match(runtime, /node <this-skill>\/vendor\/ezreview\/ezreview\.mjs <file\.html>/);
   assert.match(runtime, /node <this-skill>\/vendor\/ezreview\/ezreview\.mjs wait <file\.html>/);
   assert.match(runtime, /node <this-skill>\/vendor\/ezreview\/ezreview\.mjs reply/);
-  assert.match(runtime, /plugin-vendored `ezreview` 0\.2\.1 standalone file/);
+  assert.match(runtime, /plugin-vendored `ezreview` 0\.2\.2 standalone file/);
   assert.match(runtime, /Do not substitute `npm`, `npx`, a global `ezreview` command, or any runtime download/);
   assert.doesNotMatch(runtime, /npx -y ezreview|npm (?:install|exec) ezreview/);
-  assert.strictEqual(ezreviewVersion, '0.2.1\n');
-  assert.strictEqual(fs.statSync(ezreviewStandalone).size, 193_107);
+  assert.strictEqual(ezreviewVersion, '0.2.2\n');
+  assert.strictEqual(fs.statSync(ezreviewStandalone).size, 205_490);
   if (process.platform !== 'win32') {
     assert.ok((fs.statSync(ezreviewStandalone).mode & 0o111) !== 0, 'vendored ezreview must stay executable');
   }
   assert.ok(fs.statSync(ezreviewLicense).size > 1_000);
   assert.strictEqual(
     crypto.createHash('sha256').update(fs.readFileSync(ezreviewStandalone)).digest('hex'),
-    '3c205b9f2deff49fb837c45806280b4121c16efe28ade8e7de229d6131c375f4',
+    'f715c70c9662904bdc5aa8df6fe455fa1c99f66d044d16edd7440c5dc8e4df60',
   );
   assert.strictEqual(
     crypto.createHash('sha256').update(fs.readFileSync(ezreviewLicense)).digest('hex'),

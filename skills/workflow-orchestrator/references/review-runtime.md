@@ -17,7 +17,7 @@ node <this-skill>/vendor/ezreview/ezreview.mjs wait <file.html>                 
 node <this-skill>/vendor/ezreview/ezreview.mjs reply <file.html> --to <annotation-id> "<message>"  # reply to a question
 ```
 
-The CLI is the plugin-vendored `ezreview` 0.2.1 standalone file. It contains the complete runtime and embedded browser assets and is executed directly with Node. Do not substitute `npm`, `npx`, a global `ezreview` command, or any runtime download. The adjacent `LICENSE` and `VERSION` files travel with it.
+The CLI is the plugin-vendored `ezreview` 0.2.2 standalone file. It contains the complete runtime and embedded browser assets and is executed directly with Node. Do not substitute `npm`, `npx`, a global `ezreview` command, or any runtime download. The adjacent `LICENSE` and `VERSION` files travel with it.
 
 Place review HTML files in the session scratchpad, not the project tree.
 
