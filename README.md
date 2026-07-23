@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 1.0.0" src="https://img.shields.io/badge/release-1.0.0-12B5EA">
+  <img alt="Release 1.1.1" src="https://img.shields.io/badge/release-1.1.1-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v1.0.0 --trust
+grok plugin install JililiDD/aipilot@v1.1.1 --trust
 ```
 
 ## Use one entry point
