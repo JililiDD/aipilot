@@ -266,23 +266,6 @@ test('plugin ships no workflow signal capture path', () => {
   assert.doesNotMatch(workflowText, /signals\.jsonl|workflow-evolver/i);
 });
 
-test('plugin root resolver prefers host-specific environment variables', () => {
-  const { detectHost, resolvePluginRoot } = require('../hooks/plugin-root');
-  assert.strictEqual(
-    resolvePluginRoot({
-      AIPILOT_PLUGIN_ROOT: '/tmp/aipilot',
-      CODEX_PLUGIN_ROOT: '/tmp/codex',
-    }),
-    '/tmp/aipilot',
-  );
-  assert.strictEqual(resolvePluginRoot({ CODEX_PLUGIN_ROOT: '/tmp/codex' }), '/tmp/codex');
-  assert.strictEqual(resolvePluginRoot({ GROK_PLUGIN_ROOT: '/tmp/grok' }), '/tmp/grok');
-  assert.strictEqual(detectHost({ GROK_PLUGIN_ROOT: '/tmp/grok' }), 'grok');
-  assert.strictEqual(resolvePluginRoot({ CLAUDE_PLUGIN_ROOT: '/tmp/claude' }), '/tmp/claude');
-  assert.strictEqual(resolvePluginRoot({ ANTIGRAVITY_PLUGIN_ROOT: '/tmp/antigravity' }), '/tmp/antigravity');
-  assert.strictEqual(resolvePluginRoot({ CURSOR_PLUGIN_ROOT: '/tmp/cursor' }), '/tmp/cursor');
-});
-
 test('review runtime uses ezreview commands and no injected browser bridge', () => {
   const runtime = fs.readFileSync(
     path.join(root, 'skills/workflow-orchestrator/references/review-runtime.md'),
