@@ -14,17 +14,17 @@
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
 
-AIPilot turns product work into a staged, inspectable process: define the requirement, make design decisions, create an executable plan, implement it, review the result, and merge the approved state back into the project documents. Start from one entry point. AIPilot reads the project state and routes the work to the right skill.
+<p align="center">
+  English | <a href="documents/README_zh-CN.md">中文</a> | <a href="documents/README_ja-JP.md">日本語</a> | <a href="documents/README_es-ES.md">Español</a>
+</p>
 
-AIPilot pairs with [ezreview](https://github.com/JililiDD/ezreview) to render Markdown documents as reviewable HTML. You can annotate specific headings, paragraphs, and interface elements in the browser. AIPilot applies the feedback to the Markdown source, reloads the HTML, and keeps the review open until you approve or cancel it.
+AIPilot is a suite of specialized workflow skills for AI coding agents that automates and structures daily software development. It turns product work into an inspectable, stage-gated process: defining requirements, making design decisions, creating executable plans, implementing changes, reviewing results, and merging approved updates back into project documentation. Starting from a single entry point, AIPilot automatically inspects project state and routes work to the right skill.
+
+Paired with [ezreview](https://github.com/JililiDD/ezreview), AIPilot renders Markdown documents as interactive HTML pages for in-browser review. You can annotate specific headings, paragraphs, and interface elements directly in your browser; AIPilot applies your feedback to the Markdown source, reloads the HTML preview, and maintains the review loop until final approval.
 
 ## Install AIPilot
 
-Install the plugin for your coding agent. The next section explains how to enter the workflow.
-
 ### Claude Code
-
-Add the marketplace and install the plugin:
 
 ```bash
 claude plugin marketplace add JililiDD/aipilot
@@ -33,8 +33,6 @@ claude plugin install aipilot@aipilot
 
 ### Codex
 
-Add the marketplace and install the plugin:
-
 ```bash
 codex plugin marketplace add JililiDD/aipilot
 codex plugin add aipilot@aipilot
@@ -42,26 +40,20 @@ codex plugin add aipilot@aipilot
 
 ### Grok Build
 
-Add the marketplace and install the plugin:
-
 ```bash
 grok plugin install JililiDD/aipilot@v1.0.0 --trust
 ```
 
-For a local checkout, replace `JililiDD/aipilot` with the absolute path to this repository.
-
 ## Use one entry point
 
-You don't need to choose a skill before you understand the work. The `workflow-orchestrator` reads the project state, recovers interrupted bookkeeping, and invokes the skills required by the current stage.
+You don't need to pick a skill manually. The `workflow-orchestrator` reads the current project state, recovers interrupted bookkeeping, and automatically routes work to the right skill for each stage.
 
-Start or resume work in Claude Code and Grok Build:
+Start or resume work using a slash command or natural language prompt:
 
 ```text
 /aipilot Build a TODO list app
 ```
-
-In Codex, select the AIPilot plugin from the plugin list or type `/aipilot` in the chatbox and then select `Aipilot: Workflow Orchestrator` as the entry point or type natural language prompt like:
-
+*or*
 ```text
 Use AIPilot to build a TODO list app.
 ```
@@ -78,46 +70,34 @@ flowchart LR
     Review -->|Findings| Build
 ```
 
-Design is skipped when the work has no user interface. Release readiness is available when the project needs packaging, deployment, public distribution, or a final handoff.
+## Review documents in HTML with ezreview (optional)
 
-AIPilot pauses at stage boundaries by default. You review the current document before the next skill starts, so a misunderstood requirement doesn't become a completed implementation.
+AIPilot pairs with [ezreview](https://github.com/JililiDD/ezreview) to provide an interactive browser-based review loop for product specs, design specs, plans, and UI prototypes.
 
-## Review documents in HTML with ezreview
-
-[ezreview](https://github.com/JililiDD/ezreview) adds a browser review loop to product specs, design specs, work items, plans, and HTML design previews. AIPilot vendors the runtime, so document review does not install an npm package or depend on a hosted review service.
-
-The document review loop follows these steps:
-
-1. AIPilot renders the Markdown source into a temporary HTML file
-2. ezreview opens the file with annotation controls
-3. You attach comments to specific elements and submit the review
-4. AIPilot updates the Markdown source and replies to each annotation
-5. The browser reloads the same HTML file for another review pass
-6. You approve the document or cancel the review
-
-Markdown remains the source of truth. The generated HTML stays in the session scratchpad and is deleted when the review closes. For a visual design prototype, the HTML itself can remain the reviewed deliverable.
-
-The bundled review runtime requires Node.js 20 or newer. If a browser is unavailable, AIPilot keeps the same review gate and collects feedback in chat.
+1. **Zero-token rendering:** AIPilot converts the Markdown source into a temporary HTML file using [marked](https://github.com/markedjs/marked) without consuming API tokens.
+2. **In-browser annotation:** `ezreview` opens the page with annotation tools, letting you attach comments to specific headings, paragraphs, or interface elements.
+3. **Automated updates:** AIPilot applies your feedback directly to the Markdown source, replies to annotations, and reloads the HTML preview for another pass.
+4. **Approval & cleanup:** The loop repeats until you grant final approval. Markdown remains the single source of truth—temporary HTML files are cleaned up from the session scratchpad when the review closes (or retained as visual design deliverables).
 
 ## Know what each skill does
 
-The workflow orchestrator selects these skills from the current project state. You can still invoke one directly when you want a specific capability.
+The workflow orchestrator automatically selects these skills based on project state, but you can also invoke any skill directly when needed.
 
 | Skill | Responsibility |
 | --- | --- |
-| [`workflow-orchestrator`](skills/workflow-orchestrator/SKILL.md) | Starts or resumes AIPilot, reads project state, routes stages, enforces confirmation gates, and merges approved work back into the master documents |
-| [`product-spec-builder`](skills/product-spec-builder/SKILL.md) | Interviews you until a product, feature, bug, or refactor has clear scope, behavior, data boundaries, and acceptance criteria |
-| [`design-spec-builder`](skills/design-spec-builder/SKILL.md) | Converts vague visual direction into concrete layout, hierarchy, typography, interaction, density, and reference decisions |
-| [`dev-plan-builder`](skills/dev-plan-builder/SKILL.md) | Creates phase roadmaps and executable work-item plans with ordered tasks, reuse decisions, tests, and verification methods |
-| [`dev-builder`](skills/dev-builder/SKILL.md) | Implements approved plans, records evidence, and switches to diagnosis mode when a failure needs a root cause before another edit |
-| [`code-reviewer`](skills/code-reviewer/SKILL.md) | Reviews the diff from a clean context against the requirement, design, plan, tests, and recorded evidence |
-| [`release-builder`](skills/release-builder/SKILL.md) | Checks packaging, privacy, permissions, release notes, rollback, known risks, and final release evidence |
-| [`note-keeper`](skills/note-keeper/SKILL.md) | Records durable decisions, discovered pitfalls, and project-specific workflow preferences without starting a new stage |
-| [`java-backend-expert`](skills/java-backend-expert/SKILL.md) | Adds Spring Boot, REST API, persistence, transaction, validation, Maven, Gradle, and JUnit judgment to planning, building, diagnosis, and review |
+| [`workflow-orchestrator`](skills/workflow-orchestrator/SKILL.md) | Orchestrates workflow stages, tracks project state, manages confirmation gates, and merges approved work |
+| [`product-spec-builder`](skills/product-spec-builder/SKILL.md) | Clarifies requirements, scope, behavior, data boundaries, and acceptance criteria through structured interviews |
+| [`design-spec-builder`](skills/design-spec-builder/SKILL.md) | Translates visual direction into concrete layout, typography, component interaction, and design decisions |
+| [`dev-plan-builder`](skills/dev-plan-builder/SKILL.md) | Builds executable phase roadmaps with ordered tasks, reuse strategies, and verification test plans |
+| [`dev-builder`](skills/dev-builder/SKILL.md) | Implements approved plans, collects execution evidence, and diagnoses root causes on test/build failures |
+| [`code-reviewer`](skills/code-reviewer/SKILL.md) | Conducts fresh-context code reviews against product specs, design guidelines, implementation plans, and tests |
+| [`release-builder`](skills/release-builder/SKILL.md) | Verifies packaging, permissions, privacy compliance, release notes, and deployment readiness |
+| [`note-keeper`](skills/note-keeper/SKILL.md) | Records architectural decisions, discovered pitfalls, and project guidelines into persistent memory |
+| [`java-backend-expert`](skills/java-backend-expert/SKILL.md) | Provides specialized Spring Boot, REST API, JPA/SQL, and JVM architecture judgment across all stages |
 
 ## Keep project memory between conversations
 
-AIPilot stores durable context in project documents instead of relying on chat history. The workflow orchestrator reads the memory files when a later session starts. These files are created only when their first entry is recorded, so a new project does not begin with empty memory documents.
+AIPilot stores durable context in project documents. The workflow orchestrator reads the memory files when a later session starts.
 
 ### `memory/decisions.md` records choices that shape future work
 
@@ -140,10 +120,6 @@ If the workflow has a defect, tell AIPilot what should change and make the inten
 ```text
 For this project, always show API contract changes before writing the implementation plan. Remember this as a workflow rule.
 ```
-
-The [`note-keeper`](skills/note-keeper/SKILL.md) skill normalizes that request and records it under `Active Workflow Overrides`. A later session reads the rule and follows it when the same situation occurs. If your wording might apply only to the current task, Note Keeper shows the proposed rule and asks whether to save it.
-
-Product behavior does not belong in `memory/agent-guideline.md`. Put product requirements in `product-spec.md` or the active work item. Put a plugin-wide workflow change in the AIPilot source.
 
 ## Choose where AIPilot stores project documents
 
@@ -170,7 +146,7 @@ docs/aipilot/
 
 Master specs describe the approved product state. An active work item owns the pending Requirement, Design, Plan, and Execution Record until review finishes. Merge-back updates the master documents and moves the completed work item into `work-items/merged/`.
 
-Cold start creates `work-items/`, `work-items/merged/`, and `design-assets/`. AIPilot repairs the two work-item directories on later starts because Git does not preserve empty directories, and the responsible Skill checks them again before creating or merging a work item. The `memory/` directory remains lazy: the Skill that captures the first memory creates it together with the corresponding Markdown file and required headings.
+Cold start creates `work-items/`, `work-items/merged/`, and `design-assets/`. The `memory/` directory remains lazy: the Skill that captures the first memory creates it together with the corresponding Markdown file and required headings.
 
 ## Third-party software
 
