@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 1.1.1" src="https://img.shields.io/badge/release-1.1.1-12B5EA">
+  <img alt="Release 1.1.2" src="https://img.shields.io/badge/release-1.1.2-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v1.1.1 --trust
+grok plugin install JililiDD/aipilot@v1.1.2 --trust
 ```
 
 ## 单一入口启动
@@ -157,7 +157,7 @@ docs/aipilot/
 
 AIPilot 内置了两个采用 MIT 许可证的组件，用于离线文档审查：
 
-- [ezreview](https://github.com/JililiDD/ezreview) `0.2.2` 打开可审查的 HTML 并返回锚定到元素的批注
+- [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` 打开可审查的 HTML 并返回锚定到元素的批注
 - [marked](https://github.com/markedjs/marked) `18.0.6` 无需运行下载即可渲染 Markdown
 
 参阅 [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) 获取源码与许可证详情。

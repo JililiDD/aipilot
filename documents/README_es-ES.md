@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 1.1.1" src="https://img.shields.io/badge/release-1.1.1-12B5EA">
+  <img alt="Release 1.1.2" src="https://img.shields.io/badge/release-1.1.2-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v1.1.1 --trust
+grok plugin install JililiDD/aipilot@v1.1.2 --trust
 ```
 
 ## Uso de un único punto de entrada
@@ -157,7 +157,7 @@ El inicio en frío crea `work-items/`, `work-items/merged/` y `design-assets/`. 
 
 AIPilot incluye dos componentes con licencia MIT para la revisión fuera de línea de documentos:
 
-- [ezreview](https://github.com/JililiDD/ezreview) `0.2.2` abre HTML revisable y devuelve anotaciones ancladas a elementos
+- [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` abre HTML revisable y devuelve anotaciones ancladas a elementos
 - [marked](https://github.com/markedjs/marked) `18.0.6` renderiza Markdown sin descargas en tiempo de ejecución
 
 Consulte [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) para obtener detalles sobre el código fuente y las licencias.

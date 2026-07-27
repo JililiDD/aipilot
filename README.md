@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 1.1.1" src="https://img.shields.io/badge/release-1.1.1-12B5EA">
+  <img alt="Release 1.1.2" src="https://img.shields.io/badge/release-1.1.2-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v1.1.1 --trust
+grok plugin install JililiDD/aipilot@v1.1.2 --trust
 ```
 
 ## Use one entry point
@@ -152,7 +152,7 @@ Cold start creates `work-items/`, `work-items/merged/`, and `design-assets/`. Th
 
 AIPilot vendors two MIT-licensed components for offline document review:
 
-- [ezreview](https://github.com/JililiDD/ezreview) `0.2.2` opens reviewable HTML and returns element-anchored annotations
+- [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` opens reviewable HTML and returns element-anchored annotations
 - [marked](https://github.com/markedjs/marked) `18.0.6` renders Markdown without a runtime download
 
 See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for source and license details.

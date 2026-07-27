@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 1.1.1" src="https://img.shields.io/badge/release-1.1.1-12B5EA">
+  <img alt="Release 1.1.2" src="https://img.shields.io/badge/release-1.1.2-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v1.1.1 --trust
+grok plugin install JililiDD/aipilot@v1.1.2 --trust
 ```
 
 ## 単一エントリポイントの使用
@@ -157,7 +157,7 @@ docs/aipilot/
 
 AIPilot には、オフラインドキュメントレビュー用に MIT ライセンスの 2 つのコンポーネントが含まれています：
 
-- [ezreview](https://github.com/JililiDD/ezreview) `0.2.2` レビュー可能な HTML を開き、要素にアンカーされた注釈を返します
+- [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` レビュー可能な HTML を開き、要素にアンカーされた注釈を返します
 - [marked](https://github.com/markedjs/marked) `18.0.6` 実行時のダウンロードなしで Markdown をレンダリングします
 
 ソースとライセンスの詳細については [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) を参照してください。

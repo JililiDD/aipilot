@@ -3,6 +3,12 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [1.1.2] - 2026-07-27
+
+### Changed
+
+- Updated the vendored `ezreview` standalone runtime from `0.2.2` to `1.0.0`.
+
 ## [1.1.1] - 2026-07-23
 
 ### Changed
@@ -40,6 +46,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[1.1.2]: https://github.com/JililiDD/aipilot/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/JililiDD/aipilot/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/JililiDD/aipilot/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/JililiDD/aipilot/releases/tag/v1.0.0
