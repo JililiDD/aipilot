@@ -51,9 +51,10 @@ phase: 2                  # only on phase-derived work-items
 ---
 ```
 
-**Four sections, one writer each.** The file is created with the empty section skeleton so later skills append into fixed headings instead of inventing their own. The skeleton:
+**Five sections, one owner each.** The file is created with the section skeleton so later skills append into fixed headings instead of inventing their own. The skeleton:
 
 ```markdown
+## Quick Overview     <- product-spec-builder / dev-plan-builder: 1-2 sentence Summary, visual flow (ASCII/Mermaid), Before vs After table, milestone bullets
 ## Requirement        <- product-spec-builder: scope, behavior, ACs, assumptions, Impact on Product-Spec
 ## Design             <- design-spec-builder: deltas, Design ACs, Impact on Design-Spec (empty when no UI)
 ## Plan               <- dev-plan-builder: stories/groups -> tasks with verification, granularity, exit criteria
@@ -61,6 +62,7 @@ phase: 2                  # only on phase-derived work-items
 ```
  Each skill writes only its own section and reads all of them; if an upstream section is missing or not buildable, route to its owner — never fill it in.
 
+0. **Quick Overview** — owner `product-spec-builder` (or `dev-plan-builder` on phase-derived items). The human-first executive layer: (1) `> **Summary:**` in 1–2 crisp English sentences; (2) **Visual Workflow (Before vs After)** containing an ASCII wireframe/pipeline box diagram and a renderable Mermaid diagram; (3) **Before vs After Table** comparing Key Dimensions, Old, New, and Impact; (4) **Key Milestones** with one-line bullet summaries.
 1. **Requirement** — owner `product-spec-builder`. Scope, behavior or bug symptom, Acceptance Criteria, Assumptions, and the **Impact on Product-Spec** merge map. For phase-derived work-items the file is created by `dev-plan-builder`, but the Requirement content may only be *decomposed by reference* from the master spec's confirmed scope and criteria — never invented; every phase AC must trace to a master-spec AC.
 2. **Design** — owner `design-spec-builder`. Present only when the change has a UI surface. Design decision deltas, Design Acceptance Criteria, and the **Impact on Design-Spec** merge map. In-flight design decisions live here, not in `design-spec.md`.
 3. **Plan** — owner `dev-plan-builder`. User stories → tasks, execution-granularity default, reuse notes, verification per task, review focus, explicit non-goals. Acceptance criteria are referenced from sections 1–2, never invented here. When the change introduces a new page or screen, the Plan opens with **Story 0: visual direction smoke**. Before writing it, ask the user to choose the direction source: single-file static HTML prototype (recommended), generated image prototype, or user-provided prototype. Story 0 creates or records only the visual direction artifact with static/sample data — no production flow, API, persistence, or full frontend implementation. It ends in a stop for the user to confirm the visual direction **by default**; at planning time the user may waive it (`[stop: user-confirm]` vs `[stop: skip]` recorded on Story 0 — defaults favor stopping because building on a wrong direction is expensive, an extra confirmation is cheap). Its code is marked `throwaway` by default, or `base` only when the user explicitly wants later stories to build on it.
