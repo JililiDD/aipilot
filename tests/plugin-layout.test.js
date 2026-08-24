@@ -27,7 +27,7 @@ function test(name, fn) {
 test('codex manifest exists and points at shared skills', () => {
   const manifest = readJson('.codex-plugin/plugin.json');
   assert.strictEqual(manifest.name, 'aipilot');
-  assert.strictEqual(manifest.version, '1.1.2');
+  assert.strictEqual(manifest.version, '1.2.0');
   assert.strictEqual(manifest.skills, './skills/');
   assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'hooks'));
   assert.strictEqual(manifest.interface.displayName, 'AIPilot');
@@ -37,7 +37,7 @@ test('claude manifest points at shared skills without invalid cross-host fields'
   const manifest = readJson('.claude-plugin/plugin.json');
   assert.strictEqual(manifest.name, 'aipilot');
   assert.strictEqual(manifest.displayName, 'AIPilot');
-  assert.strictEqual(manifest.version, '1.1.2');
+  assert.strictEqual(manifest.version, '1.2.0');
   assert.strictEqual(manifest.skills, './skills/');
   assert.strictEqual(manifest.commands, './commands/');
   assert.ok(!Object.prototype.hasOwnProperty.call(manifest, 'interface'));
@@ -57,13 +57,13 @@ test('Codex marketplace exposes the AIPilot plugin', () => {
   assert.strictEqual(marketplace.plugins[0].category, 'Productivity');
 });
 
-test('Claude marketplace exposes the AIPilot 1.1.2 plugin', () => {
+test('Claude marketplace exposes the AIPilot 1.2.0 plugin', () => {
   const marketplace = readJson('.claude-plugin/marketplace.json');
   assert.strictEqual(marketplace.name, 'aipilot');
   assert.strictEqual(marketplace.plugins.length, 1);
   assert.strictEqual(marketplace.plugins[0].name, 'aipilot');
   assert.strictEqual(marketplace.plugins[0].source, './');
-  assert.strictEqual(marketplace.plugins[0].version, '1.1.2');
+  assert.strictEqual(marketplace.plugins[0].version, '1.2.0');
   assert.strictEqual(marketplace.plugins[0].strict, true);
 });
 

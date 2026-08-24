@@ -3,6 +3,15 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [1.2.0] - 2026-08-23
+
+### Added
+
+- Canonical `Quick Overview` executive section for Work-Item documents, including concise summaries, before-and-after visual flows, comparison matrices, and milestone bullets.
+- Enhanced deterministic review projection renderer featuring interactive mini-screen flow tracks, architecture and platform status boards, scope grids, and structured task badges.
+- Interactive section collapse/expand controls with arrow-only toggles and global expand/minimize buttons in the review sidebar.
+- Smart auto-expansion ensuring collapsed sections automatically open and navigate when focusing elements or clicking annotations from comment threads.
+
 ## [1.1.2] - 2026-07-27
 
 ### Changed
@@ -46,6 +55,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[1.2.0]: https://github.com/JililiDD/aipilot/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/JililiDD/aipilot/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/JililiDD/aipilot/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/JililiDD/aipilot/compare/v1.0.0...v1.1.0
