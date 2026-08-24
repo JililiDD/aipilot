@@ -345,12 +345,15 @@ async function render() {
   body = body.replace(/<strong>Touches:<\/strong>|Touches:/gi, '<span class="touches-badge">TOUCHES</span>');
   body = body.replace(/<strong>Done when:<\/strong>|Done when:/gi, '<span class="donewhen-badge">DONE WHEN</span>');
 
-  // Deterministic section card wrapping: wrap each <h2> block into its own <section class="section-card">
+  // Deterministic section card wrapping: wrap each <h2> block into its own collapsible <section class="section-card">
   const sections = body.split(/(?=<h2>)/g);
   let processedSections = sections.map((sec, idx) => {
     if (!sec.trim()) return '';
-    const h2Match = sec.match(/<h2>(.*?)<\/h2>/i);
-    const headingText = h2Match ? h2Match[1] : '';
+    const h2Match = sec.match(/<h2>([\s\S]*?)<\/h2>/i);
+    const headingHtml = h2Match ? h2Match[1] : `Section ${idx}`;
+    const headingText = headingHtml.replace(/<[^>]+>/g, '').trim();
+    const contentAfterH2 = sec.replace(/<h2>[\s\S]*?<\/h2>/i, '').trim();
+
     let secClass = 'section-card';
     if (/Quick Overview|Summary/i.test(headingText)) {
       secClass += ' overview-card';
@@ -363,11 +366,29 @@ async function render() {
     } else if (/Execution Record/i.test(headingText)) {
       secClass += ' exec-card';
     }
-    return `<section class="${secClass}">\n${sec}\n</section>`;
+
+    const secId = 'sec-' + idx;
+
+    return `
+      <section class="${secClass}" id="${secId}">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title-wrap">
+            <h2>${headingHtml}</h2>
+          </div>
+          <button type="button" class="section-toggle-btn" aria-label="Toggle section">
+            <span class="toggle-label">Minimize</span>
+            <span class="toggle-icon">▼</span>
+          </button>
+        </div>
+        <div class="section-content">
+          ${contentAfterH2}
+        </div>
+      </section>
+    `;
   }).join('\n');
 
   // Enhance In Scope vs Out of Scope subsections into distinct side-by-side / bordered cards
-  processedSections = processedSections.replace(/<h4>In scope<\/h4>([\s\S]*?)<h4>Out of scope<\/h4>([\s\S]*?)(?=<h[2-4]>|<\/section>)/gi, (m, inScope, outScope) => {
+  processedSections = processedSections.replace(/<h4>In scope<\/h4>([\s\S]*?)<h4>Out of scope<\/h4>([\s\S]*?)(?=<h[2-4]>|<\/div>|<\/section>)/gi, (m, inScope, outScope) => {
     return `<div class="scope-grid">
       <div class="scope-box in-scope-box">
         <div class="scope-header in-scope-header"><span>✔</span> In Scope</div>
@@ -381,14 +402,14 @@ async function render() {
   });
 
   // Enhance Exit Criteria & Stop Conditions callouts
-  processedSections = processedSections.replace(/<h3>Exit Criteria([^<]*)<\/h3>([\s\S]*?)(?=<h3>|<h2>|<\/section>)/gi, (m, title, content) => {
+  processedSections = processedSections.replace(/<h3>Exit Criteria([^<]*)<\/h3>([\s\S]*?)(?=<h3>|<h2>|<\/div>|<\/section>)/gi, (m, title, content) => {
     return `<div class="callout-card exit-criteria-box">
       <div class="callout-header exit-criteria-header">🎯 Exit Criteria ${title}</div>
       ${content}
     </div>`;
   });
 
-  processedSections = processedSections.replace(/<h3>Stop Conditions([^<]*)<\/h3>([\s\S]*?)(?=<h3>|<h2>|<\/section>)/gi, (m, title, content) => {
+  processedSections = processedSections.replace(/<h3>Stop Conditions([^<]*)<\/h3>([\s\S]*?)(?=<h3>|<h2>|<\/div>|<\/section>)/gi, (m, title, content) => {
     return `<div class="callout-card stop-conditions-box">
       <div class="callout-header stop-conditions-header">🛑 Stop Conditions ${title}</div>
       ${content}
@@ -479,13 +500,39 @@ async function render() {
     padding: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   }
+  .toc-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--card-border-subtle);
+  }
   .toc-title {
     font-size: 11px;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 12px;
+  }
+  .toc-global-actions {
+    display: flex;
+    gap: 4px;
+  }
+  .toc-action-btn {
+    background: #1e293b;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toc-action-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-glow);
   }
   .toc-list {
     list-style: none;
@@ -518,7 +565,7 @@ async function render() {
   main {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
     min-width: 0;
   }
 
@@ -551,10 +598,11 @@ async function render() {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 14px;
-    padding: 28px 32px;
+    padding: 24px 30px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     position: relative;
     overflow: hidden;
+    transition: all 0.2s ease;
   }
   
   /* Color-coded Section Top Borders */
@@ -564,17 +612,81 @@ async function render() {
   .plan-card { border-top: 3px solid #34d399; }
   .exec-card { border-top: 3px solid #fbbf24; }
 
-  /* Typography */
-  h1, h2, h3, h4 { color: #fff; line-height: 1.3; }
-  h2 {
+  /* Interactive Section Header (Collapsible) */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--card-border);
-    padding-bottom: 8px;
-    margin-top: 0;
+    margin-bottom: 16px;
+    transition: all 0.15s;
+  }
+  .section-header:hover h2 {
+    color: var(--accent);
+  }
+  .section-header h2 {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin: 0 !important;
     font-size: 19px;
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: color 0.15s;
   }
+  .section-toggle-btn {
+    background: #182338;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .section-header:hover .section-toggle-btn {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .toggle-icon {
+    font-size: 10px;
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  /* Collapsed Section State */
+  .section-card.is-collapsed {
+    padding: 16px 24px;
+    opacity: 0.85;
+  }
+  .section-card.is-collapsed .section-header {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .section-card.is-collapsed .section-content {
+    display: none;
+  }
+  .section-card.is-collapsed .toggle-icon {
+    transform: rotate(-90deg);
+  }
+  .section-card.is-collapsed .toggle-label::after {
+    content: "Expand";
+  }
+  .section-card:not(.is-collapsed) .toggle-label::after {
+    content: "Minimize";
+  }
+
+  /* Typography */
+  h1, h2, h3, h4 { color: #fff; line-height: 1.3; }
   h3 { font-size: 15px; margin-top: 24px; color: #e2e8f0; }
   h4 { font-size: 13px; margin-top: 16px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -1139,7 +1251,13 @@ async function render() {
 <header class="source-banner">source: <code>${escapeHtml(sourceMd)}</code></header>
 <div class="layout">
   <aside class="toc-sidebar">
-    <div class="toc-title">Sections</div>
+    <div class="toc-header-row">
+      <div class="toc-title">Sections</div>
+      <div class="toc-global-actions">
+        <button type="button" class="toc-action-btn" onclick="toggleAllSections(true)">Expand</button>
+        <button type="button" class="toc-action-btn" onclick="toggleAllSections(false)">Minimize</button>
+      </div>
+    </div>
     <ul class="toc-list" id="toc-nav"></ul>
   </aside>
   <main id="main-content">
@@ -1157,18 +1275,40 @@ async function render() {
   </main>
 </div>
 <script>
+  function toggleSection(headerEl) {
+    const card = headerEl.closest('.section-card');
+    if (card) {
+      card.classList.toggle('is-collapsed');
+    }
+  }
+
+  function toggleAllSections(expand) {
+    document.querySelectorAll('.section-card').forEach(card => {
+      if (expand) {
+        card.classList.remove('is-collapsed');
+      } else {
+        card.classList.add('is-collapsed');
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
-    const headings = document.querySelectorAll('#main-content h2');
+    const headings = document.querySelectorAll('#main-content .section-card h2');
     const toc = document.getElementById('toc-nav');
     if (!toc) return;
     headings.forEach((h, index) => {
-      const id = 'sec-' + index;
-      h.id = id;
+      const card = h.closest('.section-card');
+      const id = card ? card.id : ('sec-' + index);
       const li = document.createElement('li');
       const a = document.createElement('a');
       a.className = 'toc-link';
       a.href = '#' + id;
       a.textContent = h.textContent.trim();
+      a.addEventListener('click', (e) => {
+        if (card && card.classList.contains('is-collapsed')) {
+          card.classList.remove('is-collapsed');
+        }
+      });
       li.appendChild(a);
       toc.appendChild(li);
     });
