@@ -229,7 +229,7 @@ function transformAsciiToMiniScreens(rawAscii) {
       let label = i === 0 ? 'Tap' : 'Next';
       for (const line of trackLines) {
         if (line.length >= gapStart) {
-          let gapSlice = line.substring(gapStart, Math.min(line.length, gapEnd)).replace(/[─>│]/g, '').trim();
+          let gapSlice = line.substring(Math.max(0, gapStart - 1), Math.min(line.length, gapEnd + 1)).replace(/[│┌┐└┘─>]/g, '').trim();
           if (gapSlice.length > 0) {
             label = gapSlice;
             break;
