@@ -334,6 +334,11 @@ async function render() {
     return fullMatch;
   });
 
+  // Clean nested / redundant numbering in markdown lists
+  body = body.replace(/<ol[^>]*>\s*<li>\s*<ol[^>]*>\s*<li>/gi, '<ol><li>');
+  body = body.replace(/<\/li>\s*<\/ol>\s*<\/li>/gi, '</li>');
+  body = body.replace(/<li>(\s*<p>)?\s*\d+[\.\)]\s*/gi, '<li>$1');
+
   // Deterministic visual post-processing for badges and keywords
   body = body.replace(/<strong>((?:[A-Z0-9]+-)?(?:AC|R|D)-\d+[^<]*):<\/strong>/g, '<span class="ac-badge">$1</span>');
   body = body.replace(/—\s*Verify:/gi, '<span class="verify-badge">VERIFY</span>');
@@ -1009,12 +1014,11 @@ async function render() {
   td strong { color: var(--accent); }
 
   /* Task Checkbox List */
-  ul { padding-left: 20px; color: #cbd5e1; }
+  ul { padding-left: 0; color: #cbd5e1; list-style: none; margin: 12px 0; }
   li { margin-bottom: 6px; }
   li:has(input[type="checkbox"]) {
     list-style-type: none;
-    margin-left: -20px;
-    padding: 8px 12px;
+    padding: 10px 14px;
     background: var(--code-bg);
     border: 1px solid var(--card-border);
     border-radius: 8px;
@@ -1043,7 +1047,7 @@ async function render() {
     background: #090e1a;
     border: 1px solid var(--card-border);
     border-radius: 10px;
-    padding: 12px 16px;
+    padding: 14px 18px;
     font-size: 13.5px;
     color: #e2e8f0;
     line-height: 1.6;
@@ -1059,8 +1063,8 @@ async function render() {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 30px;
-    height: 30px;
+    min-width: 32px;
+    height: 32px;
     background: rgba(56, 189, 248, 0.12);
     color: var(--accent);
     border: 1px solid rgba(56, 189, 248, 0.3);
@@ -1075,22 +1079,53 @@ async function render() {
   /* Acceptance Criteria Card Rows */
   li:has(.ac-badge) {
     list-style-type: none;
-    margin-left: -20px;
-    padding: 10px 14px;
+    padding: 12px 16px;
     background: #090e1a;
     border: 1px solid var(--card-border);
     border-radius: 8px;
     margin-bottom: 8px;
     display: flex;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
     font-size: 13.5px;
-    line-height: 1.55;
+    line-height: 1.6;
     transition: all 0.15s ease;
   }
   li:has(.ac-badge):hover {
     border-color: rgba(56, 189, 248, 0.4);
     background: #0e1628;
+  }
+
+  /* Nested lists inside cards (sub-bullets inside requirements) */
+  li ul, li ol {
+    padding-left: 18px !important;
+    margin: 8px 0 4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    list-style: disc !important;
+    width: 100%;
+  }
+  li ul li, li ol li {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    color: #94a3b8 !important;
+    list-style-type: disc !important;
+    display: list-item !important;
+    position: static !important;
+    transform: none !important;
+  }
+  li ol li::before {
+    display: none !important;
+  }
+  li p {
+    margin: 0 0 6px 0;
+  }
+  li p:last-child {
+    margin-bottom: 0;
   }
 
   hr {
