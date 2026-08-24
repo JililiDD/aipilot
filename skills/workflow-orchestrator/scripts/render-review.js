@@ -49,11 +49,9 @@ function transformArchitectureSpikeToVisual(rawText) {
     return null;
   }
 
-  // 1. Extract Title if present at top
   const firstLine = rawText.trim().split('\n')[0].replace(/[┌─┐└┘═]/g, '').trim();
   const boardTitle = firstLine.length > 3 && !firstLine.startsWith('[') ? firstLine : 'System Architecture & Execution Pipeline';
 
-  // 2. Parse Architecture Layers dynamically
   const layerRegex = /\[\s*([^\]]+(?:Layer|Tier|Component|Service|Module|Store|UI|Database)[^\]]*)\s*\]\s*\n\s*(?:[^\n]*\s*)?([^\n│▼]+)/gi;
   let layerMatches = [];
   let match;
@@ -64,7 +62,6 @@ function transformArchitectureSpikeToVisual(rawText) {
     });
   }
 
-  // Parse connector protocol dynamically
   const connMatch = rawText.match(/│\s*\(([^)]+)\)/i);
   const connProtocol = connMatch ? connMatch[1].trim() : 'Protocol / Data Flow';
 
@@ -91,7 +88,6 @@ function transformArchitectureSpikeToVisual(rawText) {
     }).join('') + `</div>`;
   }
 
-  // 3. Parse Verification / Status Cards dynamically
   const statusLineRegex = /(?:[•\-\*]|\s{2,})([^\n:]+?):\s*([✅🛑⚠️✔✖❌][^\n]+)/gi;
   let statusCards = [];
   while ((match = statusLineRegex.exec(rawText)) !== null) {
@@ -123,7 +119,6 @@ function transformArchitectureSpikeToVisual(rawText) {
     `;
   }
 
-  // 4. Parse Verdict dynamically
   const verdictRegex = /\[\s*(?:Spike\s*)?(?:Verdict|Outcome|Result|Decision|Status|Gate)\s*\]\s*\n?\s*([🛑✅⚠️✔✖❌]?[^\n]+)/i;
   const vMatch = rawText.match(verdictRegex);
   let verdictHtml = '';
@@ -168,24 +163,41 @@ function transformAsciiToMiniScreens(rawAscii) {
     if (archResult) return archResult;
   }
 
-  // Check if it has BEFORE / AFTER flow or multi-box workflow
-  const trackSplits = rawAscii.split(/(?=[🛑🚀]\s*(?:BEFORE|AFTER)|(?:BEFORE|AFTER)\s*[\(\:])/i);
+  // Line-by-line track parser for screen workflows
+  const lines = rawAscii.split(/\r?\n/);
+  const tracks = [];
+  let currentTrack = null;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const isTrackHeader = /(?:BEFORE|AFTER)/i.test(trimmed) && !trimmed.includes('│') && !trimmed.includes('┌');
+    if (isTrackHeader) {
+      currentTrack = { title: trimmed, lines: [] };
+      tracks.push(currentTrack);
+    } else if (currentTrack) {
+      currentTrack.lines.push(line);
+    } else if (line.includes('┌')) {
+      currentTrack = { title: 'Workflow Flow', lines: [line] };
+      tracks.push(currentTrack);
+    }
+  }
+
+  if (tracks.length === 0) return null;
+
   let htmlTracks = '';
 
-  for (const trackRaw of trackSplits) {
-    if (!trackRaw.trim() || !trackRaw.includes('┌')) continue;
-    const isBefore = /BEFORE|🛑/i.test(trackRaw);
-    const isAfter = /AFTER|🚀/i.test(trackRaw);
+  for (const track of tracks) {
+    const isBefore = /BEFORE|🛑/i.test(track.title);
+    const isAfter = /AFTER|🚀/i.test(track.title);
     const trackClass = isBefore ? 'before-track' : (isAfter ? 'after-track' : 'generic-track');
-    
-    const firstLine = trackRaw.trim().split('\n')[0];
-    const trackTitle = firstLine.replace(/[┌─].*/, '').trim() || (isBefore ? '🛑 Before (Old Flow)' : (isAfter ? '🚀 After (New Flow)' : 'Workflow Flow'));
     const badgeText = isBefore ? 'OLD' : (isAfter ? 'NEW' : 'FLOW');
 
-    const lines = trackRaw.split('\n');
+    const trackLines = track.lines;
     let boxColumns = [];
-    let topBorderLine = lines.find(l => l.includes('┌') && l.includes('┐'));
-    
+    let topBorderLine = trackLines.find(l => l.includes('┌') && l.includes('┐'));
+
     if (topBorderLine) {
       let regex = /┌[─]+┐/g;
       let match;
@@ -197,72 +209,86 @@ function transformAsciiToMiniScreens(rawAscii) {
         });
       }
 
-      for (const line of lines) {
+      for (const line of trackLines) {
         if (!line.includes('│')) continue;
         boxColumns.forEach(box => {
           if (line.length >= box.start) {
-            let slice = line.substring(box.start, Math.min(line.length, box.end + 2));
-            let content = slice.replace(/[│┌┐└┘]/g, '').trim();
+            let content = line.substring(box.start + 1, Math.min(line.length, box.end - 1)).replace(/[│┌┐└┘]/g, '').trim();
             if (content) box.lines.push(content);
           }
         });
       }
     }
 
-    let screensHtml = '';
-    if (boxColumns.length > 0) {
-      boxColumns.forEach((box, idx) => {
-        let screenTitle = box.lines[0] || 'Step ' + (idx + 1);
-        let bodyLines = box.lines.slice(1);
-        
-        let bodyElements = bodyLines.map((l, lIdx) => {
-          if (l.includes('[') && l.includes(']')) {
-            let btnText = l.replace(/[•\*\-]/g, '').trim();
-            let isRemoved = /[*~]|Manually|Removed|Delete|Deprecated/i.test(btnText);
-            let isHighlight = !isRemoved && (/^[+]|Submit|Save|Start|Create|Upload|Confirm|Primary/i.test(btnText) || lIdx === 0);
-            let btnClass = isRemoved ? 'btn-mock disabled-removed' : (isHighlight ? 'btn-mock highlight' : 'btn-mock');
-            return `<div class="${btnClass}">${escapeHtml(btnText.replace(/[\[\]]/g, ''))}</div>`;
+    if (boxColumns.length === 0) continue;
+
+    let arrowLabels = [];
+    for (let i = 0; i < boxColumns.length - 1; i++) {
+      const gapStart = boxColumns[i].end;
+      const gapEnd = boxColumns[i + 1].start;
+      let label = i === 0 ? 'Tap' : 'Next';
+      for (const line of trackLines) {
+        if (line.length >= gapStart) {
+          let gapSlice = line.substring(gapStart, Math.min(line.length, gapEnd)).replace(/[─>│]/g, '').trim();
+          if (gapSlice.length > 0) {
+            label = gapSlice;
+            break;
           }
-          return `<div style="font-size:10px;color:#94a3b8;margin:2px 0;">${escapeHtml(l)}</div>`;
-        }).join('');
-
-        let isLargeScreen = box.end - box.start > 30;
-        let screenWidthStyle = isLargeScreen ? 'width:280px;' : 'width:180px;';
-
-        screensHtml += `
-          <div class="mini-screen" style="${screenWidthStyle}">
-            <div class="screen-header-bar">${escapeHtml(screenTitle)}</div>
-            <div class="screen-body">
-              ${bodyElements || '<div style="font-size:10px;color:#64748b;">Screen Content</div>'}
-            </div>
-          </div>
-        `;
-
-        if (idx < boxColumns.length - 1) {
-          screensHtml += `
-            <div class="arrow-connector">
-              <span>${idx === 0 ? 'Action' : 'Next'}</span>
-              <span class="arrow-icon">➔</span>
-              <span>Step ${idx + 1}</span>
-            </div>
-          `;
         }
-      });
+      }
+      arrowLabels.push(label);
     }
 
-    if (screensHtml) {
-      htmlTracks += `
-        <div class="flow-track ${trackClass}">
-          <div class="track-header">
-            <span class="track-title">${escapeHtml(trackTitle)}</span>
-            <span class="track-step-badge">${escapeHtml(badgeText)}</span>
-          </div>
-          <div class="screens-row">
-            ${screensHtml}
+    let screensHtml = '';
+    boxColumns.forEach((box, idx) => {
+      let screenTitle = box.lines[0] || 'Step ' + (idx + 1);
+      let bodyLines = box.lines.slice(1);
+
+      let bodyElements = bodyLines.map((l, lIdx) => {
+        if (l.includes('[') && l.includes(']')) {
+          let btnText = l.replace(/[•\*\-]/g, '').trim();
+          let isRemoved = /[*~]|Manually|Removed|Delete|Deprecated/i.test(btnText);
+          let isHighlight = !isRemoved && (/^[+]|Submit|Save|Start|Create|Upload|Confirm|Primary/i.test(btnText) || lIdx === 0);
+          let btnClass = isRemoved ? 'btn-mock disabled-removed' : (isHighlight ? 'btn-mock highlight' : 'btn-mock');
+          return `<div class="${btnClass}">${escapeHtml(btnText.replace(/[\[\]]/g, ''))}</div>`;
+        }
+        return `<div style="font-size:10px;color:#94a3b8;margin:2px 0;">${escapeHtml(l)}</div>`;
+      }).join('');
+
+      let isLargeScreen = (box.end - box.start) > 30;
+      let screenWidthStyle = isLargeScreen ? 'width:260px;' : 'width:180px;';
+
+      screensHtml += `
+        <div class="mini-screen" style="${screenWidthStyle}">
+          <div class="screen-header-bar">${escapeHtml(screenTitle)}</div>
+          <div class="screen-body">
+            ${bodyElements || '<div style="font-size:10px;color:#64748b;">Screen Content</div>'}
           </div>
         </div>
       `;
-    }
+
+      if (idx < boxColumns.length - 1) {
+        screensHtml += `
+          <div class="arrow-connector">
+            <span>${escapeHtml(arrowLabels[idx] || 'Next')}</span>
+            <span class="arrow-icon">➔</span>
+            <span>Step ${idx + 1}</span>
+          </div>
+        `;
+      }
+    });
+
+    htmlTracks += `
+      <div class="flow-track ${trackClass}">
+        <div class="track-header">
+          <span class="track-title">${escapeHtml(track.title)}</span>
+          <span class="track-step-badge">${escapeHtml(badgeText)}</span>
+        </div>
+        <div class="screens-row">
+          ${screensHtml}
+        </div>
+      </div>
+    `;
   }
 
   return htmlTracks ? `<div class="flow-comparison-container">${htmlTracks}</div>` : null;
