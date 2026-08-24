@@ -375,8 +375,7 @@ async function render() {
           <div class="section-title-wrap">
             <h2>${headingHtml}</h2>
           </div>
-          <button type="button" class="section-toggle-btn" aria-label="Toggle section">
-            <span class="toggle-label">Minimize</span>
+          <button type="button" class="section-toggle-btn" aria-label="Toggle section" title="Collapse / Expand">
             <span class="toggle-icon">▼</span>
           </button>
         </div>
@@ -638,16 +637,15 @@ async function render() {
     transition: color 0.15s;
   }
   .section-toggle-btn {
-    background: #182338;
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--card-border);
     color: var(--text-muted);
-    font-size: 11px;
-    font-weight: 600;
+    width: 28px;
+    height: 28px;
     border-radius: 6px;
-    padding: 4px 10px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
     cursor: pointer;
     transition: all 0.15s;
   }
@@ -657,7 +655,8 @@ async function render() {
     background: var(--accent-glow);
   }
   .toggle-icon {
-    font-size: 10px;
+    font-size: 11px;
+    line-height: 1;
     display: inline-block;
     transition: transform 0.2s ease;
   }
@@ -677,12 +676,6 @@ async function render() {
   }
   .section-card.is-collapsed .toggle-icon {
     transform: rotate(-90deg);
-  }
-  .section-card.is-collapsed .toggle-label::after {
-    content: "Expand";
-  }
-  .section-card:not(.is-collapsed) .toggle-label::after {
-    content: "Minimize";
   }
 
   /* Typography */
