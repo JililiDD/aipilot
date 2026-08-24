@@ -1275,6 +1275,36 @@ async function render() {
   </main>
 </div>
 <script>
+  // Auto-expand section if an inner element is scrolled into view (e.g. from clicking a comment in ezreview)
+  const origScrollIntoView = Element.prototype.scrollIntoView;
+  Element.prototype.scrollIntoView = function(...args) {
+    const card = this.closest && this.closest('.section-card');
+    if (card && card.classList.contains('is-collapsed')) {
+      card.classList.remove('is-collapsed');
+    }
+    return origScrollIntoView.apply(this, args);
+  };
+
+  // Auto-expand on focus / target selection
+  document.addEventListener('focusin', (e) => {
+    const card = e.target.closest && e.target.closest('.section-card');
+    if (card && card.classList.contains('is-collapsed')) {
+      card.classList.remove('is-collapsed');
+    }
+  }, true);
+
+  addEventListener('hashchange', () => {
+    if (location.hash) {
+      try {
+        const el = document.querySelector(location.hash);
+        const card = el && el.closest('.section-card');
+        if (card && card.classList.contains('is-collapsed')) {
+          card.classList.remove('is-collapsed');
+        }
+      } catch (_) {}
+    }
+  });
+
   function toggleSection(headerEl) {
     const card = headerEl.closest('.section-card');
     if (card) {
