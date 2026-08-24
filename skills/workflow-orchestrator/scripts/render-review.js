@@ -249,30 +249,37 @@ function transformAsciiToMiniScreens(rawAscii) {
           let btnText = l.replace(/[•\*\-]/g, '').trim();
           let isRemoved = /[*~]|Manually|Removed|Delete|Deprecated/i.test(btnText);
           let isHighlight = !isRemoved && (/^[+]|Submit|Save|Start|Create|Upload|Confirm|Primary/i.test(btnText) || lIdx === 0);
-          let btnClass = isRemoved ? 'btn-mock disabled-removed' : (isHighlight ? 'btn-mock highlight' : 'btn-mock');
-          return `<div class="${btnClass}">${escapeHtml(btnText.replace(/[\[\]]/g, ''))}</div>`;
+          let chipClass = isRemoved ? 'node-chip node-btn-chip removed' : (isHighlight ? 'node-chip node-btn-chip' : 'node-chip');
+          return `<div class="${chipClass}">${escapeHtml(btnText.replace(/[\[\]]/g, ''))}</div>`;
         }
-        return `<div style="font-size:10px;color:#94a3b8;margin:2px 0;">${escapeHtml(l)}</div>`;
+        return `<div class="node-chip">${escapeHtml(l)}</div>`;
       }).join('');
 
       let isLargeScreen = (box.end - box.start) > 30;
-      let screenWidthStyle = isLargeScreen ? 'width:260px;' : 'width:180px;';
+      let screenWidthStyle = isLargeScreen ? 'width:260px;' : 'width:210px;';
+      let stepNum = idx < 9 ? ('0' + (idx + 1)) : String(idx + 1);
 
       screensHtml += `
-        <div class="mini-screen" style="${screenWidthStyle}">
-          <div class="screen-header-bar">${escapeHtml(screenTitle)}</div>
-          <div class="screen-body">
-            ${bodyElements || '<div style="font-size:10px;color:#64748b;">Screen Content</div>'}
+        <div class="flow-node" style="${screenWidthStyle}">
+          <div class="node-header">
+            <span class="node-title">${escapeHtml(screenTitle)}</span>
+            <span class="node-step-tag">${stepNum}</span>
+          </div>
+          <div class="node-body">
+            ${bodyElements || '<div class="node-chip">Step Action</div>'}
           </div>
         </div>
       `;
 
       if (idx < boxColumns.length - 1) {
         screensHtml += `
-          <div class="arrow-connector">
-            <span>${escapeHtml(arrowLabels[idx] || 'Next')}</span>
-            <span class="arrow-icon">➔</span>
-            <span>Step ${idx + 1}</span>
+          <div class="flow-connector">
+            <span class="connector-label-pill">${escapeHtml(arrowLabels[idx] || 'Next')}</span>
+            <div class="connector-line-wrap">
+              <div class="connector-line"></div>
+              <div class="connector-arrow-head">➔</div>
+            </div>
+            <span class="connector-step-indicator">Step ${idx + 1}</span>
           </div>
         `;
       }
@@ -284,7 +291,7 @@ function transformAsciiToMiniScreens(rawAscii) {
           <span class="track-title">${escapeHtml(track.title)}</span>
           <span class="track-step-badge">${escapeHtml(badgeText)}</span>
         </div>
-        <div class="screens-row">
+        <div class="pipeline-row">
           ${screensHtml}
         </div>
       </div>
@@ -827,28 +834,49 @@ async function render() {
   .verdict-title { font-size: 13px; font-weight: 700; color: #fff; }
   .verdict-desc { font-size: 12px; color: #cbd5e1; margin-top: 2px; }
 
-  /* Visual Flow Diagram & Mini-Screen Mockups */
+  /* Visual Flow Diagram & Flowchart Pipeline */
   .flow-comparison-container {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
     margin: 18px 0;
   }
   .flow-track {
-    background: var(--code-bg);
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(9, 14, 26, 0.95) 100%);
     border: 1px solid var(--card-border);
-    border-radius: 10px;
-    padding: 16px;
+    border-radius: 14px;
+    padding: 20px 24px;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
   }
-  .flow-track.before-track { border-left: 4px solid var(--danger); }
-  .flow-track.after-track { border-left: 4px solid var(--success); }
-  .flow-track.generic-track { border-left: 4px solid var(--accent); }
+  .flow-track::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 4px;
+  }
+  .flow-track.before-track {
+    border-color: rgba(248, 113, 113, 0.25);
+  }
+  .flow-track.before-track::before {
+    background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+  }
+  .flow-track.after-track {
+    border-color: rgba(52, 211, 153, 0.3);
+  }
+  .flow-track.after-track::before {
+    background: linear-gradient(180deg, #38bdf8 0%, #34d399 100%);
+  }
+  .flow-track.generic-track::before {
+    background: var(--accent);
+  }
 
   .track-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
   }
   .track-title {
     font-size: 13.5px;
@@ -856,89 +884,192 @@ async function render() {
     letter-spacing: 0.5px;
     text-transform: uppercase;
   }
-  .before-track .track-title { color: var(--danger); }
-  .after-track .track-title { color: var(--success); }
+  .before-track .track-title { color: #fca5a5; }
+  .after-track .track-title { color: #86efac; }
   .generic-track .track-title { color: var(--accent); }
+  
   .track-step-badge {
     font-size: 11px;
     font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(255,255,255,0.06);
-    color: var(--text-muted);
+    padding: 2px 10px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
-
-  .screens-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    overflow-x: auto;
-    padding-bottom: 8px;
+  .before-track .track-step-badge {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
   }
-  .arrow-connector {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    min-width: 50px;
-    color: var(--text-muted);
-    font-size: 11px;
-    font-weight: 500;
+  .after-track .track-step-badge {
+    background: rgba(52, 211, 153, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.3);
   }
-  .arrow-icon {
-    font-size: 16px;
-    line-height: 1;
+  .generic-track .track-step-badge {
+    background: var(--accent-glow);
     color: var(--accent);
   }
 
-  /* Mini Screen Mockup */
-  .mini-screen {
-    background: #141d2e;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    min-height: 160px;
-    padding: 10px;
+  /* Pipeline Row */
+  .pipeline-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 6px 0 16px 0;
+  }
+
+  /* Flow Node Box */
+  .flow-node {
+    background: #131d31;
+    border: 1px solid #283753;
+    border-radius: 12px;
+    min-height: 130px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
     flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: all 0.2s ease;
   }
-  .screen-header-bar {
-    font-size: 11px;
+  .flow-node:hover {
+    border-color: #38bdf8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(56, 189, 248, 0.18);
+  }
+  .after-track .flow-node {
+    background: #101e38;
+    border-color: #1e3a5f;
+  }
+  .after-track .flow-node:hover {
+    border-color: #34d399;
+    box-shadow: 0 8px 24px rgba(52, 211, 153, 0.18);
+  }
+
+  .node-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .node-step-tag {
+    font-size: 10px;
+    font-weight: 800;
+    font-family: Consolas, monospace;
+    color: var(--accent);
+    background: rgba(56, 189, 248, 0.12);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .after-track .node-step-tag {
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.12);
+  }
+  .node-title {
+    font-size: 13px;
     font-weight: 700;
-    color: #94a3b8;
-    border-bottom: 1px solid #23314d;
-    padding-bottom: 4px;
-    text-align: center;
-    text-transform: uppercase;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    margin-right: 6px;
   }
-  .screen-body {
+
+  .node-body {
     display: flex;
     flex-direction: column;
     gap: 6px;
     flex-grow: 1;
     justify-content: center;
   }
-  .btn-mock {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 4px;
+  .node-chip {
+    font-size: 11.5px;
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
     padding: 5px 8px;
-    font-size: 11px;
-    text-align: center;
-    color: #e2e8f0;
+    line-height: 1.35;
   }
-  .btn-mock.highlight {
+  .node-btn-chip {
     background: #0284c7;
-    border-color: #38bdf8;
     color: #fff;
     font-weight: 600;
+    border-color: #38bdf8;
+    text-align: center;
   }
-  .btn-mock.disabled-removed {
-    background: rgba(248, 113, 113, 0.08);
-    border: 1px dashed #ef4444;
+  .after-track .node-btn-chip {
+    background: #059669;
+    border-color: #34d399;
+  }
+  .node-btn-chip.removed {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
     color: #f87171;
     text-decoration: line-through;
+  }
+
+  /* Flow Connector Arrow */
+  .flow-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 85px;
+    padding: 0 6px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .connector-line-wrap {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  .connector-line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, #334155 0%, #475569 100%);
+  }
+  .after-track .connector-line {
+    background: linear-gradient(90deg, #0284c7 0%, #10b981 100%);
+  }
+  .connector-arrow-head {
+    font-size: 14px;
+    color: #64748b;
+    margin-left: -4px;
+  }
+  .after-track .connector-arrow-head {
+    color: #34d399;
+  }
+  .connector-label-pill {
+    position: absolute;
+    top: -18px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--accent);
+    background: #090e1a;
+    border: 1px solid #334155;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  .after-track .connector-label-pill {
+    color: #38bdf8;
+    border-color: #0284c7;
+    background: #0d1a2d;
+  }
+  .connector-step-indicator {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+    font-weight: 600;
   }
 
   /* In Scope vs Out of Scope Visual Grid */
