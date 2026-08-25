@@ -346,7 +346,17 @@ async function render() {
   body = body.replace(/<\/li>\s*<\/ol>\s*<\/li>/gi, '</li>');
   body = body.replace(/<li>(\s*<p>)?\s*\d+[\.\)]\s*/gi, '<li>$1');
 
-  // Deterministic visual post-processing for badges and keywords
+  // 1. Transform AC badges FIRST into clean header bar (Line 1 badge) + body text (Line 2)
+  body = body.replace(/<li>(\s*<p>)?\s*<strong>((?:[A-Z0-9]+-)?(?:AC|R|D)-\d+[^<]*):<\/strong>\s*([\s\S]*?)(?=<\/li>)/gi, (m, pTag, badgeText, restText) => {
+    return `<li><div class="card-header-bar"><span class="ac-badge">${badgeText}</span></div><div class="card-body-text">${restText}</div>`;
+  });
+
+  // 2. Generic bold titles inside ol > li (Line 1 title, Line 2 body)
+  body = body.replace(/<li>(\s*<p>)?\s*<strong>([^<]+:?)<\/strong>\s*([\s\S]*?)(?=<\/li>)/gi, (m, pTag, strongText, restText) => {
+    return `<li><div class="card-header-bar"><span class="card-header-title">${strongText}</span></div><div class="card-body-text">${restText}</div>`;
+  });
+
+  // Fallback visual post-processing for any remaining standalone badges/keywords
   body = body.replace(/<strong>((?:[A-Z0-9]+-)?(?:AC|R|D)-\d+[^<]*):<\/strong>/g, '<span class="ac-badge">$1</span>');
   body = body.replace(/—\s*Verify:/gi, '<span class="verify-badge">VERIFY</span>');
   body = body.replace(/<strong>Touches:<\/strong>|Touches:/gi, '<span class="touches-badge">TOUCHES</span>');
@@ -1330,6 +1340,11 @@ async function render() {
     border-color: rgba(56, 189, 248, 0.4);
     background: #0e1628;
   }
+  .ac-badge-row {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+  }
   .ac-badge {
     display: inline-flex;
     align-items: center;
@@ -1342,9 +1357,20 @@ async function render() {
     font-weight: 800;
     font-size: 11px;
     font-family: Consolas, monospace;
-    margin-right: 10px;
-    vertical-align: middle;
     letter-spacing: 0.5px;
+  }
+  .card-header-bar {
+    display: inline;
+    font-weight: 700;
+    color: #fff;
+    font-size: 14px;
+  }
+  .card-body-text {
+    display: block;
+    margin-top: 8px;
+    color: #cbd5e1;
+    font-size: 13.5px;
+    line-height: 1.65;
   }
 
   /* Nested lists inside cards (sub-bullets inside requirements) */
