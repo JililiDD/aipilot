@@ -152,6 +152,99 @@ function transformArchitectureSpikeToVisual(rawText) {
   `;
 }
 
+function transformMermaidFlowchartToWorkflow(rawMermaid) {
+  const headerMatch = rawMermaid.match(/^\s*(?:flowchart|graph)\s+(TD|TB|LR|RL|BT)\b/i);
+  if (!headerMatch) return null;
+
+  const nodes = new Map();
+  const edges = [];
+  const lines = rawMermaid.split(/\r?\n/).slice(1);
+  const nodePattern = /([A-Za-z][\w-]*)\s*(?:\[([^\]]+)\]|\(\(([^)]+)\)\)|\(([^)]+)\)|\{([^}]+)\})/g;
+  const edgePattern = /([A-Za-z][\w-]*)\s*(?:\[[^\]]+\]|\(\([^)]+\)\)|\([^)]+\)|\{[^}]+\})?\s*(?:-->|-\.->|==>)\s*(?:\|([^|]*)\|\s*)?([A-Za-z][\w-]*)/g;
+
+  const ensureNode = (id, label = id) => {
+    if (!nodes.has(id)) nodes.set(id, { id, label: String(label).trim() || id });
+    return nodes.get(id);
+  };
+
+  for (const line of lines) {
+    let match;
+    nodePattern.lastIndex = 0;
+    while ((match = nodePattern.exec(line)) !== null) {
+      ensureNode(match[1], match[2] || match[3] || match[4] || match[5] || match[1]);
+    }
+    edgePattern.lastIndex = 0;
+    while ((match = edgePattern.exec(line)) !== null) {
+      ensureNode(match[1]);
+      ensureNode(match[3]);
+      edges.push({ from: match[1], to: match[3], label: (match[2] || '').trim() });
+    }
+  }
+
+  if (nodes.size === 0 || edges.length === 0) return null;
+
+  const nodeList = [...nodes.values()];
+  const incoming = new Map(nodeList.map(node => [node.id, 0]));
+  const outgoing = new Map(nodeList.map(node => [node.id, []]));
+  for (const edge of edges) {
+    incoming.set(edge.to, (incoming.get(edge.to) || 0) + 1);
+    outgoing.get(edge.from).push(edge.to);
+  }
+
+  const roots = nodeList.filter(node => incoming.get(node.id) === 0).map(node => node.id);
+  const depth = new Map((roots.length ? roots : [nodeList[0].id]).map(id => [id, 0]));
+  const queue = [...depth.keys()];
+  while (queue.length) {
+    const current = queue.shift();
+    for (const next of outgoing.get(current) || []) {
+      const nextDepth = (depth.get(current) || 0) + 1;
+      if (!depth.has(next) || nextDepth > depth.get(next)) {
+        depth.set(next, Math.min(nextDepth, nodeList.length - 1));
+        queue.push(next);
+      }
+    }
+  }
+  nodeList.forEach(node => { if (!depth.has(node.id)) depth.set(node.id, 0); });
+
+  const maxDepth = Math.max(...nodeList.map(node => depth.get(node.id)));
+  const columns = Array.from({ length: maxDepth + 1 }, () => []);
+  nodeList.forEach(node => columns[depth.get(node.id)].push(node));
+  const columnHtml = columns.map((column, index) => `
+    <div class="workflow-column">
+      <div class="workflow-column-label">STAGE ${index + 1}</div>
+      ${column.map((node, nodeIndex) => `
+        <div class="workflow-map-node" data-node-id="${escapeHtml(node.id)}">
+          <span class="workflow-map-node-id">${escapeHtml(node.id)}</span>
+          <span class="workflow-map-node-label">${escapeHtml(node.label)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  const edgeHtml = edges.map(edge => `
+    <div class="workflow-edge-row">
+      <span class="workflow-edge-endpoint">${escapeHtml(edge.from)}</span>
+      <span class="workflow-edge-arrow">➜</span>
+      <span class="workflow-edge-endpoint">${escapeHtml(edge.to)}</span>
+      ${edge.label ? `<span class="workflow-edge-label">${escapeHtml(edge.label)}</span>` : ''}
+    </div>
+  `).join('');
+
+  return `
+    <div class="workflow-map" data-diagram-type="workflow">
+      <div class="workflow-map-header">
+        <span class="workflow-map-kicker">VISUAL WORKFLOW</span>
+        <span class="workflow-map-direction">${escapeHtml(headerMatch[1].toUpperCase())}</span>
+      </div>
+      <div class="workflow-map-grid" style="--workflow-columns:${columns.length}">${columnHtml}</div>
+      <div class="workflow-relationships">
+        <div class="workflow-relationships-title">Transitions</div>
+        ${edgeHtml}
+      </div>
+    </div>
+  `;
+}
+
 function transformAsciiToMiniScreens(rawAscii) {
   if (!rawAscii.includes('┌') || !rawAscii.includes('┘')) {
     return null;
@@ -325,21 +418,25 @@ async function render() {
 
   let body = marked.parse(markdown, { gfm: true });
 
-  // Clean up duplicate unrendered raw mermaid code blocks (visual flow is already rendered via pipeline cards)
-  body = body.replace(/<pre><code class="language-mermaid">[\s\S]*?<\/code><\/pre>/gi, '');
-
-  // Deterministic transformation: convert ASCII screen / architecture diagrams into visual components
-  body = body.replace(/<pre><code[^>]*>([\s\S]*?<\/code><\/pre>)/gi, (fullMatch, codeContent) => {
-    const decoded = codeContent
-      .replace(/<\/code><\/pre>/, '')
+  // Deterministic transformation: convert Mermaid workflows and ASCII diagrams into visual components.
+  // The original source stays in a closed details block so the HTML remains faithful to the Markdown.
+  body = body.replace(/<pre><code([^>]*)>([\s\S]*?)<\/code><\/pre>/gi, (fullMatch, codeAttrs, encodedContent) => {
+    const decoded = encodedContent
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"');
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
 
-    const visualHtml = transformAsciiToMiniScreens(decoded);
+    const visualHtml = /language-mermaid/i.test(codeAttrs)
+      ? transformMermaidFlowchartToWorkflow(decoded)
+      : transformAsciiToMiniScreens(decoded);
     if (visualHtml) {
-      return visualHtml;
+      return `${visualHtml}
+        <details class="diagram-source">
+          <summary>View source diagram</summary>
+          <pre><code${codeAttrs}>${escapeHtml(decoded)}</code></pre>
+        </details>`;
     }
     return fullMatch;
   });
@@ -845,6 +942,112 @@ async function render() {
     flex-direction: column;
     gap: 20px;
     margin: 18px 0;
+  }
+  .workflow-map {
+    margin: 18px 0;
+    padding: 18px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(9, 14, 26, 0.96));
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+  }
+  .workflow-map-header,
+  .workflow-relationships-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .workflow-map-direction {
+    color: var(--text-muted);
+    font-family: Consolas, monospace;
+  }
+  .workflow-map-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--workflow-columns), minmax(150px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+    overflow-x: auto;
+  }
+  .workflow-column {
+    min-width: 150px;
+  }
+  .workflow-column-label {
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+  }
+  .workflow-map-node {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 70px;
+    margin-bottom: 10px;
+    padding: 11px 12px;
+    background: #131d31;
+    border: 1px solid #283753;
+    border-radius: 10px;
+  }
+  .workflow-map-node-id {
+    color: var(--accent);
+    font: 800 10px Consolas, monospace;
+  }
+  .workflow-map-node-label {
+    color: #e2e8f0;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .workflow-relationships {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+  }
+  .workflow-edge-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 7px;
+    color: #cbd5e1;
+    font-size: 12px;
+  }
+  .workflow-edge-endpoint {
+    color: #f8fafc;
+    font-family: Consolas, monospace;
+    font-weight: 700;
+  }
+  .workflow-edge-arrow { color: var(--accent); }
+  .workflow-edge-label {
+    padding: 2px 7px;
+    color: #bae6fd;
+    background: rgba(56, 189, 248, .1);
+    border: 1px solid rgba(56, 189, 248, .2);
+    border-radius: 999px;
+  }
+  .diagram-source {
+    margin: 10px 0 18px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .diagram-source summary {
+    cursor: pointer;
+    display: inline-block;
+    padding: 4px 8px;
+    border: 1px solid var(--card-border-subtle);
+    border-radius: 6px;
+  }
+  .diagram-source pre {
+    margin-top: 8px;
+  }
+  @media (max-width: 760px) {
+    .workflow-map-grid {
+      grid-template-columns: repeat(var(--workflow-columns), minmax(130px, 1fr));
+    }
   }
   .flow-track {
     background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(9, 14, 26, 0.95) 100%);
