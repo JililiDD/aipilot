@@ -1310,7 +1310,63 @@ async function render() {
   }
   .in-scope-header { color: var(--success); }
   .out-scope-header { color: var(--danger); }
-  .scope-box ul { padding-left: 18px; margin: 0; font-size: 13px; }
+  .scope-box > ul,
+  .scope-box > ol {
+    display: grid;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+  .scope-box > ul > li,
+  .scope-box > ol > li,
+  .scope-box > p {
+    position: relative;
+    margin: 0;
+    padding: 11px 13px 11px 16px;
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.68);
+    border: 1px solid rgba(71, 85, 105, 0.42);
+    border-radius: 9px;
+    line-height: 1.6;
+  }
+  .scope-box > ul > li::before,
+  .scope-box > ol > li::before,
+  .scope-box > p::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 3px;
+    background: currentColor;
+    opacity: 0.7;
+  }
+  .in-scope-box > ul > li::before,
+  .in-scope-box > ol > li::before,
+  .in-scope-box > p::before { color: var(--success); }
+  .out-scope-box > ul > li::before,
+  .out-scope-box > ol > li::before,
+  .out-scope-box > p::before { color: var(--danger); }
+  .scope-box > ul > li:hover,
+  .scope-box > ol > li:hover,
+  .scope-box > p:hover {
+    border-color: rgba(148, 163, 184, 0.62);
+    background: rgba(30, 41, 59, 0.78);
+  }
+  .scope-box > li p,
+  .scope-box > ul > li p,
+  .scope-box > ol > li p {
+    margin: 0;
+  }
+  .scope-box > ul > li ul,
+  .scope-box > ol > li ul,
+  .scope-box > ul > li ol,
+  .scope-box > ol > li ol {
+    margin-top: 8px;
+  }
 
   /* Story Header Banner */
   .story-header-banner {
