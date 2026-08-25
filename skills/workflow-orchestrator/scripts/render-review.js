@@ -326,7 +326,7 @@ async function render() {
   let body = marked.parse(markdown, { gfm: true });
 
   // Deterministic transformation: convert ASCII screen / architecture diagrams into visual components
-  body = body.replace(/<pre><code>([\s\S]*?<\/code><\/pre>)/gi, (fullMatch, codeContent) => {
+  body = body.replace(/<pre><code[^>]*>([\s\S]*?<\/code><\/pre>)/gi, (fullMatch, codeContent) => {
     const decoded = codeContent
       .replace(/<\/code><\/pre>/, '')
       .replace(/&lt;/g, '<')
@@ -362,6 +362,9 @@ async function render() {
     const contentAfterH2 = sec.replace(/<h2>[\s\S]*?<\/h2>/i, '').trim();
 
     let secClass = 'section-card';
+    if (!contentAfterH2) {
+      secClass += ' is-empty-section is-collapsed';
+    }
     if (/Quick Overview|Summary/i.test(headingText)) {
       secClass += ' overview-card';
     } else if (/Requirement/i.test(headingText)) {
@@ -1277,13 +1280,12 @@ async function render() {
   }
   ol > li {
     counter-increment: custom-step;
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
+    display: block;
+    position: relative;
     background: #090e1a;
     border: 1px solid var(--card-border);
     border-radius: 10px;
-    padding: 14px 18px;
+    padding: 14px 18px 14px 58px;
     font-size: 13.5px;
     color: #e2e8f0;
     line-height: 1.6;
@@ -1296,10 +1298,13 @@ async function render() {
   }
   ol > li::before {
     content: counter(custom-step, decimal-leading-zero);
+    position: absolute;
+    left: 14px;
+    top: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 32px;
+    width: 32px;
     height: 32px;
     background: rgba(56, 189, 248, 0.12);
     color: var(--accent);
@@ -1308,8 +1313,6 @@ async function render() {
     font-weight: 800;
     font-size: 12px;
     font-family: Consolas, monospace;
-    flex-shrink: 0;
-    margin-top: 1px;
   }
 
   /* Acceptance Criteria Card Rows */
@@ -1334,22 +1337,24 @@ async function render() {
 
   /* Nested lists inside cards (sub-bullets inside requirements) */
   li ul, li ol {
-    padding-left: 18px !important;
+    padding-left: 20px !important;
     margin: 8px 0 4px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 4px !important;
-    list-style: disc !important;
-    width: 100%;
+    list-style-type: disc !important;
+    display: block !important;
+    width: auto !important;
+  }
+  li ul ul, li ol ul {
+    list-style-type: circle !important;
+    margin-top: 4px !important;
   }
   li ul li, li ol li {
     background: transparent !important;
     border: none !important;
-    padding: 0 !important;
+    padding: 2px 0 !important;
     margin: 0 !important;
     font-size: 13px !important;
     color: #94a3b8 !important;
-    list-style-type: disc !important;
+    list-style-type: inherit !important;
     display: list-item !important;
     position: static !important;
     transform: none !important;
@@ -1362,6 +1367,33 @@ async function render() {
   }
   li p:last-child {
     margin-bottom: 0;
+  }
+
+  /* Empty Section Card Styling */
+  .section-card.is-empty-section {
+    opacity: 0.55;
+    padding: 14px 20px;
+  }
+  .section-card.is-empty-section .section-toggle-btn {
+    display: none;
+  }
+  .section-card.is-empty-section .section-header {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .section-card.is-empty-section h2::after {
+    content: "Pending Next Stage";
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    padding: 2px 8px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 10px;
   }
 
   hr {
