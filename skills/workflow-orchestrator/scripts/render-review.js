@@ -267,7 +267,8 @@ function transformAsciiToMiniScreens(rawAscii) {
 
     const isTrackHeader = /(?:BEFORE|AFTER)/i.test(trimmed) && !trimmed.includes('│') && !trimmed.includes('┌');
     if (isTrackHeader) {
-      currentTrack = { title: trimmed, lines: [] };
+      const isCombinedComparison = /BEFORE\s+AFTER/i.test(trimmed);
+      currentTrack = { title: trimmed, lines: [], combinedComparison: isCombinedComparison };
       tracks.push(currentTrack);
     } else if (currentTrack) {
       currentTrack.lines.push(line);
@@ -332,27 +333,24 @@ function transformAsciiToMiniScreens(rawAscii) {
       arrowLabels.push(label);
     }
 
-    let screensHtml = '';
-    boxColumns.forEach((box, idx) => {
-      let screenTitle = box.lines[0] || 'Step ' + (idx + 1);
-      let bodyLines = box.lines.slice(1);
-
-      let bodyElements = bodyLines.map((l, lIdx) => {
+    const renderFlowNode = (box, idx) => {
+      const screenTitle = box.lines[0] || 'Step ' + (idx + 1);
+      const bodyLines = box.lines.slice(1);
+      const bodyElements = bodyLines.map((l, lIdx) => {
         if (l.includes('[') && l.includes(']')) {
-          let btnText = l.replace(/[•\*\-]/g, '').trim();
-          let isRemoved = /[*~]|Manually|Removed|Delete|Deprecated/i.test(btnText);
-          let isHighlight = !isRemoved && (/^[+]|Submit|Save|Start|Create|Upload|Confirm|Primary/i.test(btnText) || lIdx === 0);
-          let chipClass = isRemoved ? 'node-chip node-btn-chip removed' : (isHighlight ? 'node-chip node-btn-chip' : 'node-chip');
+          const btnText = l.replace(/[•\*\-]/g, '').trim();
+          const isRemoved = /[*~]|Manually|Removed|Delete|Deprecated/i.test(btnText);
+          const isHighlight = !isRemoved && (/^[+]|Submit|Save|Start|Create|Upload|Confirm|Primary/i.test(btnText) || lIdx === 0);
+          const chipClass = isRemoved ? 'node-chip node-btn-chip removed' : (isHighlight ? 'node-chip node-btn-chip' : 'node-chip');
           return `<div class="${chipClass}">${escapeHtml(btnText.replace(/[\[\]]/g, ''))}</div>`;
         }
         return `<div class="node-chip">${escapeHtml(l)}</div>`;
       }).join('');
 
-      let isLargeScreen = (box.end - box.start) > 30;
-      let screenWidthStyle = isLargeScreen ? 'width:260px;' : 'width:210px;';
-      let stepNum = idx < 9 ? ('0' + (idx + 1)) : String(idx + 1);
-
-      screensHtml += `
+      const isLargeScreen = (box.end - box.start) > 30;
+      const screenWidthStyle = isLargeScreen ? 'width:260px;' : 'width:210px;';
+      const stepNum = idx < 9 ? ('0' + (idx + 1)) : String(idx + 1);
+      return `
         <div class="flow-node" style="${screenWidthStyle}">
           <div class="node-header">
             <span class="node-title">${escapeHtml(screenTitle)}</span>
@@ -363,7 +361,31 @@ function transformAsciiToMiniScreens(rawAscii) {
           </div>
         </div>
       `;
+    };
 
+    if (track.combinedComparison && boxColumns.length >= 2) {
+      const comparisonLabels = ['BEFORE', 'AFTER'];
+      boxColumns.slice(0, 2).forEach((box, idx) => {
+        const comparisonClass = idx === 0 ? 'before-track' : 'after-track';
+        const comparisonBadge = idx === 0 ? 'OLD' : 'NEW';
+        htmlTracks += `
+          <div class="flow-track ${comparisonClass} comparison-panel">
+            <div class="track-header">
+              <span class="track-title">${comparisonLabels[idx]}</span>
+              <span class="track-step-badge">${comparisonBadge}</span>
+            </div>
+            <div class="pipeline-row comparison-row">
+              ${renderFlowNode(box, idx)}
+            </div>
+          </div>
+        `;
+      });
+      continue;
+    }
+
+    let screensHtml = '';
+    boxColumns.forEach((box, idx) => {
+      screensHtml += renderFlowNode(box, idx);
       if (idx < boxColumns.length - 1) {
         screensHtml += `
           <div class="flow-connector">
@@ -939,7 +961,9 @@ async function render() {
   /* Visual Flow Diagram & Flowchart Pipeline */
   .flow-comparison-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
     gap: 20px;
     margin: 18px 0;
   }
@@ -1050,6 +1074,8 @@ async function render() {
     }
   }
   .flow-track {
+    flex: 1 1 420px;
+    min-width: min(100%, 420px);
     background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(9, 14, 26, 0.95) 100%);
     border: 1px solid var(--card-border);
     border-radius: 14px;
@@ -1078,6 +1104,9 @@ async function render() {
   }
   .flow-track.generic-track::before {
     background: var(--accent);
+  }
+  .comparison-panel .comparison-row {
+    overflow-x: auto;
   }
 
   .track-header {
