@@ -1555,6 +1555,49 @@ async function render() {
 
   /* Task Checkbox List */
   ul { padding-left: 0; color: #cbd5e1; list-style: none; margin: 12px 0; }
+
+  /* Plain subsection content: give unstructured prose and lists a readable rhythm */
+  .section-content > h3 {
+    margin: 26px 0 10px;
+    padding: 9px 12px 8px;
+    color: #e2e8f0;
+    border-left: 3px solid rgba(56, 189, 248, 0.72);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.16);
+    font-size: 15px;
+    letter-spacing: 0.01em;
+  }
+  .section-content > h3:first-child { margin-top: 0; }
+  .section-content > h3 + ul,
+  .section-content > h3 + ol {
+    display: grid;
+    gap: 9px;
+    margin: 10px 0 20px;
+  }
+  .section-content > h3 + ul > li,
+  .section-content > h3 + ol > li {
+    margin: 0;
+    padding: 11px 14px;
+    color: #cbd5e1;
+    background: rgba(9, 14, 26, 0.72);
+    border: 1px solid rgba(71, 85, 105, 0.55);
+    border-radius: 9px;
+    line-height: 1.6;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  }
+  .section-content > h3 + ul > li:hover,
+  .section-content > h3 + ol > li:hover {
+    border-color: rgba(56, 189, 248, 0.42);
+    background: rgba(19, 29, 49, 0.86);
+    transform: translateY(-1px);
+  }
+  .section-content > p {
+    margin: 10px 0 20px;
+    padding: 12px 14px;
+    color: #cbd5e1;
+    background: rgba(9, 14, 26, 0.58);
+    border: 1px solid rgba(71, 85, 105, 0.42);
+    border-radius: 9px;
+  }
   li { margin-bottom: 6px; }
   li:has(input[type="checkbox"]) {
     list-style-type: none;
