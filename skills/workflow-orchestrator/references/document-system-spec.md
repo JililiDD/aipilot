@@ -54,7 +54,7 @@ phase: 2                  # only on phase-derived work-items
 **Five sections, one owner each.** The file is created with the section skeleton so later skills append into fixed headings instead of inventing their own. The skeleton:
 
 ```markdown
-## Quick Overview     <- product-spec-builder / dev-plan-builder: 1-2 sentence Summary, visual flow (ASCII/Mermaid), Before vs After table, milestone bullets
+## Quick Overview     <- product-spec-builder / dev-plan-builder: 1-2 sentence Summary, visual flow (ASCII wireframe/pipeline), Before vs After table, milestone bullets
 ## Requirement        <- product-spec-builder: scope, behavior, ACs, assumptions, Impact on Product-Spec
 ## Design             <- design-spec-builder: deltas, Design ACs, Impact on Design-Spec (empty when no UI)
 ## Plan               <- dev-plan-builder: stories/groups -> tasks with verification, granularity, exit criteria

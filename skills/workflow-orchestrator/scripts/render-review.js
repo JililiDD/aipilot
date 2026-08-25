@@ -325,6 +325,9 @@ async function render() {
 
   let body = marked.parse(markdown, { gfm: true });
 
+  // Clean up duplicate unrendered raw mermaid code blocks (visual flow is already rendered via pipeline cards)
+  body = body.replace(/<pre><code class="language-mermaid">[\s\S]*?<\/code><\/pre>/gi, '');
+
   // Deterministic transformation: convert ASCII screen / architecture diagrams into visual components
   body = body.replace(/<pre><code[^>]*>([\s\S]*?<\/code><\/pre>)/gi, (fullMatch, codeContent) => {
     const decoded = codeContent
