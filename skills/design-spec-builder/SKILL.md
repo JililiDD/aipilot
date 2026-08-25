@@ -70,7 +70,7 @@ Preview policy:
 - **0-to-1 Mode**: write `docs/aipilot/design-spec.md` using the template.
 - **Iteration Mode**: write the target work-item's Design section — deltas, Design Acceptance Criteria, Impact on Design-Spec merge map. The orchestrator applies the merge map to the spec at merge-back; this skill never performs the merge-back.
 
-Design Acceptance Criteria are observable checks a reviewer can verify on screen. Number them sequentially as `D-1`, `D-2`, ... — `dev-plan-builder` and `code-reviewer` cite them by that number for traceability. Preserve existing IDs during revisions, assign the next unused number to a new criterion, and never renumber a criterion already referenced by a Plan or Execution Record. `dev-plan-builder` references them per story and task and must not invent new ones.
+Design Acceptance Criteria are observable checks a reviewer can verify on screen. Number them sequentially as `D-1`, `D-2`, ... and prefix each with a concise bold concept anchor (e.g. `- **D-1 (Modal Layout):** ...`) for fast human scanning. `dev-plan-builder` and `code-reviewer` cite them by that number for traceability. Preserve existing IDs during revisions, assign the next unused number to a new criterion, and never renumber a criterion already referenced by a Plan or Execution Record. `dev-plan-builder` references them per story and task and must not invent new ones.
 
 Record decisions per constitution §2 when a design decision meets the bar there. If `memory/decisions.md` is absent, create `memory/` and the file with `# Decisions` and the first dated entry instead of pre-creating empty memory infrastructure.
 
