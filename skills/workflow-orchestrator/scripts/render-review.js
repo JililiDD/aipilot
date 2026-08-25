@@ -480,7 +480,7 @@ async function render() {
 
   // Fallback visual post-processing for any remaining standalone badges/keywords
   body = body.replace(/<strong>((?:[A-Z0-9]+-)?(?:AC|R|D)-\d+[^<]*):<\/strong>/g, '<span class="ac-badge">$1</span>');
-  body = body.replace(/—\s*Verify:/gi, '<span class="verify-badge">VERIFY</span>');
+  body = body.replace(/—\s*Verify:\s*([\s\S]*?)(?=<\/li>|<\/p>)/gi, '<div class="verification-block"><span class="verify-badge">VERIFY</span><span class="verification-content">$1</span></div>');
   body = body.replace(/<strong>Touches:<\/strong>|Touches:/gi, '<span class="touches-badge">TOUCHES</span>');
   body = body.replace(/<strong>Done when:<\/strong>|Done when:/gi, '<span class="donewhen-badge">DONE WHEN</span>');
 
@@ -1459,6 +1459,17 @@ async function render() {
     font-size: 12px;
     margin-right: 6px;
     font-family: Consolas, monospace;
+  }
+  .verification-block {
+    display: block;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(52, 211, 153, 0.18);
+  }
+  .verification-content {
+    display: block;
+    margin-top: 7px;
+    color: #cbd5e1;
   }
   .verify-badge {
     display: inline-block;
