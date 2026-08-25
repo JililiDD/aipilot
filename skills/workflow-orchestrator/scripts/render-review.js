@@ -478,21 +478,10 @@ async function render() {
     line-height: 1.65;
   }
   
-  /* Top Banner */
+  /* Top Source Banner (Hidden for clean visual review; path preserved in data-source-md) */
   .source-banner {
-    background: #0284c7;
-    color: #fff;
-    padding: 10px 24px;
-    font-size: 13px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    display: none;
   }
-  .source-banner code { font-family: Consolas, monospace; font-weight: 600; }
 
   /* 2-Column Responsive Layout */
   .layout {
