@@ -1281,64 +1281,76 @@ async function render() {
   ol > li {
     counter-increment: custom-step;
     display: block;
-    position: relative;
     background: #090e1a;
     border: 1px solid var(--card-border);
     border-radius: 10px;
-    padding: 14px 18px 14px 58px;
+    padding: 14px 18px;
     font-size: 13.5px;
     color: #e2e8f0;
-    line-height: 1.6;
+    line-height: 1.65;
     transition: all 0.15s ease;
   }
   ol > li:hover {
     border-color: #38bdf8;
     background: #0e1628;
-    transform: translateX(2px);
   }
   ol > li::before {
     content: counter(custom-step, decimal-leading-zero);
-    position: absolute;
-    left: 14px;
-    top: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: rgba(56, 189, 248, 0.12);
+    min-width: 28px;
+    height: 24px;
+    background: rgba(56, 189, 248, 0.15);
     color: var(--accent);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    border-radius: 8px;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 6px;
     font-weight: 800;
-    font-size: 12px;
+    font-size: 11px;
     font-family: Consolas, monospace;
+    margin-right: 10px;
+    vertical-align: middle;
   }
 
   /* Acceptance Criteria Card Rows */
   li:has(.ac-badge) {
     list-style-type: none;
-    padding: 12px 16px;
+    display: block;
+    padding: 14px 18px;
     background: #090e1a;
     border: 1px solid var(--card-border);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
     font-size: 13.5px;
-    line-height: 1.6;
+    line-height: 1.65;
+    color: #e2e8f0;
     transition: all 0.15s ease;
   }
   li:has(.ac-badge):hover {
     border-color: rgba(56, 189, 248, 0.4);
     background: #0e1628;
   }
+  .ac-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 11px;
+    font-family: Consolas, monospace;
+    margin-right: 10px;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+  }
 
   /* Nested lists inside cards (sub-bullets inside requirements) */
   li ul, li ol {
-    padding-left: 20px !important;
-    margin: 8px 0 4px !important;
+    padding-left: 24px !important;
+    margin: 10px 0 4px !important;
     list-style-type: disc !important;
     display: block !important;
     width: auto !important;
@@ -1350,7 +1362,7 @@ async function render() {
   li ul li, li ol li {
     background: transparent !important;
     border: none !important;
-    padding: 2px 0 !important;
+    padding: 3px 0 !important;
     margin: 0 !important;
     font-size: 13px !important;
     color: #94a3b8 !important;
