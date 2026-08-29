@@ -1567,14 +1567,26 @@ async function render() {
     letter-spacing: 0.01em;
   }
   .section-content > h3:first-child { margin-top: 0; }
-  .section-content > h3 + ul,
-  .section-content > h3 + ol {
+  .section-content > h4 {
+    margin: 20px 0 8px;
+    padding: 6px 10px;
+    color: #bae6fd;
+    border-left: 2px solid rgba(56, 189, 248, 0.55);
+    background: rgba(56, 189, 248, 0.04);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .section-content > ul,
+  .section-content > ol {
     display: grid;
     gap: 9px;
     margin: 10px 0 20px;
   }
-  .section-content > h3 + ul > li,
-  .section-content > h3 + ol > li {
+  .section-content > ul > li:not(:has(.ac-badge)):not(:has(input[type="checkbox"])),
+  .section-content > ol > li,
+  .callout-card > ul > li,
+  .callout-card > ol > li {
     margin: 0;
     padding: 11px 14px;
     color: #cbd5e1;
@@ -1584,11 +1596,21 @@ async function render() {
     line-height: 1.6;
     transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
   }
-  .section-content > h3 + ul > li:hover,
-  .section-content > h3 + ol > li:hover {
+  .section-content > ul > li:not(:has(.ac-badge)):not(:has(input[type="checkbox"])):hover,
+  .section-content > ol > li:hover,
+  .callout-card > ul > li:hover,
+  .callout-card > ol > li:hover {
     border-color: rgba(56, 189, 248, 0.42);
     background: rgba(19, 29, 49, 0.86);
     transform: translateY(-1px);
+  }
+  .callout-card > ul,
+  .callout-card > ol {
+    display: grid;
+    gap: 8px;
+    padding: 0;
+    margin: 10px 0 4px;
+    list-style: none;
   }
   .section-content > p {
     margin: 10px 0 20px;
