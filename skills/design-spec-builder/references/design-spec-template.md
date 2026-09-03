@@ -70,7 +70,9 @@ Use this structure for `docs/aipilot/design-spec.md`. Section 10 documents the p
 ## 12. Copy and Tone
 
 ## 13. Design Acceptance Criteria
+- **D-1 (Concept Anchor):** <observable visual check>
 
 ## 14. Open Questions
+- **Q-1 (Concept Anchor):** [risk: blocks implementation | risks rework | cosmetic] <unresolved design question>
 
 ```

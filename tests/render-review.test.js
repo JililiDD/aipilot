@@ -12,7 +12,80 @@ const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'aipilot-render-review-'))
 const input = path.join(tempDir, 'diagram.md');
 const output = path.join(tempDir, 'diagram.html');
 
-const markdown = `# Review\n\n## Quick Overview\n\nA bounded workflow.\n\n\`\`\`mermaid\nflowchart TD\n  A[Start] --> B[Choose Range]\n  B -->|Confirm| C[Apply Filter]\n\`\`\`\n\n## Requirement\n\n#### In scope\n\n- Keep the workflow readable.\n- Preserve the source content.\n\n#### Out of scope\n\n- Add unrelated behavior.\n\n### Plan\n\n- Task 1 — Verify: run the focused tests and inspect the output.\n\n### Rules\n\nThese rules have an introductory paragraph.\n\n- Rule one remains readable.\n- Rule two remains complete.\n\n#### Detail\n\n- Detail one remains reachable.\n\n### Exit Criteria\n\n- The rendered artifact is validated.\n\n### Before vs After\n\n\`\`\`text\nBefore                                      After\n┌──────────────────────┐    ┌──────────────────────┐\n│ Old card             │    │ New card             │\n└──────────────────────┘    └──────────────────────┘\n\`\`\`\n`;
+const markdown = `# Review
+
+## Quick Overview
+
+A bounded workflow.
+
+\`\`\`mermaid
+flowchart TD
+  A[Start] --> B[Choose Range]
+  B -->|Confirm| C[Apply Filter]
+\`\`\`
+
+## Requirement
+
+#### In scope
+
+- Keep the workflow readable.
+- Preserve the source content.
+
+#### Out of scope
+
+- Add unrelated behavior.
+
+### Acceptance Criteria
+
+- **R-1 (Multi-PGN Intercept):** When the player moves, validate against legal move matrix.
+- **R-2 (Timer Sync):** Clocks count down synchronously.
+
+### Assumptions
+
+- **A-1 (Single-Tenant DB):** Each tenant has a dedicated PostgreSQL schema.
+- **A-2 (Node 20+ Runtime):** Host environment supports modern ESM modules.
+
+### Open Questions
+
+- **Q-1 (Rate Limiting Threshold):** [risk: blocks implementation] What is the max allowed requests per minute per IP?
+- **Q-2 (Legacy Fallback):** [risk: risks rework] Do we need IE11 polyfills?
+
+### Non-Goals
+
+- **NG-1 (Mobile Support):** Native iOS/Android apps are deferred to Phase 3.
+
+### Edge Cases
+
+- **EC-1 (Network Disconnect):** Reconnect automatically within 5 seconds with exponential retry.
+
+### Plan
+
+- Task 1 — Verify: run the focused tests and inspect the output.
+
+### Rules
+
+These rules have an introductory paragraph.
+
+- Rule one remains readable.
+- Rule two remains complete.
+
+#### Detail
+
+- Detail one remains reachable.
+
+### Exit Criteria
+
+- The rendered artifact is validated.
+
+### Before vs After
+
+\`\`\`text
+Before                                      After
+┌──────────────────────┐    ┌──────────────────────┐
+│ Old card             │    │ New card             │
+└──────────────────────┘    └──────────────────────┘
+\`\`\`
+`;
 fs.writeFileSync(input, markdown);
 
 const result = spawnSync(process.execPath, [renderer, input, output], { encoding: 'utf8' });
@@ -37,5 +110,19 @@ assert.match(html, /class="verification-content"/);
 assert.match(html, /\.section-content > ul > li:not\(:has\(\.ac-badge\)\)/);
 assert.match(html, /\.section-content > h4/);
 assert.match(html, /\.callout-card > ul > li/);
+
+// Structured item cards & badges assertions
+assert.match(html, /<span class="ac-badge badge-req">R-1 \(Multi-PGN Intercept\)<\/span>/);
+assert.match(html, /<span class="ac-badge badge-assumption">A-1 \(Single-Tenant DB\)<\/span>/);
+assert.match(html, /<span class="ac-badge badge-assumption">A-2 \(Node 20\+ Runtime\)<\/span>/);
+assert.match(html, /<span class="ac-badge badge-question">Q-1 \(Rate Limiting Threshold\)<\/span>/);
+assert.match(html, /<span class="ac-badge badge-question">Q-2 \(Legacy Fallback\)<\/span>/);
+assert.match(html, /<span class="ac-badge badge-nongoal">NG-1 \(Mobile Support\)<\/span>/);
+assert.match(html, /<span class="ac-badge badge-edgecase">EC-1 \(Network Disconnect\)<\/span>/);
+assert.match(html, /<span class="risk-pill risk-pill-danger">BLOCKS IMPLEMENTATION<\/span>/);
+assert.match(html, /<span class="risk-pill risk-pill-warn">RISKS REWORK<\/span>/);
+assert.match(html, /<div class="card-body-text">Each tenant has a dedicated PostgreSQL schema\.<\/div>/);
+assert.match(html, /<div class="card-body-text">Native iOS\/Android apps are deferred to Phase 3\.<\/div>/);
+assert.match(html, /<div class="card-body-text">Reconnect automatically within 5 seconds with exponential retry\.<\/div>/);
 
 console.log('ok - Mermaid and Before/After diagrams render visually while preserving source content');

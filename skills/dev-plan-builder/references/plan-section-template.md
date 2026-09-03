@@ -29,7 +29,7 @@ Done when: <...>
 - New implementation in Task 2.1 because <why reuse is insufficient>
 
 ### Non-Goals
-- <explicitly out of scope for this work-item>
+- **NG-1 (Concept Anchor):** <explicitly out of scope for this work-item>
 
 ### Exit Criteria (work-item convergence)
 - All stories Done; final verification: <command(s) run fresh>
@@ -44,5 +44,6 @@ Rules embedded in the format:
 - Three verification names mark three levels on purpose — `— Verify:` = how to check one task (a method); `Done when:` = what evidence closes a user story/task group (a state); `Exit Criteria` = the fresh final pass that closes the whole work-item. Never merge or rename them; the name tells the reader which level's obligation applies.
 - Every task line ends with `— Verify:` and a concrete method. A task without one is not a task yet.
 - Every story cites the Requirement/Design ACs it satisfies (`AC: R-n` / `D-n`, numbered in those sections). A story that cites nothing is scope creep or a missing requirement.
+- Non-Goals are structured as `- **NG-1 (Concept Anchor):** ...` with sequential numbering and bold anchors.
 - Checkboxes are the execution record's progress tracker — `dev-builder` ticks them as tasks verify.
 - **Every unit is goal-ready**: a task, a story, or the whole work-item can be handed to an autonomous run (Codex goal, long Claude Code execution) as-is — each level carries its own convergence (`— Verify:` / `Done when:` / Exit Criteria) and inherits the Stop Conditions. A story that needs context not named in this file is not fully broken down yet.

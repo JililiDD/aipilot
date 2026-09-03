@@ -468,18 +468,66 @@ async function render() {
   body = body.replace(/<\/li>\s*<\/ol>\s*<\/li>/gi, '</li>');
   body = body.replace(/<li>(\s*<p>)?\s*\d+[\.\)]\s*/gi, '<li>$1');
 
-  // 1. Transform AC badges FIRST into clean header bar (Line 1 badge) + body text (Line 2)
-  body = body.replace(/<li>(\s*<p>)?\s*<strong>((?:[A-Z0-9]+-)?(?:AC|R|D)-\d+[^<]*):<\/strong>\s*([\s\S]*?)(?=<\/li>)/gi, (m, pTag, badgeText, restText) => {
-    return `<li><div class="card-header-bar"><span class="ac-badge">${badgeText}</span></div><div class="card-body-text">${restText}</div>`;
+  // Helper functions for structured item badges and card bodies
+  function getBadgeClass(badgeText) {
+    const t = String(badgeText || '').trim().toUpperCase();
+    if (/^(?:[A-Z0-9]+-)?(?:R|AC|REQ)[-\s]?\d+/i.test(t)) return 'badge-req';
+    if (/^(?:[A-Z0-9]+-)?(?:D|DES)[-\s]?\d+/i.test(t)) return 'badge-design';
+    if (/^(?:[A-Z0-9]+-)?(?:A|ASM|ASSUMP|ASSUMPTION)[-\s]?\d+/i.test(t)) return 'badge-assumption';
+    if (/^(?:[A-Z0-9]+-)?(?:Q|OQ|QUEST|QUESTION)[-\s]?\d+/i.test(t)) return 'badge-question';
+    if (/^(?:[A-Z0-9]+-)?(?:NG|NON|NONGOAL)[-\s]?\d+/i.test(t)) return 'badge-nongoal';
+    if (/^(?:[A-Z0-9]+-)?(?:EC|E|EDGE|EDGECASE)[-\s]?\d+/i.test(t)) return 'badge-edgecase';
+    if (/^(?:[A-Z0-9]+-)?(?:RSK|RISK)[-\s]?\d+/i.test(t)) return 'badge-risk';
+    if (/^(?:[A-Z0-9]+-)?(?:SEC|SECURITY)[-\s]?\d+/i.test(t)) return 'badge-security';
+    return 'badge-req';
+  }
+
+  function formatBadgeContent(badgeText) {
+    return String(badgeText || '').replace(/\[\s*(?:risk:\s*)?(blocks implementation|risks rework|cosmetic|high|medium|low)\s*\]/gi, (m, riskLevel) => {
+      const r = riskLevel.toLowerCase();
+      let rClass = 'risk-pill-warn';
+      if (/block|high/i.test(r)) rClass = 'risk-pill-danger';
+      else if (/rework|med/i.test(r)) rClass = 'risk-pill-warn';
+      else if (/cosmetic|low/i.test(r)) rClass = 'risk-pill-info';
+      return `<span class="risk-pill ${rClass}">${escapeHtml(riskLevel.toUpperCase())}</span>`;
+    });
+  }
+
+  function formatCardBody(text) {
+    let clean = (text || '').trim();
+    clean = clean.replace(/^<\/p>/i, '').replace(/<\/p>$/i, '').trim();
+    clean = clean.replace(/\[\s*(?:risk:\s*)?(blocks implementation|risks rework|cosmetic|high|medium|low)\s*\]/gi, (m, riskLevel) => {
+      const r = riskLevel.toLowerCase();
+      let rClass = 'risk-pill-warn';
+      if (/block|high/i.test(r)) rClass = 'risk-pill-danger';
+      else if (/rework|med/i.test(r)) rClass = 'risk-pill-warn';
+      else if (/cosmetic|low/i.test(r)) rClass = 'risk-pill-info';
+      return `<span class="risk-pill ${rClass}">${escapeHtml(riskLevel.toUpperCase())}</span>`;
+    });
+    return clean;
+  }
+
+  // 1. Transform Structured Item Badges (AC, R, D, A, Q, NG, EC, RISK, SEC, etc.) into clean header bar (Line 1 badge) + body text (Line 2)
+  const itemBadgeRegex = /<li>(\s*<p>)?\s*<strong>((?:[A-Za-z0-9_-]+-)?(?:AC|R|REQ|D|DES|A|ASM|ASSUMP|ASSUMPTION|Q|OQ|QUEST|QUESTION|NG|NON|NONGOAL|EC|E|EDGE|EDGECASE|RSK|RISK|SEC|SECURITY|[A-Za-z0-9]+)[-\s]?\d+[^<]*?)(?::)?<\/strong>\s*([\s\S]*?)(?=<\/li>)/gi;
+  body = body.replace(itemBadgeRegex, (m, pTag, badgeText, restText) => {
+    const badgeClass = getBadgeClass(badgeText);
+    const formattedBadge = formatBadgeContent(badgeText);
+    const formattedBody = formatCardBody(restText);
+    return `<li><div class="card-header-bar"><span class="ac-badge ${badgeClass}">${formattedBadge}</span></div><div class="card-body-text">${formattedBody}</div>`;
   });
 
   // 2. Generic bold titles inside ol > li (Line 1 title, Line 2 body)
   body = body.replace(/<li>(\s*<p>)?\s*<strong>([^<]+:?)<\/strong>\s*([\s\S]*?)(?=<\/li>)/gi, (m, pTag, strongText, restText) => {
-    return `<li><div class="card-header-bar"><span class="card-header-title">${strongText}</span></div><div class="card-body-text">${restText}</div>`;
+    const formattedBody = formatCardBody(restText);
+    return `<li><div class="card-header-bar"><span class="card-header-title">${strongText}</span></div><div class="card-body-text">${formattedBody}</div>`;
   });
 
   // Fallback visual post-processing for any remaining standalone badges/keywords
-  body = body.replace(/<strong>((?:[A-Z0-9]+-)?(?:AC|R|D)-\d+[^<]*):<\/strong>/g, '<span class="ac-badge">$1</span>');
+  body = body.replace(/<strong>((?:[A-Za-z0-9_-]+-)?(?:AC|R|REQ|D|DES|A|ASM|ASSUMP|ASSUMPTION|Q|OQ|QUEST|QUESTION|NG|NON|NONGOAL|EC|E|EDGE|EDGECASE|RSK|RISK|SEC|SECURITY|[A-Za-z0-9]+)[-\s]?\d+[^<]*?)(?::)?<\/strong>/gi, (m, badgeText) => {
+    const badgeClass = getBadgeClass(badgeText);
+    const formattedBadge = formatBadgeContent(badgeText);
+    return `<span class="ac-badge ${badgeClass}">${formattedBadge}</span>`;
+  });
   body = body.replace(/—\s*Verify:\s*([\s\S]*?)(?=<\/li>|<\/p>)/gi, '<div class="verification-block"><span class="verify-badge">VERIFY</span><span class="verification-content">$1</span></div>');
   body = body.replace(/<strong>Touches:<\/strong>|Touches:/gi, '<span class="touches-badge">TOUCHES</span>');
   body = body.replace(/<strong>Done when:<\/strong>|Done when:/gi, '<span class="donewhen-badge">DONE WHEN</span>');
@@ -1447,18 +1495,89 @@ async function render() {
     letter-spacing: 0.5px;
   }
 
-  /* Badges */
+  /* Badges & Tags */
   .ac-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: rgba(56, 189, 248, 0.15);
     color: var(--accent);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    padding: 2px 8px;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 2.5px 9px;
     border-radius: 6px;
-    font-weight: 700;
-    font-size: 12px;
-    margin-right: 6px;
+    font-weight: 800;
+    font-size: 11.5px;
     font-family: Consolas, monospace;
+    letter-spacing: 0.5px;
+  }
+  .ac-badge.badge-req {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.35);
+  }
+  .ac-badge.badge-design {
+    background: rgba(167, 139, 250, 0.15);
+    color: #a78bfa;
+    border-color: rgba(167, 139, 250, 0.35);
+  }
+  .ac-badge.badge-assumption {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.35);
+  }
+  .ac-badge.badge-question {
+    background: rgba(232, 121, 249, 0.15);
+    color: #e879f9;
+    border-color: rgba(232, 121, 249, 0.35);
+  }
+  .ac-badge.badge-nongoal {
+    background: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
+    border-color: rgba(244, 63, 94, 0.35);
+  }
+  .ac-badge.badge-edgecase {
+    background: rgba(45, 212, 191, 0.15);
+    color: #2dd4bf;
+    border-color: rgba(45, 212, 191, 0.35);
+  }
+  .ac-badge.badge-risk {
+    background: rgba(248, 113, 113, 0.15);
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.35);
+  }
+  .ac-badge.badge-security {
+    background: rgba(52, 211, 153, 0.15);
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.35);
+  }
+
+  /* Risk Pills */
+  .risk-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    margin-right: 6px;
+    letter-spacing: 0.4px;
+    font-family: Consolas, monospace;
+    vertical-align: middle;
+  }
+  .risk-pill-danger {
+    background: rgba(248, 113, 113, 0.18);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.4);
+  }
+  .risk-pill-warn {
+    background: rgba(251, 191, 36, 0.18);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.4);
+  }
+  .risk-pill-info {
+    background: rgba(56, 189, 248, 0.18);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.4);
   }
   .verification-block {
     display: block;
@@ -1678,7 +1797,7 @@ async function render() {
     vertical-align: middle;
   }
 
-  /* Acceptance Criteria Card Rows */
+  /* Structured Item Card Rows */
   li:has(.ac-badge) {
     list-style-type: none;
     display: block;
@@ -1696,34 +1815,49 @@ async function render() {
     border-color: rgba(56, 189, 248, 0.4);
     background: #0e1628;
   }
+  li:has(.badge-assumption):hover {
+    border-color: rgba(251, 191, 36, 0.45);
+    background: #14130a;
+  }
+  li:has(.badge-question):hover {
+    border-color: rgba(232, 121, 249, 0.45);
+    background: #150e1c;
+  }
+  li:has(.badge-design):hover {
+    border-color: rgba(167, 139, 250, 0.45);
+    background: #120e1c;
+  }
+  li:has(.badge-nongoal):hover {
+    border-color: rgba(244, 63, 94, 0.45);
+    background: #160c10;
+  }
+  li:has(.badge-edgecase):hover {
+    border-color: rgba(45, 212, 191, 0.45);
+    background: #0a1614;
+  }
+  li:has(.badge-risk):hover {
+    border-color: rgba(248, 113, 113, 0.45);
+    background: #160c0c;
+  }
+  li:has(.badge-security):hover {
+    border-color: rgba(52, 211, 153, 0.45);
+    background: #0a1610;
+  }
   .ac-badge-row {
     margin-bottom: 8px;
     display: flex;
     align-items: center;
   }
-  .ac-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(56, 189, 248, 0.15);
-    color: var(--accent);
-    border: 1px solid rgba(56, 189, 248, 0.35);
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-weight: 800;
-    font-size: 11px;
-    font-family: Consolas, monospace;
-    letter-spacing: 0.5px;
-  }
   .card-header-bar {
-    display: inline;
+    display: block;
     font-weight: 700;
     color: #fff;
     font-size: 14px;
+    margin-bottom: 6px;
   }
   .card-body-text {
     display: block;
-    margin-top: 8px;
+    margin-top: 6px;
     color: #cbd5e1;
     font-size: 13.5px;
     line-height: 1.65;
