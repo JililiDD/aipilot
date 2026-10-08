@@ -18,7 +18,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -29,10 +29,16 @@ jobs:
         run: node scripts/validate-plugin-layout.js
 
       - name: Run tests
-        run: node --test tests/plugin-layout.test.js
+        run: node --test
 
       - name: Run release preflight
         run: node scripts/release-check.js
 
       - name: Check whitespace errors
-        run: git diff --check HEAD^
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          # Check every commit in the push or PR; fall back to the last commit when there is no usable base
+          # (new branch, tag push).
+          if ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then BASE=HEAD^; fi
+          git diff --check "${BASE}" HEAD

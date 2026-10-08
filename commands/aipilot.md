@@ -2,22 +2,8 @@
 description: Start, continue, or resume the AIPilot development workflow — spec, design, plan, build, review, release.
 ---
 
-Invoke the `workflow-orchestrator` skill and follow it exactly.
+Invoke the `workflow-orchestrator` skill and follow it exactly. Begin with its Start section. That section runs the cold start when the project has no documents root yet.
 
-**Resolve the documents root first**: read the project-root `AGENTS.md` for a `Documents root:` line under an `## AIPilot` heading. Present → use that path. Absent → this may be a fresh project; run cold start.
-
-**Cold start** (no documents root configured and no `docs/aipilot/` present):
-
-1. Ask one low-risk question: "Where should project documents live? **A. `docs/aipilot/` inside this repo (recommended — version-controlled, travels with the code)** B. A custom location."
-2. If custom: the user provides a directory. Ask: "Create a project-named subfolder under it?" (e.g. given `/programs/projectDocumentations/` and project `projectDemo` → `/programs/projectDocumentations/projectDemo/docs/aipilot/`). Warn once, plainly: an out-of-repo root loses version control — no branch correlation, no clone portability, no git-tracked merge-back history — then respect the choice.
-3. Write the resolved path into the project-root `AGENTS.md` under an `## AIPilot` heading as `Documents root: <path>` — AGENTS.md is the canonical pointer home in every runtime (create it with just this section if missing; never overwrite existing content). Courtesy: if a `CLAUDE.md` exists and does not reference `AGENTS.md`, suggest adding an `@AGENTS.md` import line so plain Claude Code sessions also see it — optional, not required for the plugin to work.
-4. Create the invariant directory skeleton at the resolved root: `work-items/`, `work-items/merged/`, and `design-assets/`. Do not create an empty `memory/` directory or empty memory files. `memory/` and its `decisions.md`, `lessons.md`, and `agent-guideline.md` files are created lazily by the skill that records their first entry.
-5. Route to `product-spec-builder` to begin. The constitution remains plugin-owned at `skills/workflow-orchestrator/references/document-system-spec.md`; never copy or refresh it in the project documents root. Ignore any legacy project-local copy.
-
-**Warm start** (root resolves and exists): run the orchestrator's normal startup — self-healing scan first (interrupted merge-backs), then read current document state and recommend the next stage.
-
-The user's words after `/aipilot` (if any) describe the task to kick off — treat them as the initial requirement statement and pass them into the recommended stage.
-
-Follow all orchestrator gates: one stage per confirmation, no multi-stage automation without explicit per-stage continues.
+If the user wrote words after `/aipilot`, those words describe the task to begin. Treat them as the initial requirement statement. Pass them into the recommended stage.
 
 $ARGUMENTS

@@ -1,6 +1,10 @@
 # Roadmap Template
 
-Use this structure for `dev-phase-plan.md`. It is a map, not a plan of record — story/task detail lives in each phase's work-item. It holds only underivable decisions: current state (next phase, active work-item) is read off the phase statuses and pointers, never stored separately; parallelism is read off the Depends-on lines; reuse is scanned fresh at breakdown time (per-work-item Reuse Notes), never snapshotted here.
+Use this structure for `dev-phase-plan.md`. It is a map, not a plan of record. Story and task detail lives in each phase's work-item. The map holds only decisions that cannot be derived. The rest comes from other sources:
+
+- Read the current state (next phase, active work-item) off the phase statuses and pointers. Never store it separately.
+- Read parallelism off the Depends-on lines.
+- Scan reuse again at breakdown time, into the Reuse Notes of each work-item. Never snapshot it here.
 
 ```markdown
 # Development Phase Roadmap

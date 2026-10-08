@@ -1,6 +1,6 @@
 # Design Spec Template
 
-Use this structure for `docs/aipilot/design-spec.md`. Section 10 documents the presentation of AI controls; the capabilities themselves come from the Product Spec or the target work-item's Requirement section and should be cited, not redefined. Omit Section 10 entirely when the product has no AI/agent execution. In Iteration Mode, deltas are written to the work-item's Design section, not directly into this brief.
+Use this structure for `docs/aipilot/design-spec.md`. Section 10 covers how the product presents its AI controls. In section 10, cite the capabilities from the Product Spec. Never redefine them. If the product has no AI or agent execution, omit section 10 entirely.
 
 ```markdown
 # Design Spec
@@ -70,7 +70,7 @@ Use this structure for `docs/aipilot/design-spec.md`. Section 10 documents the p
 ## 12. Copy and Tone
 
 ## 13. Design Acceptance Criteria
-- **D-1 (Concept Anchor):** <observable visual check>
+- **D-1 (Concept Anchor):** When <trigger>, the system shall <observable result>.
 
 ## 14. Open Questions
 - **Q-1 (Concept Anchor):** [risk: blocks implementation | risks rework | cosmetic] <unresolved design question>

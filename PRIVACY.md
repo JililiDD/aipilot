@@ -21,9 +21,10 @@ host application's data handling.
 ## Network access and third parties
 
 The plugin does not define an MCP server, connector, account integration, or
-publisher-controlled network endpoint. It includes vendored copies of ezreview
-and marked so its document-review renderer can operate without downloading
-runtime packages. Their licenses are included with the distributed files.
+publisher-controlled network endpoint. It includes vendored copies of ezreview,
+marked, and mermaid so its document-review renderer can operate without
+downloading runtime packages. The review page loads no remote fonts or scripts.
+Their licenses are included with the distributed files.
 
 ## Storage and deletion
 

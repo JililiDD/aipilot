@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 1.2.0" src="https://img.shields.io/badge/release-1.2.0-12B5EA">
+  <img alt="Release 2.0.0" src="https://img.shields.io/badge/release-2.0.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v1.2.0 --trust
+grok plugin install JililiDD/aipilot@v2.0.0 --trust
 ```
 
 ## Use one entry point
@@ -70,11 +70,31 @@ flowchart LR
     Review -->|Findings| Build
 ```
 
+## Choose how often AIPilot stops
+
+For a change to an existing project, AIPilot first asks how to run it. The answer holds for the current session.
+
+| Mode | What happens |
+| --- | --- |
+| **(a) Stop after each stage** (recommended) | AIPilot stops after the requirement, the design, and the plan, so you can review and confirm each one. |
+| **(b) Stop once, after the plan** | AIPilot asks the build settings up front and asks for your confirmation only once, after the plan. |
+| **(c) Goal mode** | AIPilot asks the build settings once, then runs to the end without questions. It records each unknown as an assumption, and its final report lists every assumption, inferred design, and bug found in passing. |
+
+In every mode, AIPilot fixes code review findings and reviews again without stopping to ask. Goal mode still stops for a blocker that only you can resolve, such as a destructive action or a defect it cannot reproduce. To run several roadmap phases in one go, ask AIPilot to do all remaining phases: it offers goal mode and starts only after you confirm.
+
+Before building, AIPilot also asks how to commit:
+
+- `manual` (recommended): AIPilot never commits; you check and commit the working tree.
+- `branch`: AIPilot commits on an `aipilot/<work-item>` branch, including the final document updates, and you do the git merge.
+- `auto`: AIPilot commits on the current branch after each passing code review.
+
+A project without Git skips this question.
+
 ## Review documents in HTML with ezreview (optional)
 
 AIPilot pairs with [ezreview](https://github.com/JililiDD/ezreview) to provide an interactive browser-based review loop for product specs, design specs, plans, and UI prototypes.
 
-1. **Zero-token rendering:** AIPilot converts the Markdown source into a temporary HTML file using [marked](https://github.com/markedjs/marked) without consuming API tokens.
+1. **Zero-token rendering:** AIPilot converts the Markdown source into a temporary HTML file using [marked](https://github.com/markedjs/marked) without consuming API tokens. Mermaid diagrams are drawn with the bundled [Mermaid](https://github.com/mermaid-js/mermaid).
 2. **In-browser annotation:** `ezreview` opens the page with annotation tools, letting you attach comments to specific headings, paragraphs, or interface elements.
 3. **Automated updates:** AIPilot applies your feedback directly to the Markdown source, replies to annotations, and reloads the HTML preview for another pass.
 4. **Approval & cleanup:** The loop repeats until you grant final approval. Markdown remains the single source of truth—temporary HTML files are cleaned up from the session scratchpad when the review closes (or retained as visual design deliverables).
@@ -150,9 +170,10 @@ Cold start creates `work-items/`, `work-items/merged/`, and `design-assets/`. Th
 
 ## Third-party software
 
-AIPilot vendors two MIT-licensed components for offline document review:
+AIPilot vendors three MIT-licensed components for offline document review:
 
 - [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` opens reviewable HTML and returns element-anchored annotations
 - [marked](https://github.com/markedjs/marked) `18.0.6` renders Markdown without a runtime download
+- [mermaid](https://github.com/mermaid-js/mermaid) `11.17.2` draws the diagrams in reviewed documents
 
 See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for source and license details.

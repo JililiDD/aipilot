@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 1.2.0" src="https://img.shields.io/badge/release-1.2.0-12B5EA">
+  <img alt="Release 2.0.0" src="https://img.shields.io/badge/release-2.0.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v1.2.0 --trust
+grok plugin install JililiDD/aipilot@v2.0.0 --trust
 ```
 
 ## 单一入口启动
@@ -72,14 +72,34 @@ flowchart LR
     Review -->|审查意见| Build
 ```
 
-* **智能阶段路由：** 对于无 UI 界面（如后端/CLI）的任务，系统会自动跳过视觉设计阶段（`design-spec-builder`）。当项目需要打包、部署、公开发布或最终交接时，会自动启用发布准备（Release Readiness）。
+* **智能阶段路由：** 对于无 UI 界面（如后端/CLI）的任务，系统会自动跳过视觉设计阶段（`design-spec-builder`）。发布准备（Release Readiness，`release-builder`）只在你要求时运行，例如打包、部署、公开发布或最终交接之前。
 * **人工门控审查：** AIPilot 默认会在阶段边界处暂停，允许你在下一个 Skill 启动前审查当前文档，确保不会将误解的需求转化为错误的实施。
+
+## 选择 AIPilot 停下的频率
+
+对现有项目做改动时，AIPilot 会先问你按哪种方式运行。这个选择在当前会话内有效。
+
+| 模式 | 行为 |
+| --- | --- |
+| **(a) 每个阶段后停下**（推荐） | AIPilot 在需求、设计、计划完成后各停一次，让你审查并确认。 |
+| **(b) 只在计划后停一次** | AIPilot 先问好构建设置，只在计划完成后请你确认一次。 |
+| **(c) Goal 模式** | AIPilot 一次性问好构建设置，然后一直运行到结束，中途不提问。它把每个未知项记成假设，最终报告会列出所有假设、推断出的设计和顺带发现的 bug。 |
+
+无论哪种模式，AIPilot 都会直接修复 code review 的意见并重新审查，不会停下来问你。Goal 模式遇到只有你能解决的阻碍时仍会停下，例如需要破坏性操作，或者缺陷无法复现。要一次跑完多个 roadmap 阶段，可以让 AIPilot 做完剩下的所有阶段：它会提议使用 goal 模式，等你确认后才开始。
+
+开始构建前，AIPilot 还会问你如何提交：
+
+- `manual`（推荐）：AIPilot 从不提交，由你检查并提交工作区。
+- `branch`：AIPilot 在 `aipilot/<work-item>` 分支上提交，包括最后的文档更新，由你做 git merge。
+- `auto`：每次 code review 通过后，AIPilot 在当前分支上提交。
+
+没有 Git 的项目会跳过这个问题。
 
 ## 使用 ezreview 进行 HTML 文档审查（可选）
 
 AIPilot 与 [ezreview](https://github.com/JililiDD/ezreview) 结合，为产品规格、设计规格、计划和 UI 原型提供交互式的浏览器审查循环。
 
-1. **零 Token 消耗渲染：** AIPilot 使用 [marked](https://github.com/markedjs/marked) 将 Markdown 源码本地转换为临时 HTML 文件，不消耗任何 API Token。
+1. **零 Token 消耗渲染：** AIPilot 使用 [marked](https://github.com/markedjs/marked) 将 Markdown 源码本地转换为临时 HTML 文件，不消耗任何 API Token。Mermaid 图由内置的 [Mermaid](https://github.com/mermaid-js/mermaid) 绘制。
 2. **浏览器内批注：** `ezreview` 在浏览器中打开页面并提供批注工具，允许你针对具体标题、段落或界面元素附带反馈意见。
 3. **自动化更新循环：** AIPilot 直接将反馈更新至 Markdown 源码，回复批注，并重新加载 HTML 预览以进行下一轮审查。
 4. **批准与清理：** 循环持续直至你给予最终批准。Markdown 始终保持为唯一的真实来源——当审查关闭时，临时 HTML 文件会自动从会话暂存区中清理（或作为视觉设计产物保留）。
@@ -155,9 +175,10 @@ docs/aipilot/
 
 ## 第三方软件
 
-AIPilot 内置了两个采用 MIT 许可证的组件，用于离线文档审查：
+AIPilot 内置了三个采用 MIT 许可证的组件，用于离线文档审查：
 
 - [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` 打开可审查的 HTML 并返回锚定到元素的批注
 - [marked](https://github.com/markedjs/marked) `18.0.6` 无需运行下载即可渲染 Markdown
+- [mermaid](https://github.com/mermaid-js/mermaid) `11.17.2` 绘制审查文档中的图
 
 参阅 [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) 获取源码与许可证详情。

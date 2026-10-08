@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 1.2.0" src="https://img.shields.io/badge/release-1.2.0-12B5EA">
+  <img alt="Release 2.0.0" src="https://img.shields.io/badge/release-2.0.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v1.2.0 --trust
+grok plugin install JililiDD/aipilot@v2.0.0 --trust
 ```
 
 ## 単一エントリポイントの使用
@@ -72,14 +72,34 @@ flowchart LR
     Review -->|指摘事項| Build
 ```
 
-* **スマートなステージルーティング:** ユーザーインターフェースのないタスクでは、ビジュアルデザイン（`design-spec-builder`）は自動的にスキップされます。パッケージング、デプロイ、公開配布、または最終ハンドオフが必要な場合、リリース準備（Release Readiness）が利用可能になります。
+* **スマートなステージルーティング:** ユーザーインターフェースのないタスクでは、ビジュアルデザイン（`design-spec-builder`）は自動的にスキップされます。リリース準備（Release Readiness、`release-builder`）は、あなたが依頼したときだけ実行されます。たとえば、パッケージング、デプロイ、公開配布、または最終ハンドオフの前です。
 * **ヒューマンインザループ・レビュー:** AIPilot はデフォルトでステージの境界で一時停止し、次のスキルが開始する前に各ドキュメントをレビューできるようにします。これにより、間違って理解された要件が誤った実装になることを防ぎます。
+
+## AIPilot が停止する頻度の選択
+
+既存プロジェクトへの変更では、AIPilot はまず実行方法を尋ねます。この選択は現在のセッションの間有効です。
+
+| モード | 動作 |
+| --- | --- |
+| **(a) ステージごとに停止**（推奨） | AIPilot は要件、デザイン、計画のそれぞれの後に停止し、レビューと確認を求めます。 |
+| **(b) 計画の後に一度だけ停止** | AIPilot はビルド設定を先に尋ね、計画の後に一度だけ確認を求めます。 |
+| **(c) ゴールモード** | AIPilot はビルド設定を一度だけ尋ね、その後は質問せずに最後まで実行します。不明点はそれぞれ仮定として記録し、最終レポートにすべての仮定、推測したデザイン、途中で見つけたバグを一覧にします。 |
+
+どのモードでも、AIPilot はコードレビューの指摘を修正して再レビューし、そのために停止して質問することはありません。ゴールモードでも、あなたにしか解決できない問題では停止します。たとえば、破壊的な操作が必要な場合や、不具合を再現できない場合です。複数のロードマップフェーズを一度に実行するには、残りのフェーズをすべて実行するよう AIPilot に依頼してください。AIPilot はゴールモードを提案し、あなたが確認してから開始します。
+
+ビルドの前に、AIPilot はコミット方法も尋ねます：
+
+- `manual`（推奨）：AIPilot はコミットしません。作業ツリーの確認とコミットはあなたが行います。
+- `branch`：AIPilot は最後のドキュメント更新も含めて `aipilot/<work-item>` ブランチにコミットし、git merge はあなたが行います。
+- `auto`：コードレビューに合格するたびに、AIPilot が現在のブランチにコミットします。
+
+Git を使用していないプロジェクトでは、この質問は省略されます。
 
 ## ezreview を使用した HTML でのドキュメントレビュー（オプション）
 
 AIPilot は [ezreview](https://github.com/JililiDD/ezreview) と連携し、プロダクト仕様、設計仕様、計画、および UI プロトタイプ向けの対話型ブラウザレビューサイクルを提供します。
 
-1. **トークン消費ゼロのレンダリング:** AIPilot は、API トークンを消費することなく [marked](https://github.com/markedjs/marked) を使用して Markdown ソースを一時的な HTML ファイルにローカル変換します。
+1. **トークン消費ゼロのレンダリング:** AIPilot は、API トークンを消費することなく [marked](https://github.com/markedjs/marked) を使用して Markdown ソースを一時的な HTML ファイルにローカル変換します。Mermaid 図は同梱の [Mermaid](https://github.com/mermaid-js/mermaid) で描画されます。
 2. **ブラウザ内注釈:** `ezreview` は注釈ツールを備えたページを開き、特定の見出し、段落、または UI 要素にコメントを添付できるようにします。
 3. **自動更新:** AIPilot はフィードバックを Markdown ソースに直接適用し、注釈に返信して、次のパスのために HTML プレビューを再読み込みします。
 4. **承認とクリーンアップ:** 最終承認を与えるまでサイクルが繰り返されます。Markdown は単一の信頼できる情報源（Single Source of Truth）として維持され、レビュー終了時に一時 HTML ファイルはセッションスクラッチパッドから削除されます（ビジュアルデザイン成果物として保持する場合を除く）。
@@ -155,9 +175,10 @@ docs/aipilot/
 
 ## サードパーティソフトウェア
 
-AIPilot には、オフラインドキュメントレビュー用に MIT ライセンスの 2 つのコンポーネントが含まれています：
+AIPilot には、オフラインドキュメントレビュー用に MIT ライセンスの 3 つのコンポーネントが含まれています：
 
 - [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` レビュー可能な HTML を開き、要素にアンカーされた注釈を返します
 - [marked](https://github.com/markedjs/marked) `18.0.6` 実行時のダウンロードなしで Markdown をレンダリングします
+- [mermaid](https://github.com/mermaid-js/mermaid) `11.17.2` レビュー対象ドキュメントの図を描画します
 
 ソースとライセンスの詳細については [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) を参照してください。

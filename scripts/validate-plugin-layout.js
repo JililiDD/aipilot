@@ -11,10 +11,17 @@ function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(absolutePath, 'utf8'));
 }
 
+// The Claude manifest is the single version source; every other manifest must agree with it.
+function pluginVersion() {
+  const { version } = readJson('.claude-plugin/plugin.json');
+  assert.match(version, /^\d+\.\d+\.\d+$/, '.claude-plugin/plugin.json version must be MAJOR.MINOR.PATCH');
+  return version;
+}
+
 function assertManifest(relativePath, expected) {
   const manifest = readJson(relativePath);
   assert.strictEqual(manifest.name, 'aipilot', `${relativePath} name`);
-  assert.strictEqual(manifest.version, '1.2.0', `${relativePath} version`);
+  assert.strictEqual(manifest.version, pluginVersion(), `${relativePath} version`);
   assert.strictEqual(manifest.skills, './skills/', `${relativePath} skills`);
   assert.strictEqual(manifest.author.name, 'JililiDD', `${relativePath} author`);
   assert.strictEqual(manifest.repository, 'https://github.com/JililiDD/aipilot', `${relativePath} repository`);
@@ -107,14 +114,16 @@ function assertMarketplace() {
   assert.strictEqual(claudeMarketplace.plugins.length, 1, 'Claude marketplace plugin count');
   assert.strictEqual(claudeMarketplace.plugins[0].name, 'aipilot', 'Claude marketplace plugin name');
   assert.strictEqual(claudeMarketplace.plugins[0].source, './', 'Claude marketplace source');
-  assert.strictEqual(claudeMarketplace.plugins[0].version, '1.2.0', 'Claude marketplace version');
+  assert.strictEqual(claudeMarketplace.plugins[0].version, pluginVersion(), 'Claude marketplace version');
   assert.strictEqual(claudeMarketplace.plugins[0].strict, true, 'Claude marketplace strict mode');
 }
 
 function assertCanonicalConstitution() {
   const canonicalRelativePath = 'skills/workflow-orchestrator/references/document-system-spec.md';
   const constitution = fs.readFileSync(path.join(root, canonicalRelativePath), 'utf8');
-  const coldStart = fs.readFileSync(path.join(root, 'commands/aipilot.md'), 'utf8');
+  const coldStartCommand = fs.readFileSync(path.join(root, 'commands/aipilot.md'), 'utf8');
+  const orchestrator = fs.readFileSync(path.join(root, 'skills/workflow-orchestrator/SKILL.md'), 'utf8');
+  const coldStartPath = path.join(root, 'skills/workflow-orchestrator/references/cold-start.md');
   const readers = [
     'skills/product-spec-builder/SKILL.md',
     'skills/design-spec-builder/SKILL.md',
@@ -122,12 +131,20 @@ function assertCanonicalConstitution() {
     'skills/dev-builder/SKILL.md',
     'skills/code-reviewer/SKILL.md',
     'skills/release-builder/SKILL.md',
+    'skills/note-keeper/SKILL.md',
   ];
 
   assert.ok(constitution.includes('## 8. Stage Boundary Review Gate'), 'constitution must own the review gate');
   assert.ok(constitution.includes('legacy project-local `document-system-spec.md` is non-authoritative and ignored'));
-  assert.ok(coldStart.includes('never copy or refresh it in the project documents root'));
-  assert.ok(!/copy .*document-system-spec\.md/i.test(coldStart), 'cold start must not copy the constitution');
+  assert.ok(constitution.includes('Never copy it into a project'), 'the constitution must stay plugin-owned');
+  // Natural-language entry and /aipilot must reach the same cold start, so it has one home.
+  assert.ok(fs.existsSync(coldStartPath), 'the orchestrator must own the cold start');
+  const coldStart = fs.readFileSync(coldStartPath, 'utf8');
+  assert.ok(coldStart.includes('Write `Documents root: <path>`'), 'cold start must write the documents-root pointer');
+  assert.ok(orchestrator.includes('run `references/cold-start.md` first'), 'orchestrator startup must run the cold start for a new project');
+  assert.ok(coldStartCommand.includes('`workflow-orchestrator`'), '/aipilot must delegate to the orchestrator');
+  assert.doesNotMatch(coldStartCommand, /documents live/i, '/aipilot must not carry its own copy of the cold start');
+  assert.doesNotMatch(orchestrator + coldStartCommand + coldStart, /copy .*document-system-spec\.md/i, 'cold start must not copy the constitution');
 
   for (const relativePath of readers) {
     const contents = fs.readFileSync(path.join(root, relativePath), 'utf8');
@@ -142,11 +159,18 @@ function assertCanonicalConstitution() {
   }
 }
 
-assertManifest('.claude-plugin/plugin.json', { absentFields: ['interface', 'hooks'] });
-assertManifest('.codex-plugin/plugin.json', { absentFields: ['hooks'] });
-assertManifestsInSync();
-assertMarketplace();
-assertSkills();
-assertCanonicalConstitution();
+function validate() {
+  assertManifest('.claude-plugin/plugin.json', { absentFields: ['interface', 'hooks'] });
+  assertManifest('.codex-plugin/plugin.json', { absentFields: ['hooks'] });
+  assertManifestsInSync();
+  assertMarketplace();
+  assertSkills();
+  assertCanonicalConstitution();
+}
 
-console.log('Plugin layout validation passed.');
+module.exports = { validate, pluginVersion };
+
+if (require.main === module) {
+  validate();
+  console.log('Plugin layout validation passed.');
+}

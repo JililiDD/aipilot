@@ -4,6 +4,8 @@ Use this reference only when the active task touches Java backend behavior or ba
 
 ## Source Priority
 
+Sources rank in this order, highest first:
+
 1. Current product and development documents
 2. Existing project code and tests
 3. Existing build and framework versions
@@ -12,45 +14,64 @@ Use this reference only when the active task touches Java backend behavior or ba
 
 ## Planning Checks
 
-- Identify Java version, Spring Boot version, build tool, package layout, and test conventions before planning backend work.
+- Before you plan backend work, identify the Java version, Spring Boot version, build tool, package layout, and test conventions.
 - Split backend phases by independently verifiable behavior: API endpoint, service behavior, persistence change, security boundary, migration, or build repair.
-- Define API contracts before frontend/backend parallel work starts.
-- Name DTOs, validation rules, status codes, error body shape, and nullability assumptions.
-- Decide transaction boundary and persistence strategy before implementation.
+- Define API contracts before parallel frontend and backend work starts.
+- Name the route and HTTP method, DTOs, validation rules, status codes, error body shape, pagination and sorting, and nullability assumptions.
+- Decide the transaction boundary and the persistence strategy before implementation.
 - Mark speculative framework or architecture additions as deferred.
 
 ## Implementation Checks
 
-- Match existing package and naming conventions.
-- Keep controllers thin and services cohesive.
-- Avoid adding global exception handlers, generic response wrappers, or shared base classes unless the project already uses them or current requirements prove the need.
-- Keep mapping explicit enough that DTO/entity differences are visible.
-- Prefer constructor injection if the project uses it.
-- Keep configuration changes scoped. Do not add profiles, properties, or auto-configuration unless required.
-- Avoid broad dependency additions for one local behavior.
+- Match existing package conventions. Name values and methods by constitution §7 Code naming.
+- Keep controllers thin. A controller does only request parsing, the authorization boundary, passing input to validation, and response mapping. Business rules live in services or domain code, not in controllers, repositories, or mappers. Dependencies point one way: controllers → services → repositories.
+- Keep repositories focused on persistence. Do not hide business decisions in queries. The exception is a project that already does so.
+- Avoid these constructs:
+  - global exception handlers
+  - generic response wrappers
+  - base services, base repositories, or base classes
+  - factories
+  - registries
+  - adapters
+  - async layers
+  - event buses
+  - provider abstractions
+
+  The exception is a construct that the project already uses, or one that current requirements prove necessary.
+- Use DTOs at API boundaries. Do not expose persistence entities directly. The exception is a project that deliberately accepts that trade-off. Keep the mapping explicit enough that the differences between DTO and entity are visible.
+- If the project uses constructor injection, prefer it.
+- Keep configuration changes scoped. Add profiles, properties, or auto-configuration only when they are required.
+- Avoid adding broad dependencies for one local behavior.
 
 ## Transaction And Persistence Checks
 
-- Put `@Transactional` where the project expects transaction boundaries, usually service-layer state changes.
+- Put `@Transactional` where the project expects transaction boundaries. These are usually the state changes in the service layer.
 - Check rollback behavior for checked exceptions, async execution, nested calls, and self-invocation.
-- Avoid external HTTP calls, file IO, message publishing, or slow computation inside transactions unless required.
-- Check lazy loading and N+1 behavior when returning DTOs or serializing relations.
-- Check uniqueness, foreign keys, indexes, and migrations for changed persistence rules.
-- Consider optimistic locking or idempotency for concurrent writes when current requirements expose that risk.
+- Avoid external HTTP calls, file IO, message publishing, or slow computation inside transactions unless required and the risk is accepted.
+- When code returns DTOs or serializes relations, check lazy loading and N+1 behavior.
+- For changed persistence rules, check uniqueness, foreign keys, indexes, and migrations.
+- When current requirements expose a risk from concurrent writes, consider optimistic locking or idempotency.
 
 ## API And Validation Checks
 
 - Validate request bodies, path variables, query parameters, and uploaded data at the boundary.
-- Keep domain invariants enforced inside domain/service code, not only in controller annotations.
+- Enforce domain invariants inside domain or service code, not only in controller annotations.
 - Do not expose stack traces, internal exception names, database errors, or secret values to clients.
-- Keep error mapping consistent with existing `ControllerAdvice`, exception handlers, or error response conventions.
-- Keep frontend contract in sync: field names, required/optional status, enum values, date/time format, pagination, and error shape.
+- Make error behavior explicit. Error behavior covers status codes, error body shape, exception mapping, logging, and client-visible messages. Keep it consistent with the existing `ControllerAdvice`, exception handlers, or error response conventions.
+- Keep these parts of the frontend contract in sync:
+  - route and HTTP method
+  - field names
+  - required/optional status
+  - enum values
+  - date/time format
+  - pagination and sorting
+  - error shape
 
 ## Security Checks
 
-- Verify authentication and authorization at route and object levels.
+- Verify authentication and authorization at the route level and the object level.
 - Check that user-controlled identifiers cannot access another user's records.
-- Treat CORS, CSRF, session, token, password, and secret handling as security-sensitive.
+- Treat CORS, CSRF, session, token, password, secret handling, and deserialization of untrusted input as security-sensitive.
 - Log enough for diagnosis without logging secrets, tokens, personal data beyond policy, or raw credentials.
 
 ## Testing Checks
@@ -61,12 +82,14 @@ Use this reference only when the active task touches Java backend behavior or ba
   - MVC slice tests for controller mapping and validation
   - repository tests for query behavior
   - integration tests for transaction, migration, security, or cross-layer behavior
-- Use Testcontainers only if already present or if the behavior cannot be proven with existing test infrastructure.
-- Run the smallest relevant Maven/Gradle command first, then broader checks when risk warrants it.
+  - contract tests when an API contract changes
+- Use Testcontainers only if the project already has it, or if existing test infrastructure cannot prove the behavior.
+- Run the smallest relevant Maven or Gradle command first. When the risk warrants it, run broader checks next.
 
 ## Build Failure Checks
 
-- For compiler failures, identify the first real error before fixing cascaded errors.
+- For compiler failures, identify the first real error before you fix the cascaded errors.
 - For Spring context failures, inspect missing beans, profile/config mismatches, circular dependencies, and conditional configuration.
-- For test failures, distinguish product behavior mismatch from brittle test setup.
-- For dependency failures, prefer aligning with existing dependency management over adding explicit versions locally.
+- For test failures, distinguish a mismatch in product behavior from a brittle test setup.
+- For dependency failures, prefer aligning with the existing dependency management over adding explicit versions locally.
+- For dependency or plugin changes, check Java version compatibility and generated sources.

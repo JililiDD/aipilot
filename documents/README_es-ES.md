@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 1.2.0" src="https://img.shields.io/badge/release-1.2.0-12B5EA">
+  <img alt="Release 2.0.0" src="https://img.shields.io/badge/release-2.0.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v1.2.0 --trust
+grok plugin install JililiDD/aipilot@v2.0.0 --trust
 ```
 
 ## Uso de un único punto de entrada
@@ -72,14 +72,34 @@ flowchart LR
     Review -->|Comentarios| Build
 ```
 
-* **Enrutamiento inteligente de fases:** El diseño visual (`design-spec-builder`) se omite automáticamente en tareas sin interfaz de usuario. La preparación de lanzamiento (Release Readiness) se habilita cuando se requiere empaquetado, despliegue, distribución pública o entrega final.
+* **Enrutamiento inteligente de fases:** El diseño visual (`design-spec-builder`) se omite automáticamente en tareas sin interfaz de usuario. La preparación de lanzamiento (Release Readiness, `release-builder`) solo se ejecuta cuando usted la pide, por ejemplo antes de empaquetar, desplegar, publicar o hacer la entrega final.
 * **Revisión con control humano:** AIPilot se detiene por defecto en las fronteras entre fases, permitiéndole revisar cada documento antes de que comience la siguiente habilidad para que un requisito mal entendido nunca se convierta en una implementación errónea.
+
+## Elección de cuántas veces se detiene AIPilot
+
+Para un cambio en un proyecto existente, AIPilot primero pregunta cómo ejecutarlo. La respuesta vale para la sesión actual.
+
+| Modo | Qué ocurre |
+| --- | --- |
+| **(a) Detenerse después de cada fase** (recomendado) | AIPilot se detiene después del requisito, el diseño y el plan, para que pueda revisar y confirmar cada uno. |
+| **(b) Detenerse una vez, después del plan** | AIPilot pregunta la configuración de construcción al principio y pide su confirmación una sola vez, después del plan. |
+| **(c) Modo objetivo (goal mode)** | AIPilot pregunta la configuración de construcción una vez y luego trabaja hasta el final sin preguntas. Registra cada incógnita como una suposición, y su informe final enumera todas las suposiciones, los diseños inferidos y los errores encontrados por el camino. |
+
+En todos los modos, AIPilot corrige las observaciones de la revisión de código y vuelve a revisar sin detenerse a preguntar. El modo objetivo se detiene igualmente ante un bloqueo que solo usted puede resolver, como una acción destructiva o un defecto que no logra reproducir. Para ejecutar varias fases del roadmap de una vez, pida a AIPilot que haga todas las fases restantes: le propondrá el modo objetivo y empezará solo cuando usted lo confirme.
+
+Antes de construir, AIPilot también pregunta cómo hacer commits:
+
+- `manual` (recomendado): AIPilot nunca hace commits; usted revisa el árbol de trabajo y hace el commit.
+- `branch`: AIPilot hace commits en una rama `aipilot/<work-item>`, incluidas las últimas actualizaciones de documentos, y usted hace el git merge.
+- `auto`: AIPilot hace un commit en la rama actual después de cada revisión de código aprobada.
+
+Un proyecto sin Git omite esta pregunta.
 
 ## Revisión de documentos en HTML con ezreview (opcional)
 
 AIPilot se integra con [ezreview](https://github.com/JililiDD/ezreview) para proporcionar un ciclo de revisión interactivo en el navegador para especificaciones de producto, especificaciones de diseño, planes y prototipos de interfaz.
 
-1. **Renderizado sin consumo de tokens:** AIPilot convierte el código fuente Markdown en un archivo HTML temporal localmente mediante [marked](https://github.com/markedjs/marked) sin consumir tokens de la API.
+1. **Renderizado sin consumo de tokens:** AIPilot convierte el código fuente Markdown en un archivo HTML temporal localmente mediante [marked](https://github.com/markedjs/marked) sin consumir tokens de la API. Los diagramas Mermaid se dibujan con [Mermaid](https://github.com/mermaid-js/mermaid), incluido en el plugin.
 2. **Anotaciones en el navegador:** `ezreview` abre la página con herramientas de anotación, permitiéndole adjuntar comentarios a encabezados, párrafos o elementos de interfaz específicos.
 3. **Actualización automatizada:** AIPilot aplica sus comentarios directamente al código fuente Markdown, responde a las anotaciones y recarga la vista previa HTML para otra ronda de revisión.
 4. **Aprobación y limpieza:** El ciclo se repite hasta que otorgue la aprobación final. Markdown sigue siendo la única fuente de verdad: los archivos HTML temporales se eliminan del borrador de la sesión al cerrar la revisión (o se conservan si se requieren como entregables de diseño visual).
@@ -155,9 +175,10 @@ El inicio en frío crea `work-items/`, `work-items/merged/` y `design-assets/`. 
 
 ## Software de terceros
 
-AIPilot incluye dos componentes con licencia MIT para la revisión fuera de línea de documentos:
+AIPilot incluye tres componentes con licencia MIT para la revisión fuera de línea de documentos:
 
 - [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` abre HTML revisable y devuelve anotaciones ancladas a elementos
 - [marked](https://github.com/markedjs/marked) `18.0.6` renderiza Markdown sin descargas en tiempo de ejecución
+- [mermaid](https://github.com/mermaid-js/mermaid) `11.17.2` dibuja los diagramas de los documentos revisados
 
 Consulte [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) para obtener detalles sobre el código fuente y las licencias.

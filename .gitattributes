@@ -1,0 +1,13 @@
+# LF in every checkout, so a Windows clone with core.autocrlf=true passes the same checks as CI.
+* text=auto eol=lf
+
+# Vendored files stay byte for byte as published; their sha256 is recorded, and the ezreview LICENSE uses CRLF.
+# The CI whitespace check skips them for the same reason.
+/skills/workflow-orchestrator/vendor/** -text -whitespace
+
+# Development-only files stay out of `git archive` release packages.
+/.github export-ignore
+/scripts export-ignore
+/tests export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
