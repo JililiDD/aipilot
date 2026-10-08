@@ -43,7 +43,7 @@ Done when: <...>
 - Task 2.1 needs new implementation because <why reuse is insufficient>.
 
 ### Non-Goals
-- **NG-n (Concept Anchor):** <work this change deliberately does not do, such as a deferred refactor>
+- <work this change deliberately does not do, such as a deferred refactor>
 
 ### Exit Criteria (work-item convergence)
 - All stories are Done, and the full test tier passes in a fresh run: <build of each touched module>
@@ -69,7 +69,7 @@ Notes on the parts:
 - In Strengths and Weaknesses, name the ranking criterion, such as reuse, blast radius, or consistency. For a dropped candidate, the Result names the gate that it failed or the criterion that it lost on.
 - Number the premises across the whole Plan: P1, P2, and so on. An Approach Challenge cites these premises.
 - Reuse Notes record only what the stories reuse. Where reuse is not enough, they say why a story needs new code.
-- Non-Goals here are implementation exclusions only. Product non-goals live in the Requirement, as its Out of scope list. Number these from NG-1. Leave the section out when there are none.
+- Non-Goals here are implementation exclusions only. Product non-goals live in the Requirement, as its Out of scope list. Write plain bullets without IDs, like the Requirement's Out of scope list. Leave the section out when there are none.
 - Stop Conditions keep the four general lines. After them, add the stops that are specific to this change. Never write a premise as a Stop Condition. When a premise fails, `dev-builder` raises an Approach Challenge, and an arbiter rules on it.
 - When you know a risk at planning time, give it a task or a `— Verify:` that catches it. Cite the AC-n or D-n that the check protects. If no test can check a constraint, write it as a Stop Condition or a Non-Goal.
 

@@ -163,12 +163,12 @@ Complete the remaining merge-back steps of each such item first.
   - every label is in double quotes. It holds no `"`, `<`, `>`, `|`, or backtick. Write `List<T>` as `List of T`.
 
   After you write or change a diagram, run `node <workflow-orchestrator>/scripts/check-mermaid.js <doc.md>`. `<workflow-orchestrator>` is the `workflow-orchestrator` skill directory. Fix every reported line, and run the check again until it passes.
-- **IDs**: itemized lists use `- **<ID> (Concept Anchor):** ...` with sequential IDs. The ID prefixes are:
+- **IDs**: numbered itemized lists use `- **<ID> (Concept Anchor):** ...` with sequential IDs. Scope lists and Plan Non-Goals use plain bullets without IDs. The ID prefixes are:
   - `AC-n`: requirement acceptance criteria. Older documents number them `R-n`, and those IDs stay valid. An older document keeps `R-n` for its new criteria too;
   - `D-n`: design acceptance criteria;
   - `A-n`: assumptions;
   - `Q-n`: open questions, followed by `[risk: blocks implementation / risks rework / cosmetic]`;
-  - `NG-n`: implementation non-goals in the Plan. Older documents also number the product non-goals of the Requirement;
+  - `NG-n`: non-goals in older documents, including Plan implementation exclusions and Requirement product exclusions. Preserve existing IDs, but do not assign new ones;
   - `EC-n`: edge cases, only in older documents. A new document writes each edge case as an acceptance criterion.
 
   Preserve existing IDs during revisions, and never renumber an item already referenced downstream. For a new item, assign the next unused number.

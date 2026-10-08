@@ -245,21 +245,21 @@ test('an ID and its concept anchor read as one chip colored by type, and referen
     '- **EC-1 (Disconnect):** Reconnect within 5 seconds.', '',
   ].join('\n'));
 
-  assert.ok(content.includes('<td class="idc"><span class="idchip t-r"><span class="id-k">R-1</span> <span class="id-n">(ETF Files)</span></span></td>'));
+  assert.ok(content.includes('<li id="R-1" data-id="R-1" data-name="ETF Files"><span class="idchip t-r"><span class="id-k">R-1</span> <span class="id-n">(ETF Files)</span></span><div class="criterion-body">'));
   // The EARS keywords are markup, not escaped text: raw HTML escaping must not catch the renderer's own spans.
-  assert.ok(content.includes('<td class="cond"><span class="kw">When</span> the switch is on,</td>'));
-  assert.ok(content.includes('the system <span class="shall">shall</span> write the ETF files.'));
+  assert.ok(content.includes('<div class="criterion-body"><span class="kw">When</span> the switch is on, the system <span class="shall">shall</span> write the ETF files.</div>'));
   assert.ok(!content.includes('&lt;span'));
-  assert.ok(content.includes('<th>Criterion</th><th>Condition</th><th>System response</th>'), 'the ID and its name share one column');
+  assert.ok(content.includes('<ul class="criteria wide">'), 'the title and complete sentence occupy consecutive lines, not table columns');
+  assert.doesNotMatch(content, /<th>Condition<\/th>|<th>System response<\/th>/);
   for (const [type, id, name] of [['a', 'A-1', 'Consumer Scope'], ['q', 'Q-1', 'Rate Limit'], ['ng', 'NG-1', 'Mobile'], ['ec', 'EC-1', 'Disconnect']]) {
     assert.ok(content.includes(`<span class="idchip t-${type}"><span class="id-k">${id}</span> <span class="id-n">(${name})</span></span>`), id);
   }
   assert.ok(content.includes('<a class="ref t-r" href="#R-1">R-1</a>'));
 });
 
-test('AC-n criteria render like R-n: one EARS table, the requirement color, and links, never an issue link', () => {
+test('AC-n criteria render like R-n: one EARS list, the requirement color, and links, never an issue link', () => {
   // New documents number requirement criteria AC-n to match their heading, and older documents keep R-n.
-  // An AC criterion that fell out of the EARS table, or linked out as an issue key, would break the review.
+  // An AC criterion that fell out of the EARS list, or linked out as an issue key, would break the review.
   const content = render([
     '# Work-item', '', '## Requirement', '',
     '### Acceptance Criteria', '',
@@ -270,14 +270,66 @@ test('AC-n criteria render like R-n: one EARS table, the requirement color, and 
     '- [ ] Task 1.1: Add the switch. — Verify: A unit test covers AC-2.', '',
   ].join('\n'), ['--issue-url', 'https://tracker.example/browse/', '--issue-projects', 'AC,BTE']);
 
-  assert.ok(content.includes('<th>Criterion</th><th>Condition</th><th>System response</th>'));
-  assert.ok(content.includes('<tr id="AC-1" data-id="AC-1" data-name="ETF Files"><td class="idc"><span class="idchip t-ac"><span class="id-k">AC-1</span>'));
-  assert.ok(content.includes('<tr id="AC-2"'), 'every AC item stays in the one EARS table');
+  assert.ok(content.includes('<ul class="criteria wide">'));
+  assert.ok(content.includes('<li id="AC-1" data-id="AC-1" data-name="ETF Files"><span class="idchip t-ac"><span class="id-k">AC-1</span>'));
+  assert.ok(content.includes('<li id="AC-2"'), 'every AC item stays in the one EARS list');
+  assert.ok(content.includes('<div class="criterion-body">The system <span class="shall">shall</span> keep the switch off by default.</div>'));
   assert.ok(content.includes('<a class="ref t-ac" href="#AC-1">AC-1</a>'));
   assert.ok(content.includes('<a class="ref t-ac" href="#AC-2">AC-2</a>'));
   assert.ok(!content.includes('tracker.example'), 'an AC ID is local, even when a tracker project is named AC');
   const template = fs.readFileSync(templatePath, 'utf8');
   assert.ok(template.includes('.t-ac, .t-r { --t: var(--r); }'), 'AC-n takes the requirement color');
+  assert.ok(template.includes('t.querySelector(".criterion-body").textContent'), 'reference previews still show the complete criterion');
+  assert.ok(template.includes('count("ul.criteria > li")'), 'rail criteria count follows the new structure');
+});
+
+test('condition, unwanted event, and action-only criteria keep their original wording on one line', () => {
+  const content = render(`# Review
+
+## Requirement
+
+### Acceptance Criteria
+
+- **AC-1 (While Ready):** While connected, the system shall show the status.
+- **AC-2 (On Failure):** If the request fails, then the system shall show an error.
+- **AC-3 (Default):** The system shall start offline.
+`);
+
+  assert.ok(content.includes('<span class="kw">While</span> connected, the system <span class="shall">shall</span> show the status.'));
+  assert.ok(content.includes('<span class="kw">If</span> the request fails, <span class="kw">then</span> the system <span class="shall">shall</span> show an error.'));
+  assert.ok(content.includes('<div class="criterion-body">The system <span class="shall">shall</span> start offline.</div>'));
+  assert.strictEqual((content.match(/class="criterion-body"/g) || []).length, 3);
+  assertWellNested(content);
+});
+
+test('Plan Non-Goals show plain bullets like Requirement Out of scope, while older NG IDs remain readable', () => {
+  const content = render(`# Review
+
+## Requirement
+
+### Scope
+
+#### Out of scope
+
+- No mobile app.
+
+## Plan
+
+### Non-Goals
+
+- No migration.
+- No separate admin panel.
+`);
+
+  assert.ok(content.includes('<ul class="notes non-goals">\n<li>No migration.</li>\n<li>No separate admin panel.</li>'));
+  assert.doesNotMatch(content, /data-id="NG-|class="idchip t-ng"/);
+  const template = fs.readFileSync(templatePath, 'utf8');
+  assert.ok(template.includes('count("ul.non-goals > li")'), 'rail count includes unnumbered non-goals');
+  assertWellNested(content);
+
+  const legacy = render('# Review\n\n## Plan\n\n### Non-Goals\n\n- **NG-1 (Migration):** No migration.\n');
+  assert.ok(legacy.includes('<li id="NG-1" data-id="NG-1" data-name="Migration">'));
+  assert.ok(legacy.includes('<span class="idchip t-ng">'));
 });
 
 test('an item without a concept anchor still gets its chip, and bold prose stays plain', () => {

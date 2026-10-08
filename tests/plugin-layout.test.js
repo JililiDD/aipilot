@@ -1126,10 +1126,14 @@ test('a work-item has one fixed structure, with no empty or duplicate subsection
   // The Quick Overview already holds the summary, and scope, non-goals, and out-of-scope said the same thing.
   assert.ok(productSpecBuilder.includes('The Quick Overview holds the summary, so the Requirement has no Summary.'));
   assert.ok(productSpecBuilder.includes('2. **Scope**: an `#### In scope` list and an `#### Out of scope` list.'));
-  // Out of scope reads like In scope: plain bullets. NG-n numbers only the Plan's implementation non-goals.
+  // Both product exclusions and Plan implementation exclusions use plain bullets; legacy NG-n IDs stay valid.
   assert.ok(productSpecBuilder.includes('Write both as plain bullets, with no IDs.'));
   assert.ok(!productSpecBuilder.includes('**Non-Goals** (`NG-n`)'));
-  assert.ok(constitution.includes('`NG-n`: implementation non-goals in the Plan.'));
+  assert.ok(constitution.includes('Scope lists and Plan Non-Goals use plain bullets without IDs.'));
+  assert.ok(constitution.includes('`NG-n`: non-goals in older documents'));
+  const planTemplate = read('skills/dev-plan-builder/references/plan-section-template.md');
+  assert.ok(planTemplate.includes('Write plain bullets without IDs, like the Requirement\'s Out of scope list.'));
+  assert.ok(!planTemplate.includes('**NG-n (Concept Anchor):**'));
   // Functional requirements restated the criteria and drifted from them; plans and reviews cite only AC-n.
   assert.ok(!productSpecBuilder.includes('Functional Requirements'));
   assert.ok(!productSpecBuilder.includes('Implementation Notes'));

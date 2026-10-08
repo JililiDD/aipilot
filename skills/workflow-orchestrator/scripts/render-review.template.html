@@ -147,15 +147,14 @@ details.source pre code { color: var(--ink-2); background: none; border: 0; padd
 .compare td.changed { color: var(--accent-ink); font-weight: 600; background: color-mix(in srgb, var(--accent-soft) 70%, transparent); }
 .compare td.same { color: var(--muted); }
 
-/* EARS table */
-.ears td { font-size: 15.5px; }
-.ears th { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; }
-.ears td.idc { width: 27%; }
-.ears td.cond { width: 32%; color: var(--ink-2); }
-.ears td.resp { color: var(--ink); }
-.ears tr:hover td { background: color-mix(in srgb, var(--sunk) 60%, transparent); }
+/* EARS criteria keep the bordered paper surface and colored ID chips, without splitting the sentence. */
+ul.criteria { list-style: none; margin: 0 0 22px; padding: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+ul.criteria > li { margin: 0; padding: 13px 18px; font-size: 15.5px; line-height: 1.55; }
+ul.criteria > li + li { border-top: 1px solid var(--line); }
+ul.criteria > li:hover { background: color-mix(in srgb, var(--sunk) 60%, transparent); }
+.criteria .criterion-body { margin-top: 6px; color: var(--ink); }
 .kw { font-weight: 650; color: var(--accent-ink); }
-.ears .shall { font-weight: 650; }
+.criteria .shall { font-weight: 650; }
 
 /* ---------------- ID badges and definition lists ---------------- */
 .id { display: inline-block; font: 500 12.5px/1.6 "JetBrains Mono", monospace; color: var(--t, var(--r)); background: color-mix(in srgb, var(--t, var(--r)) 11%, transparent); padding: 0 7px; border-radius: 6px; letter-spacing: -.01em; }
@@ -266,12 +265,7 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   figure.diagram svg { min-width: 600px; margin: 0; }
   .lead { font-size: 18.5px; }
   h2 { font-size: 25px; }
-  .ears thead { display: none; }
-  .ears tr { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
-  .ears tr:last-child { border-bottom: 0; }
-  .ears td { display: block; padding: 0; border: 0; width: auto !important; }
-  .ears td.cond, .ears td.resp { grid-column: 1 / -1; }
-  .ears td.cond:empty { display: none; }
+  ul.criteria > li { padding: 12px 16px; }
   .compare thead { display: none; }
   .compare tr { display: grid; grid-template-columns: 1fr 1fr; padding: 10px 14px; border-bottom: 1px solid var(--line); }
   .compare td { padding: 3px 0; border: 0; width: auto !important; }
@@ -288,7 +282,7 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   .shell { display: block; }
   main { padding: 0; }
   details.source { display: none; }
-  .story, .table-card, figure.diagram, li.approach, ul.focus > li { break-inside: avoid; }
+  .story, .table-card, ul.criteria > li, figure.diagram, li.approach, ul.focus > li { break-inside: avoid; }
 }
 </style>
 </head>
@@ -334,7 +328,7 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   var owner = null;
   function hide() { pop.classList.remove("on"); owner = null; }
   function bodyOf(t) {
-    if (t.tagName === "TR") return t.querySelector(".cond").textContent + " " + t.querySelector(".resp").textContent;
+    if (t.matches("ul.criteria > li")) return t.querySelector(".criterion-body").textContent;
     if (t.matches(".premise")) return t.textContent.replace(/^\(P\d\)\s*/, "");
     if (t.tagName === "H3") return "";
     if (t.matches("[id^='task-']")) return t.querySelector(".task-do").textContent;
@@ -411,7 +405,7 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   /* ---------- rail ---------- */
   var count = function (sel) { return doc.querySelectorAll(sel).length; };
   var glance = el("div", "glance");
-  [[count("tr[data-id^='R-']"), "criteria"], [count("[data-id^='NG-']"), "non-goals"],
+  [[count("ul.criteria > li"), "criteria"], [count("ul.non-goals > li") || count("[data-id^='NG-']"), "non-goals"],
    [count("[data-id^='EC-']"), "edge cases"], [count("[data-id^='A-']"), "assumptions"],
    [count(".story"), "stories"], [count("ul.tasks > li"), "tasks"]].forEach(function (g) {
     if (!g[0]) return;

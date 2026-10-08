@@ -84,7 +84,6 @@ const LOCAL_PREFIXES = new Set(['AC', 'R', 'D', 'NG', 'EC', 'A', 'Q']);
 const ID_ITEM = /^\*\*([A-Z]{1,3})-(\d+)(?: \(([^)]*)\))?:\*\*\s*([\s\S]*)$/;
 const TASK = /^Task (\d+)\.(\d+):\s*([\s\S]*)$/;
 const STORY = /^(User Story|Task Group|Story) (\d+):\s*([\s\S]*?)(?:\s+\((AC:[^)]*)\))?(\s+\[[^\]]*\])?\s*$/;
-const EARS = /^((?:When|While|If|Where)\b[\s\S]*?,)\s+((?:then\s+)?the system shall\b[\s\S]*)$/;
 const FIELD_LINE = /^[A-Z][^:\n`]{0,40}:\s+\S/;
 const PREMISE = /^\((P\d+)\)\s+([\s\S]*)$/;
 const TERM_SECTIONS = new Set(['existing context', 'scope']);
@@ -174,19 +173,15 @@ function idDefinition(prefix, number, name, text, blocks) {
     + `${idChip(prefix, id, name)}<div class="def-body">${inline(text)}${blocks ? `\n${blocks}` : ''}</div></li>`;
 }
 
-function earsRow(prefix, number, name, text, blocks) {
+function criterionItem(prefix, number, name, text, blocks) {
   const id = `${prefix}-${number}`;
-  const split = text.match(EARS);
-  const condition = split ? split[1] : '';
-  const response = split ? split[2] : text;
-  // Mark the EARS keywords after the markdown renders: raw HTML in the source is escaped, so markup added before would show as text.
-  const conditionHtml = condition ? inline(condition).replace(/^(When|While|If|Where)\b/, '<span class="kw">$1</span>') : '';
-  const responseHtml = inline(response).replace(/^then\b/, '<span class="kw">then</span>')
+  // Highlight EARS words after markdown renders, while keeping the entire criterion together and verbatim.
+  const body = inline(text).replace(/^(When|While|If|Where)\b/, '<span class="kw">$1</span>')
+    .replace(/\bthen\b(?=\s+the system shall)/, '<span class="kw">then</span>')
     .replace(/\b([Tt]he system) shall\b/, '$1 <span class="shall">shall</span>');
-  return `<tr id="${id}" data-id="${id}" data-name="${escapeHtml(plain(name || id))}">`
-    + `<td class="idc">${idChip(prefix, id, name)}</td>`
-    + `<td class="cond">${conditionHtml}</td>`
-    + `<td class="resp">${responseHtml}${blocks ? `\n${blocks}` : ''}</td></tr>`;
+  return `<li id="${id}" data-id="${id}" data-name="${escapeHtml(plain(name || id))}">`
+    + `${idChip(prefix, id, name)}`
+    + `<div class="criterion-body">${body}${blocks ? `\n${blocks}` : ''}</div></li>`;
 }
 
 function taskItem(item) {
@@ -329,8 +324,8 @@ function renderList(token, context) {
   if (ids.length && ids.every(Boolean)) {
     const prefixes = new Set(ids.map((id) => id[1]));
     if ([...prefixes].every((prefix) => ['AC', 'R', 'D'].includes(prefix))) {
-      const rows = ids.map((id, k) => earsRow(id[1], id[2], id[3], id[4], parts[k].blocks)).join('\n');
-      return `<div class="table-card ears wide">\n<table>\n<thead data-chrome><tr><th>Criterion</th><th>Condition</th><th>System response</th></tr></thead>\n<tbody>\n${rows}\n</tbody>\n</table>\n</div>${doneHtml}`;
+      const rows = ids.map((id, k) => criterionItem(id[1], id[2], id[3], id[4], parts[k].blocks)).join('\n');
+      return `<ul class="criteria wide">\n${rows}\n</ul>${doneHtml}`;
     }
     const assume = prefixes.size === 1 && prefixes.has('A');
     return `<ul class="defs${assume ? ' assume' : ''}">\n${ids.map((id, k) => idDefinition(id[1], id[2], id[3], id[4], parts[k].blocks)).join('\n')}\n</ul>${doneHtml}`;
@@ -356,7 +351,7 @@ function renderList(token, context) {
     if (TERM_SECTIONS.has(context.h3)) html = html.replace(/<strong>/g, '<strong class="term">');
     return `<li>${html}</li>`;
   });
-  return `<ul class="notes">\n${rendered.join('\n')}\n</ul>${doneHtml}`;
+  return `<ul class="notes${context.h2 === 'plan' && context.h3 === 'non-goals' ? ' non-goals' : ''}">\n${rendered.join('\n')}\n</ul>${doneHtml}`;
 }
 
 function renderParagraph(token, context) {

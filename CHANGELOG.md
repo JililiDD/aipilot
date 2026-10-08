@@ -3,6 +3,17 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [2.1.0] - 2026-10-08
+
+### Changed
+
+- Acceptance criteria in the review page display the colored ID and concept anchor on their own line. The complete EARS condition and system response follow together, without table columns. Action-only criteria remain readable.
+- New Plan Non-Goals use plain bullets without IDs, matching the Requirement's Out of scope list. Older `NG-n` items retain their IDs and still render.
+
+### Fixed
+
+- The review page's criteria and non-goal counts include the new layouts. Criterion reference previews still show the full criterion.
+
 ## [2.0.0] - 2026-10-07
 
 ### Upgrade notes
@@ -113,6 +124,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[2.1.0]: https://github.com/JililiDD/aipilot/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/JililiDD/aipilot/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/JililiDD/aipilot/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/JililiDD/aipilot/compare/v1.1.1...v1.1.2
@@ -121,3 +133,4 @@ Versioning.
 [1.0.0]: https://github.com/JililiDD/aipilot/releases/tag/v1.0.0
 
 RELEASE 2.0.0 — 2026-10-08T09:19:57
+RELEASE 2.1.0 — 2026-10-08T11:13:00

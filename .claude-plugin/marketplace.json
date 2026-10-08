@@ -9,7 +9,7 @@
       "name": "aipilot",
       "source": "./",
       "description": "Document-driven, stage-gated product development workflow skills for specs, planning, implementation, review, and release.",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "JililiDD"
       },
