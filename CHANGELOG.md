@@ -3,6 +3,13 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [2.1.1] - 2026-10-12
+
+### Fixed
+
+- Highlight the selected solution in green regardless of whether the user or the agent chose it. Unselected recommendations remain unhighlighted.
+- Keep the Plan template's selected-result label consistent, and recognize existing user-selection labels in review tables.
+
 ## [2.1.0] - 2026-10-08
 
 ### Changed
@@ -124,6 +131,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[2.1.1]: https://github.com/JililiDD/aipilot/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/JililiDD/aipilot/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/JililiDD/aipilot/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/JililiDD/aipilot/compare/v1.1.2...v1.2.0
@@ -134,3 +142,4 @@ Versioning.
 
 RELEASE 2.0.0 — 2026-10-08T09:19:57
 RELEASE 2.1.0 — 2026-10-08T11:13:00
+RELEASE 2.1.1 — 2026-10-12T14:41:51

@@ -256,6 +256,7 @@ function renderTable(token) {
   const beforeColumn = header.findIndex((text) => /^before$/i.test(plain(text)));
   const afterColumn = header.findIndex((text) => /^after\b/i.test(plain(text)));
   const compare = beforeColumn >= 0 && afterColumn >= 0;
+  const decisionColumn = header.findIndex((text) => /^(?:result|decision|selection|status)$/i.test(plain(text)));
   const align = (index) => (token.align[index] ? ` style="text-align:${token.align[index]}"` : '');
   const head = header.map((text, index) => `<th${align(index)}>${inline(text)}</th>`).join('');
   const body = token.rows.map((row) => {
@@ -267,8 +268,9 @@ function renderTable(token) {
       }
       return `<td${className ? ` class="${className}"` : ''}${align(index)}>${inline(cell.text)}</td>`;
     });
-    // The chosen candidate of an Approach Decisions table stands out from the dropped ones.
-    const chosen = row.some((cell) => /^chosen$/i.test(plain(cell.text)));
+    // Only an explicit selection in the outcome column gets the green treatment, regardless of who chose it.
+    const outcome = decisionColumn < 0 ? '' : plain(row[decisionColumn].text);
+    const chosen = /^(?:chosen|selected)(?:\s+(?:by\s+)?(?:the\s+)?(?:user|ai)|\s*\((?:by\s+)?(?:the\s+)?(?:user|ai)(?:[ -]selected)?\))?$|^(?:user|ai)[ -](?:selected|chosen)$/i.test(outcome);
     return `<tr${chosen ? ' class="chosen"' : ''}>${cells.join('')}</tr>`;
   }).join('\n');
   return `<div class="table-card wide${compare ? ' compare' : ''}">\n<table>\n<thead><tr>${head}</tr></thead>\n<tbody>\n${body}\n</tbody>\n</table>\n</div>`;

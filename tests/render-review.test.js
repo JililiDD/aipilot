@@ -388,6 +388,32 @@ test('each approach decision is one card that holds its heading, table, and prem
   assertWellNested(content);
 });
 
+test('the selected solution is highlighted whether the AI or the user chose it', () => {
+  const content = render([
+    '# Work-item', '', '## Plan', '', '### Approach Decisions', '',
+    '#### Delivery method', '',
+    '| Candidate | Result |', '|---|---|',
+    '| Fast path | Recommended |',
+    '| User path | **Selected by user** |',
+    '| AI path | **Chosen** |',
+    '| Alternate path | User-selected |',
+    '| Confirmed path | Chosen (by user) |',
+    '| Declined path | Not selected |',
+    '| Selected as a name | Dropped |',
+    '| Chosen | Dropped |', '',
+  ].join('\n'));
+
+  const rows = [...content.matchAll(/<tr( class="chosen")?><td>([^<]*)<\/td>/g)]
+    .map((match) => `${match[2]}:${Boolean(match[1])}`);
+  assert.deepStrictEqual(rows, [
+    'Fast path:false', 'User path:true', 'AI path:true', 'Alternate path:true',
+    'Confirmed path:true', 'Declined path:false', 'Selected as a name:false', 'Chosen:false',
+  ]);
+  assertWellNested(content);
+  const template = fs.readFileSync(templatePath, 'utf8');
+  assert.ok(template.includes('.table-card tr.chosen td { background: var(--ok-soft); }'));
+});
+
 test('an older plan keeps its premises from an Approach line in Reuse Notes', () => {
   // Merged work-items stay as written, so the old format must still render its premises.
   const content = render([
