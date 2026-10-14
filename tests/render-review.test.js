@@ -382,36 +382,65 @@ test('each approach decision is one card that holds its heading, table, and prem
   assert.ok(cards[0].includes('<p class="premises-label">Premises:</p>'));
   assert.ok(cards[0].includes('<li class="premise" id="P1" data-id="P1" data-name="Premise"><span class="pid">(P1)</span> A value change needs no code change.</li>'));
   assert.ok(cards[1].includes('id="P2"') && !cards[1].includes('id="P1"'));
-  // Only the row whose Result says Chosen is marked, not a row whose name merely starts with "Chosen".
+  // The first row of an Approach Decisions table is the chosen candidate.
   const rows = [...cards[0].matchAll(/<tr( class="chosen")?><td>([^<]*)</g)].map((match) => `${match[2]}:${Boolean(match[1])}`);
   assert.deepStrictEqual(rows, ['Country list:true', 'Chosen-name job:false']);
   assertWellNested(content);
 });
 
-test('the selected solution is highlighted whether the AI or the user chose it', () => {
+test('the first row of every Approach Decisions table is green, whoever chose it and however the Result is worded', () => {
+  const table = (result) => [
+    '| Candidate | Result |', '|---|---|',
+    `| Chosen path | ${result} |`,
+    '| Dropped path | Dropped: loses on reuse |',
+    '| Recommended path | Recommended |', '',
+  ];
   const content = render([
     '# Work-item', '', '## Plan', '', '### Approach Decisions', '',
-    '#### Delivery method', '',
-    '| Candidate | Result |', '|---|---|',
-    '| Fast path | Recommended |',
-    '| User path | **Selected by user** |',
-    '| AI path | **Chosen** |',
-    '| Alternate path | User-selected |',
-    '| Confirmed path | Chosen (by user) |',
-    '| Declined path | Not selected |',
-    '| Selected as a name | Dropped |',
-    '| Chosen | Dropped |', '',
+    '#### AI chose', '', ...table('**Chosen**'),
+    '#### User chose', '', ...table('Chosen by user'),
+    '#### Odd wording', '', ...table('Chosen for the probe'),
+    '#### No marker at all', '', ...table('Selected (recommended)'),
   ].join('\n'));
 
-  const rows = [...content.matchAll(/<tr( class="chosen")?><td>([^<]*)<\/td>/g)]
+  const rows = [...content.matchAll(/<tr( class="chosen")?><td[^>]*>([^<]*)<\/td>/g)]
     .map((match) => `${match[2]}:${Boolean(match[1])}`);
-  assert.deepStrictEqual(rows, [
-    'Fast path:false', 'User path:true', 'AI path:true', 'Alternate path:true',
-    'Confirmed path:true', 'Declined path:false', 'Selected as a name:false', 'Chosen:false',
-  ]);
+  const decision = ['Chosen path:true', 'Dropped path:false', 'Recommended path:false'];
+  assert.deepStrictEqual(rows, [...decision, ...decision, ...decision, ...decision]);
   assertWellNested(content);
   const template = fs.readFileSync(templatePath, 'utf8');
   assert.ok(template.includes('.table-card tr.chosen td { background: var(--ok-soft); }'));
+});
+
+test('a table outside Approach Decisions is marked only by a cell that says exactly Chosen', () => {
+  const content = render([
+    '# Work-item', '', '## Requirement', '',
+    '| Option | Result |', '|---|---|', '| First | Dropped |', '| Second | Chosen |', '| Third | Chosen later |', '',
+  ].join('\n'));
+  const rows = [...content.matchAll(/<tr( class="chosen")?><td>([^<]*)<\/td>/g)]
+    .map((match) => `${match[2]}:${Boolean(match[1])}`);
+  assert.deepStrictEqual(rows, ['First:false', 'Second:true', 'Third:false']);
+});
+
+test('a table whose separator row has the wrong column count still renders, with its first row green', () => {
+  const content = render([
+    '# Work-item', '', '## Plan', '', '### Approach Decisions', '',
+    '#### Host proof', '',
+    '| Candidate | How it works | Result |', '|---|---|---|---|',
+    '| Real host | Scripted providers. | Chosen |',
+    '| Mock SDK | Test doubles. | Dropped: cannot prove ordering |', '',
+    '#### Short separator', '',
+    '| Candidate | How it works | Result |', '|:---|---|',
+    '| Native seam | Virtual model. | Chosen for the probe |', '',
+    '```', '| a | b |', '|---|---|---|', '```', '',
+  ].join('\n'));
+
+  const rows = [...content.matchAll(/<tr( class="chosen")?><td[^>]*>([^<]*)<\/td>/g)]
+    .map((match) => `${match[2]}:${Boolean(match[1])}`);
+  assert.deepStrictEqual(rows, ['Real host:true', 'Mock SDK:false', 'Native seam:true']);
+  assert.ok(!content.includes('<p>| Candidate'), 'no table may fall back to raw pipe text');
+  assert.ok(content.includes('|---|---|---|'), 'a code block keeps its text unchanged');
+  assertWellNested(content);
 });
 
 test('an older plan keeps its premises from an Approach line in Reuse Notes', () => {

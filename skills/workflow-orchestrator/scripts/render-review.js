@@ -77,6 +77,30 @@ if (fence) {
   }
   source = source.slice(fence[0].length);
 }
+// GFM drops a table whose separator row has a different cell count than its header, and the whole table
+// then shows as raw pipe text. Repair that row outside code fences so every table still renders.
+function repairTableSeparators(markdown) {
+  const cellsOf = (row) => row.trim().replace(/^\|/, '').replace(/(?<!\\)\|$/, '').split(/(?<!\\)\|/);
+  const lines = markdown.split('\n');
+  let fenceMarker = '';
+  for (let i = 0; i < lines.length; i++) {
+    const marker = lines[i].match(/^ {0,3}(`{3,}|~{3,})/);
+    if (marker) {
+      if (!fenceMarker) fenceMarker = marker[1][0];
+      else if (marker[1][0] === fenceMarker) fenceMarker = '';
+      continue;
+    }
+    if (fenceMarker || i === 0 || !lines[i].includes('|') || !lines[i - 1].includes('|')) continue;
+    if (!/^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(lines[i])) continue;
+    const headerCount = cellsOf(lines[i - 1]).length;
+    const separator = cellsOf(lines[i]).map((cell) => cell.trim());
+    if (separator.length === headerCount) continue;
+    while (separator.length < headerCount) separator.push('---');
+    lines[i] = `| ${separator.slice(0, headerCount).join(' | ')} |`;
+  }
+  return lines.join('\n');
+}
+source = repairTableSeparators(source);
 const tokens = marked.lexer(source, { gfm: true });
 
 // ---------- shared helpers ----------
@@ -251,15 +275,14 @@ function tiers(value) {
   }).join('\n');
 }
 
-function renderTable(token) {
+function renderTable(token, context) {
   const header = token.header.map((cell) => cell.text);
   const beforeColumn = header.findIndex((text) => /^before$/i.test(plain(text)));
   const afterColumn = header.findIndex((text) => /^after\b/i.test(plain(text)));
   const compare = beforeColumn >= 0 && afterColumn >= 0;
-  const decisionColumn = header.findIndex((text) => /^(?:result|decision|selection|status)$/i.test(plain(text)));
   const align = (index) => (token.align[index] ? ` style="text-align:${token.align[index]}"` : '');
   const head = header.map((text, index) => `<th${align(index)}>${inline(text)}</th>`).join('');
-  const body = token.rows.map((row) => {
+  const body = token.rows.map((row, rowIndex) => {
     const cells = row.map((cell, index) => {
       let className = '';
       if (compare && index === afterColumn) {
@@ -268,9 +291,11 @@ function renderTable(token) {
       }
       return `<td${className ? ` class="${className}"` : ''}${align(index)}>${inline(cell.text)}</td>`;
     });
-    // Only an explicit selection in the outcome column gets the green treatment, regardless of who chose it.
-    const outcome = decisionColumn < 0 ? '' : plain(row[decisionColumn].text);
-    const chosen = /^(?:chosen|selected)(?:\s+(?:by\s+)?(?:the\s+)?(?:user|ai)|\s*\((?:by\s+)?(?:the\s+)?(?:user|ai)(?:[ -]selected)?\))?$|^(?:user|ai)[ -](?:selected|chosen)$/i.test(outcome);
+    // An Approach Decisions table lists its chosen candidate first, and that row is always green, whoever
+    // chose it. Elsewhere only a cell that says exactly "Chosen" marks a row.
+    const chosen = context.h3 === 'approach decisions'
+      ? rowIndex === 0
+      : row.some((cell) => /^chosen$/i.test(plain(cell.text)));
     return `<tr${chosen ? ' class="chosen"' : ''}>${cells.join('')}</tr>`;
   }).join('\n');
   return `<div class="table-card wide${compare ? ' compare' : ''}">\n<table>\n<thead><tr>${head}</tr></thead>\n<tbody>\n${body}\n</tbody>\n</table>\n</div>`;
@@ -373,7 +398,7 @@ function renderBlock(token, context) {
   switch (token.type) {
     case 'paragraph': return renderParagraph(token, context);
     case 'list': return renderList(token, context);
-    case 'table': return renderTable(token);
+    case 'table': return renderTable(token, context);
     case 'code': return renderCode(token);
     case 'hr': return '<hr>';
     case 'html': return `<p>${escapeHtml(token.text.trim())}</p>`;

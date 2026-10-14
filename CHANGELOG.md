@@ -3,6 +3,17 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [2.1.2] - 2026-10-13
+
+### Fixed
+
+- The first row of every Plan Approach Decisions table is now green, because it lists the chosen candidate. Highlighting no longer depends on the wording of the Result cell, so every chosen solution is highlighted whoever chose it.
+- A table whose separator row has a different column count than its header now renders as a table, with its first row green, instead of raw pipe text.
+
+### Changed
+
+- The Plan template says to list the selected candidate first.
+
 ## [2.1.1] - 2026-10-12
 
 ### Fixed
@@ -131,6 +142,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[2.1.2]: https://github.com/JililiDD/aipilot/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/JililiDD/aipilot/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/JililiDD/aipilot/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/JililiDD/aipilot/compare/v1.2.0...v2.0.0
@@ -143,3 +155,4 @@ Versioning.
 RELEASE 2.0.0 — 2026-10-08T09:19:57
 RELEASE 2.1.0 — 2026-10-08T11:13:00
 RELEASE 2.1.1 — 2026-10-12T14:41:51
+RELEASE 2.1.2 — 2026-10-13T23:09:41

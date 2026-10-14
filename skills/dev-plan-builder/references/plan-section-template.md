@@ -67,7 +67,7 @@ Notes on the parts:
 - Give each choice its own `####` heading, table, and premises. The heading names the source IDs, or the Deferred Choices line that handed the choice to the plan.
 - List every candidate that `dev-builder`'s Approach Decision Discipline explored, including each one that a gate dropped. Keep each cell to one short phrase or sentence.
 - In Strengths and Weaknesses, name the ranking criterion, such as reuse, blast radius, or consistency. For a dropped candidate, the Result names the gate that it failed or the criterion that it lost on.
-- Write **Chosen** in the Result cell for the selected candidate, whether the user or the agent chose it. Record who chose it in the decision's explanation, not by replacing the Result label.
+- List the selected candidate first, in the first row of the table, whether the user or the agent chose it. The review page shows that row in green. Write **Chosen** in its Result cell, and record who chose it in the decision's explanation, not by replacing the Result label.
 - Number the premises across the whole Plan: P1, P2, and so on. An Approach Challenge cites these premises.
 - Reuse Notes record only what the stories reuse. Where reuse is not enough, they say why a story needs new code.
 - Non-Goals here are implementation exclusions only. Product non-goals live in the Requirement, as its Out of scope list. Write plain bullets without IDs, like the Requirement's Out of scope list. Leave the section out when there are none.
