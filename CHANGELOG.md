@@ -3,6 +3,12 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [Unreleased]
+
+### Changed
+
+- One-time questions about `architecture.md`, architecture dependency tests, and missing lint or formatter tools now explain that a refusal stops automatic prompts. They also tell users how to request the option later. A direct request to create `architecture.md` runs the baseline pass without asking for confirmation again.
+
 ## [2.2.0] - 2026-10-15
 
 ### Added

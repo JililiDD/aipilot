@@ -40,7 +40,7 @@ Then the input selects the planning mode:
 - A resolved work-item selects **Breakdown Mode**.
 - A project or large feature to sequence, with no single work-item as the target, selects **Roadmap Mode**.
 - An Approach Challenge from `dev-builder` selects **Arbitration Mode**. It always runs in a clean-context sub-agent.
-- A request about the architecture, while `architecture.md` does not exist, first gets the question in `planning-rules.md` User request. A yes to a baseline pass, from that question or from Missing baseline, selects **Architecture Baseline Mode**. Under a Goal Wrap, `references/goal-wrap.md` gives the yes. A no ends the request.
+- If the user explicitly requests a new `architecture.md`, select **Architecture Baseline Mode** without asking again. For a question about the architecture while the file does not exist, ask per `planning-rules.md` User request. A yes there, or in Missing baseline, also selects Architecture Baseline Mode. Under a Goal Wrap, `references/goal-wrap.md` gives the yes. A no ends the request.
 
 For a new requirement where the planning mode is genuinely unclear, apply the Routing Checks in `planning-rules.md`. **On ambiguity, default to Breakdown.** The Valves correct a wrong choice cheaply.
 

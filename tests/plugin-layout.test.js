@@ -1229,6 +1229,23 @@ test('merge-back is committed on the work branch, so one git merge carries the c
   assert.ok(goalWrap.includes('one git merge into mainline at the end (constitution §6)'));
 });
 
+test('one-time architecture and tooling questions explain how to opt in later', () => {
+  const rules = read('skills/dev-plan-builder/references/planning-rules.md');
+  const planner = read('skills/dev-plan-builder/SKILL.md');
+
+  // A refusal used to persist without telling the user how to change their mind.
+  assert.ok(rules.includes('I will not ask again automatically for this project. Ask me later to create `architecture.md`'));
+  assert.ok(rules.includes('I will ask about architecture dependency tests only once per project.'));
+  assert.ok(rules.includes('Ask me later to add them if you change your mind.'));
+  assert.ok(rules.includes('I will ask about this tool only once per project.'));
+  assert.ok(rules.includes('Ask me later to add it if you change your mind.'));
+  assert.ok(rules.includes('Record the answer in `memory/decisions.md`, and do not ask again automatically.'));
+  assert.ok(rules.includes('if the user explicitly asks to create `architecture.md`, run Architecture Baseline Mode without asking again.'));
+  assert.ok(rules.includes('Supersede any recorded refusal through `note-keeper`.'));
+  assert.ok(rules.includes('Honor a later explicit request and supersede a recorded refusal.'));
+  assert.ok(planner.includes('select **Architecture Baseline Mode** without asking again.'));
+});
+
 test('user stories and task groups share one number sequence, so every story and task has one name', () => {
   const planningRules = read('skills/dev-plan-builder/references/planning-rules.md');
 
