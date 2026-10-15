@@ -3,7 +3,7 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
-## [Unreleased]
+## [2.2.1] - 2026-10-15
 
 ### Changed
 
@@ -162,6 +162,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[2.2.1]: https://github.com/JililiDD/aipilot/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/JililiDD/aipilot/compare/v2.1.2...v2.2.0
 [2.1.2]: https://github.com/JililiDD/aipilot/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/JililiDD/aipilot/compare/v2.1.0...v2.1.1
@@ -178,3 +179,4 @@ RELEASE 2.1.0 — 2026-10-08T11:13:00
 RELEASE 2.1.1 — 2026-10-12T14:41:51
 RELEASE 2.1.2 — 2026-10-13T23:09:41
 RELEASE 2.2.0 — 2026-10-15T14:31:22
+RELEASE 2.2.1 — 2026-10-15T16:39:28
