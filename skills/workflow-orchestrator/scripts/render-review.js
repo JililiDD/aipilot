@@ -10,10 +10,13 @@
 const fs = require('fs');
 const path = require('path');
 const { pathToFileURL } = require('url');
+const { loadTypeCatalog } = require('./architecture-types');
 
 const MARKED_PATH = path.resolve(__dirname, '../vendor/marked/marked.esm.mjs');
 const MERMAID_PATH = path.resolve(__dirname, '../vendor/mermaid/mermaid.min.js');
 const TEMPLATE_PATH = path.join(__dirname, 'render-review.template.html');
+// The review page defines this many group colors (--g1 to --g8 in the template).
+const GROUP_COLOR_COUNT = 8;
 
 function fail(message) {
   console.error(`render-review: ${message}`);
@@ -554,15 +557,31 @@ const body = sections.map((section) => {
 const article = `<!-- CONTENT:START -->\n<article class="doc">\n\n${header}\n\n${body}\n\n</article>\n<!-- CONTENT:END -->`;
 
 let mermaidScript = '';
+let typeColors = '';
 if (usesMermaid) {
   if (!fs.existsSync(MERMAID_PATH)) fail(`vendored mermaid not found: ${MERMAID_PATH}`);
   mermaidScript = `<script>${fs.readFileSync(MERMAID_PATH, 'utf8').replace(/<\/script/gi, '<\\/script')}</script>`;
+  // Each node type takes the color of its group (constitution §7, Architecture views). A group past the last color stays neutral.
+  const { groupsByType, groups } = loadTypeCatalog(inputPath);
+  const colorsByType = {};
+  const neutralGroupsByType = {};
+  for (const [type, group] of groupsByType) {
+    const color = groups.indexOf(group) + 1;
+    if (color <= GROUP_COLOR_COUNT) colorsByType[type] = color;
+    else neutralGroupsByType[type] = group;
+  }
+  // The legend names the group of each color.
+  const groupsByColor = {};
+  groups.slice(0, GROUP_COLOR_COUNT).forEach((group, i) => { groupsByColor[i + 1] = group; });
+  const json = JSON.stringify({ colorsByType, neutralGroupsByType, groupsByColor }).replace(/</g, '\\u003c');
+  typeColors = `<script type="application/json" id="type-colors">${json}</script>`;
 }
 const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
 // One pass over the template, so placeholder text inside the document or the library is never replaced.
+const replacementsByPlaceholder = { CONTENT: article, MERMAID: mermaidScript, TYPE_COLORS: typeColors };
 const html = template.split('{{HEAD_TITLE}}').join(escapeHtml(headTitle))
   .split('{{SOURCE_MD}}').join(escapeHtml(sourceMd))
-  .replace(/\{\{(CONTENT|MERMAID)\}\}/g, (match, name) => (name === 'CONTENT' ? article : mermaidScript));
+  .replace(/\{\{(CONTENT|MERMAID|TYPE_COLORS)\}\}/g, (match, name) => replacementsByPlaceholder[name]);
 fs.writeFileSync(outputPath, html);
 console.log(`render-review: wrote ${outputPath} (${html.length} chars, ${sections.length} sections${usesMermaid ? ', mermaid inlined' : ''})`);
 }

@@ -482,11 +482,25 @@ test('a page without a Mermaid block does not carry the 3.5 MB library', () => {
   assert.ok(page.length < 200_000, `page is ${page.length} chars`);
 });
 
+test('architecture type colors include declared groups without losing the local Mermaid renderer', () => {
+  const architecture = path.join(tempDir, 'architecture.md');
+  fs.writeFileSync(architecture, '# Architecture\n\n## Element Types\n| Type | Group | Definition |\n|---|---|---|\n| Gateway | Network | routes calls |\n');
+  const page = renderPage(mermaid('flowchart TD\n  A["Gateway: Edge"] --> B["Service: API"]'));
+  const match = page.match(/<script type="application\/json" id="type-colors">([^<]*)<\/script>/);
+  assert.ok(match, 'type colors are in an inert JSON script');
+  const catalog = JSON.parse(match[1]);
+  assert.strictEqual(catalog.colorsByType.Gateway, 5);
+  assert.strictEqual(catalog.groupsByColor[5], 'Network');
+  assert.strictEqual(catalog.colorsByType.Service, 1);
+  assert.strictEqual(page.split(MERMAID_BUNDLE_HEAD).length - 1, 1);
+});
+
 test('the inlined library cannot end its script element early', () => {
   // An early </script> would print the rest of the library as page text and stop every diagram.
   const page = renderPage(mermaid('flowchart TD\n  A["One"] --> B["Two"]'));
 
-  assert.strictEqual(page.split('</script>').length, page.split(/<script>/).length);
+  assert.strictEqual((page.match(/<script(?:\s[^>]*)?>/g) || []).length, (page.match(/<\/script>/g) || []).length);
+  assert.match(page, /<script type="application\/json" id="type-colors">/);
 });
 
 test('placeholder text in the document stays text, and the library lands only in its own slot', () => {

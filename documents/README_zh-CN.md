@@ -158,6 +158,7 @@ AIPilot 会将解析后的位置写入项目根目录的 `AGENTS.md` 中的 `## 
 docs/aipilot/
 ├── product-spec.md
 ├── design-spec.md
+├── architecture.md       # 绘制第一批架构视图时生成
 ├── dev-phase-plan.md
 ├── memory/               # 记录第一条记忆时生成
 │   ├── decisions.md

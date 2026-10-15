@@ -1,6 +1,6 @@
 ---
 name: dev-plan-builder
-description: Use when a requirement needs an executable development plan — either the phase roadmap of a project or large feature (dev-phase-plan.md), or the story/task breakdown of a specific work-item's Plan section — covering implementation order, reuse, verification, and testing strategy.
+description: Use when a requirement needs an executable development plan — either the phase roadmap of a project or large feature (dev-phase-plan.md), or the story/task breakdown of a specific work-item's Plan section — covering implementation order, reuse, verification, and testing strategy. Also use when architecture.md does not exist and the user asks about the system's architecture or for an architecture document.
 ---
 
 # Dev Plan Builder
@@ -15,20 +15,22 @@ Project paths are relative to the resolved documents root. The constitution path
 - The **target work-item** in the top level of `docs/aipilot/work-items/`. Identify it by the Target Resolution rule (constitution §3). Never guess the target. Its Requirement and Design sections are the authoritative input.
 - `product-spec.md`.
 - `design-spec.md`, when the work has a UI surface.
+- `architecture.md`.
 - `dev-phase-plan.md`.
 - `memory/decisions.md` and `memory/lessons.md` (constitution §2).
 - The existing code, components, tests, dependencies, and conventions that the work touches.
 
 Load these files on demand:
 
-- `references/planning-rules.md`, for routing checks, phase shapes, story and task discipline, Story 0, reuse order, YAGNI, verification, and risk routing.
+- `references/planning-rules.md`, for routing checks, phase shapes, story and task discipline, Story 0, reuse order, YAGNI, architecture views, verification, and risk routing.
 - `references/roadmap-template.md`, when you write `dev-phase-plan.md`.
+- `references/architecture-template.md`, when you write `architecture.md`.
 - `references/plan-section-template.md`, when you write a Plan section.
 - `references/goal-wrap.md`, when goal mode is chosen or a Goal Wrap is running.
 
 ## Mode Selection
 
-**Resolve the requirement source first.** Breakdown Mode consumes a work-item. Roadmap Mode consumes a confirmed `product-spec.md`. If the source is missing, route to `product-spec-builder` and stop. A missing source means that the requirement stage has not happened. Examples of a missing source:
+**Resolve the requirement source first.** Breakdown Mode consumes a work-item. Roadmap Mode consumes a confirmed `product-spec.md`. Architecture Baseline Mode reads the code, so it needs no requirement source. If the source is missing, route to `product-spec-builder` and stop. A missing source means that the requirement stage has not happened. Examples of a missing source:
 
 - "plan feature X", and no work-item for X exists;
 - "plan the project", and no confirmed master spec exists.
@@ -38,6 +40,7 @@ Then the input selects the planning mode:
 - A resolved work-item selects **Breakdown Mode**.
 - A project or large feature to sequence, with no single work-item as the target, selects **Roadmap Mode**.
 - An Approach Challenge from `dev-builder` selects **Arbitration Mode**. It always runs in a clean-context sub-agent.
+- A request about the architecture, while `architecture.md` does not exist, first gets the question in `planning-rules.md` User request. A yes to a baseline pass, from that question or from Missing baseline, selects **Architecture Baseline Mode**. Under a Goal Wrap, `references/goal-wrap.md` gives the yes. A no ends the request.
 
 For a new requirement where the planning mode is genuinely unclear, apply the Routing Checks in `planning-rules.md`. **On ambiguity, default to Breakdown.** The Valves correct a wrong choice cheaply.
 
@@ -45,7 +48,7 @@ State the verdict. Never ask which planning mode to use. Open with "Entering X M
 
 ## Roadmap Mode
 
-Write or update `dev-phase-plan.md` per `references/roadmap-template.md`. Write the map only, with no stories, tasks, or acceptance criteria. That detail lives in each phase's work-item, which is created just in time. Phase shapes and the verification-dependency test are in `planning-rules.md`.
+Write or update `dev-phase-plan.md` per `references/roadmap-template.md`. Write the map only, with no stories, tasks, or acceptance criteria. That detail lives in each phase's work-item, which is created just in time. Phase shapes and the verification-dependency test are in `planning-rules.md`. For a new product, also write `architecture.md` (`planning-rules.md` Architecture Views).
 
 **Phase work-item derivation**: when a phase is next to build, do these steps:
 
@@ -62,6 +65,7 @@ Write or update `dev-phase-plan.md` per `references/roadmap-template.md`. Write 
 Fill the **Plan section** of the target work-item. Follow `references/plan-section-template.md` and the Story and Task Discipline in `planning-rules.md`. This mode produces plans, never code. Write no implementation and no file-by-file checklists, because those belong to `dev-builder`. If the Requirement section is missing or not buildable, route to its owner and stop. Under a Goal Wrap, follow constitution §7 Routing instead. For UI work, apply the same rule to the Design section.
 
 - **Story 0** is required when the change introduces a new page or screen. Its direction source and markers follow `planning-rules.md`.
+- **Architecture subsection** is required when the change alters an architecture view. Its trigger, content, and the missing-baseline steps follow `planning-rules.md` Architecture Views.
 - **Execution granularity default** — ask one structured low-risk question batch before `dev-builder` starts. Record every answer in the Plan. Under execution mode (b), apply the answers from the orchestrator's (b) intake instead. Inside a Goal Wrap, apply the answers it collected up front, and record whole-work-item granularity. The batch has these questions:
   - Granularity. Offer three options:
     - whole work-item, recommended for small bug fixes;
@@ -94,6 +98,21 @@ Rule on one Approach Challenge from `dev-builder`. You run in a clean-context su
 A second ruling judges only the new evidence in the builder's answer.
 
 The main agent applies a Switch in Breakdown Mode. It marks the old decision heading `[superseded]`. It adds the new decision after it. It never unticks a verified task. It adds new tasks for the work to redo.
+
+## Architecture Baseline Mode
+
+Write `architecture.md` for an existing system that has none. Follow `references/architecture-template.md` and the constitution §7 Architecture views. This mode changes no code and no work-item. Do these steps:
+
+1. Read only these files:
+   - the build files, for the modules and their dependencies;
+   - the deployment, infrastructure, and scheduler configuration, for what runs and where it runs;
+   - the application configuration, for the stores, queues, and external addresses of each module;
+   - the entry points of each module, such as a main class, a controller, or a job definition.
+2. Write a complete Container view of the whole system. Add a Component view only when the triggering change needs it. Read deeper code only for that view.
+3. Record each element or relationship that these files cannot confirm as an assumption (`A-n`). An example is an external address that only an environment variable holds.
+4. Run `check-mermaid.js` on the file, and fix every reported line.
+5. Apply the canonical constitution §8 at the stage boundary.
+6. Return to the breakdown that triggered the pass, if any.
 
 ## Goal Wrap (autonomous runs)
 
@@ -134,6 +153,8 @@ The plan is not ready if any of these is true:
 - the Plan section lacks Exit Criteria or Stop Conditions;
 - any AC lacks a traceable source;
 - a new page lacks Story 0;
+- the change alters an architecture view, but the Plan lacks an Architecture subsection. Only a recorded refusal of the baseline pass excuses this, while `architecture.md` does not exist;
+- a diagram fails `check-mermaid.js`;
 - a phase lacks a verification dependency or an inspectable result;
 - reuse was ignored without stated reasons;
 - a `[plan]` line in Deferred Choices has no recorded choice;

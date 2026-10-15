@@ -21,6 +21,24 @@ Test tiers: fast `<command>` · full `<build of each touched module>` touched mo
 Premises:
 - (P1) <checkable claim that the choice relies on>
 
+### Architecture
+
+#### <view name, such as Container View>
+<Mermaid diagram of the view as it will be after the change>
+
+Changes:
+- Added: <element or relationship>
+- Removed: <element or relationship>
+- Replaced: <element>, from <old technology> to <new technology>
+
+#### Element Types
+| Type | Group | Definition |
+|---|---|---|
+| <new type> | <core group or new group> | <one-line definition> |
+
+#### Impact on Architecture
+- <architecture.md section>: <what the change alters>
+
 ### Story 0: Visual direction smoke   [stop: user-confirm | skip]
 Direction source: <html | image-generation | user-provided>
 Code marking: <throwaway | base>
@@ -61,6 +79,7 @@ Stop and ask the user when:
 Notes on the parts:
 
 - The granularity and commit policy are the user's choices. The test tiers come from `memory/decisions.md`. Each story's `Tests:` tier follows `planning-rules.md` Test Tiers.
+- The Architecture subsection appears only when the change alters an architecture view (`planning-rules.md` Architecture Views). Give each altered view its own `####` heading. Leave out each Changes line that has no content. Leave out Element Types when the Plan declares no new type.
 - Story 0 appears only when the change introduces a new page or screen. Under `[stop: skip]`, leave out its STOP line.
 - `Touches:` is an optional hint, not a checklist.
 - Approach Decisions come first, because the stories follow from the chosen approach. When the Plan makes no approach choice, leave the section out.

@@ -3,6 +3,20 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [Unreleased]
+
+### Added
+
+- **Architecture views.** The new state document `architecture.md` describes how the system is built, as two views of the C4 model: Container and Component. A Plan holds an Architecture subsection when its change adds, removes, or replaces an element or a relationship in a view. Merge-back applies its Impact on Architecture map. For a new product, Roadmap Mode writes `architecture.md`. For an existing system without one, the first such change offers a baseline pass in the new `dev-plan-builder` Architecture Baseline Mode. The pass reads the build, deployment, and configuration files and the entry points of each module, not the whole code base. A refusal is recorded in `memory/agent-guideline.md`. After it, AIPilot asks again only when the user asks about the architecture or for an architecture document. Outside a Goal Wrap, it never runs the pass without the user's yes. `dev-builder` builds only what the views show, and `code-reviewer` uses them as the structure review lens.
+- **Element types.** Each node label reads `<Type>: <name> (<technology>)`. Ten core types in four groups (Compute, Storage, Messaging, External) cover systems with or without cloud services, on any provider. A document declares any other type, with its group, in an Element Types table. Each link reads as a sentence, from the element that performs the action. `check-mermaid.js` checks the view headings, node types, subgraph titles, and link labels of every architecture view.
+- **Code conventions.** When a project has no linter or formatter, AIPilot asks once whether to add one as a separate change in `BACKLOG.md`. When a Plan holds a Component view and the language has an architecture-test tool, AIPilot asks once whether to test the view's dependency rules. Both answers are recorded in `memory/decisions.md`. Changed lines add no new lint warning, even when CI allows warnings.
+- **Code design.** Constitution §7 Code design names three design problems for new or changed code: mixed responsibilities, broken substitution, and a hard-wired external boundary. When the surrounding code consistently does the same thing, the project's way wins. `code-reviewer` reports a problem that causes a defect as P2, and any other as P3.
+- **Test design.** Constitution §7 Test design stops duplicate tests. Before AIPilot adds a test, it looks for an existing test of the same behavior and extends it. Tests are split by behavior, not by method or branch. Several inputs of one behavior become one parameterized test. Each behavior is asserted once, at the lowest level that can prove it. The Execution Record gives each new test's reason: why no existing test covers its behavior. `code-reviewer` reports a break of these rules as P3. Existing duplicates stay unchanged, as cleanup candidates.
+
+### Changed
+
+- **Review page diagrams.** Typed nodes take the color of their group, from the page palette in both themes. A declared group takes the next free color. A legend under each architecture view names its colors. An architecture view also gets rounded nodes and a dashed system boundary. Each diagram keeps its natural size, so its text stays readable, and a wide one scrolls sideways. Printing still fits a wide diagram to the page. The page warns about labels that overlap or touch, and about a group with no free color. Flowcharts use Mermaid's default spacing.
+
 ## [2.1.2] - 2026-10-13
 
 ### Fixed

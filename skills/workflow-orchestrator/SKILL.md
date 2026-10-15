@@ -87,6 +87,7 @@ Then wait for confirmation, unless the session's execution mode waives this stop
 When a Goal Wrap ends, finished or stopped, its final report also lists:
 - every assumption the run recorded, highest risk first;
 - every design made without user confirmation;
+- every architecture view made without user confirmation, including a baseline pass;
 - every UI request a convention overrode (the request, what was built, and why);
 - every approach choice that would otherwise have been asked;
 - every Approach Challenge and its ruling;

@@ -158,6 +158,7 @@ AIPilot escribe la ubicación resuelta en el archivo `AGENTS.md` de la raíz del
 docs/aipilot/
 ├── product-spec.md
 ├── design-spec.md
+├── architecture.md       # Se crea con las primeras vistas de arquitectura
 ├── dev-phase-plan.md
 ├── memory/               # Se crea al registrar la primera memoria
 │   ├── decisions.md

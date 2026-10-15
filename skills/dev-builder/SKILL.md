@@ -55,7 +55,7 @@ Project paths mean the resolved documents root. The constitution path is plugin-
 - `../workflow-orchestrator/references/document-system-spec.md`, the constitution. The plugin owns this file, and it is not a project document.
 - `memory/agent-guideline.md`, which holds project-specific overrides.
 - The **target work-item** in the top level of `work-items/`. Identify it by the Target Resolution rule (constitution §3). Never guess. A reference-only Design section on a phase work-item is complete (constitution §3 Phase-derived items).
-- `product-spec.md`, `design-spec.md`, `memory/decisions.md`, and `memory/lessons.md` (constitution §2).
+- `product-spec.md`, `design-spec.md`, `architecture.md`, `memory/decisions.md`, and `memory/lessons.md` (constitution §2).
 - `dev-phase-plan.md`, for a phase work-item.
 - `BACKLOG.md`, when deferred tasks may affect scope.
 - The relevant source, components, utilities, tests, and dependencies.
@@ -106,7 +106,7 @@ A stop means: report the unit's results and wait. At whole-work-item granularity
    - verification at trust and integration boundaries.
 3. **YAGNI check**: name anything that you defer because the current requirements do not prove it.
 4. Implement the smallest coherent change.
-5. Self-review the task-scoped diff once before verification. Check the diff against the Requirement, Design, Plan, project conventions, reuse decision, and YAGNI boundary. Correct the defects that you find. Remove accidental complexity, duplication, unclear naming, dead code, and debug residue that this task introduced. Keep the refactoring inside this task's changes, and do not improve unrelated code or invent alternative approaches merely to satisfy this step.
+5. Self-review the task-scoped diff once before verification. Check the diff against the Requirement, Design, Plan, project conventions, constitution §7 Test design, reuse decision, and YAGNI boundary. Correct the defects that you find. Remove accidental complexity, duplication, unclear naming, dead code, and debug residue that this task introduced. Keep the refactoring inside this task's changes, and do not improve unrelated code or invent alternative approaches merely to satisfy this step.
 6. Run the task's `— Verify:` method, and quote the decisive evidence. If the cause of a failure is evident in this task's change, fix the failure in place. Otherwise, switch to Diagnosis Mode. A failed task is **never ticked**.
 7. Tick the checkbox only after verification passes, and append the facts to the Execution Record.
 
@@ -265,14 +265,17 @@ Whatever the stop marker is, respect the code marking. Later stories build on `b
 ## Engineering Rules
 
 - Preserve existing user changes.
-- Follow existing project style before generic Clean Code or SOLID preferences. Naming is the exception: follow constitution §7 Code naming. If a convention is genuinely harmful, surface it to the user instead of silently forking from it.
+- Follow existing project style before generic Clean Code or SOLID preferences. Naming is the exception: follow constitution §7 Code naming. Where the project style does not decide, follow constitution §7 Code design. If a convention is genuinely harmful, surface it to the user instead of silently forking from it.
 - **Read before you write**: read the exports, immediate callers, and shared utilities that the change touches. "Looks orthogonal" is dangerous. If you are unsure why code is structured a certain way, ask. Under a Goal Wrap, do not ask: keep the existing structure and record the open point in the Execution Record.
 - **Surgical changes**: touch only what the task requires. Clean up only your own mess. Do not "improve" adjacent code, comments, or formatting. Do not refactor what isn't broken. Run a formatter only over the lines you change, unless CI formats whole files. Change shared code only when the task needs it, and verify its other callers.
-- **Keep existing tests**: never weaken, skip, or delete a test to make a change pass. Change an existing test only when the requirement changed, and record why.
+- **No new lint warnings**: the lines you change add no new lint warning, even when CI allows warnings. Warnings on lines you do not touch stay out of scope.
+- **Keep existing tests**: never weaken, skip, or delete a test to make a change pass. Change an existing test only when the requirement changed, and record why. Extending a test per constitution §7 Test design is not such a change.
+- **Test design**: follow constitution §7 Test design for each test that you add or extend.
 - **Surface conflicts, don't average them**: when two existing patterns contradict, pick one (more recent / better tested). Say why, and flag the other one for cleanup. Never blend them.
 - **Tests verify intent, not just behavior**: a test that cannot fail when the business logic changes is not a test.
 - **Fail fast, fail loud**: do not write fallback logic that swallows errors. Use a default parameter value only when the correct default is certain. A wrong default fails silently at the call site.
 - **Don't break mainline**: create a branch before a large-scale refactor or an experimental change.
+- **Follow the architecture views**: when `architecture.md` or a Plan Architecture subsection exists, build only the elements and relationships that they show. If the code needs another one, route to `dev-plan-builder` and stop. Under a Goal Wrap, follow constitution §7 Routing instead.
 - **Record the moment it happens** (constitution §2):
   - Record an implementation choice that constrains future work-items as a dated entry in `memory/decisions.md`.
   - Record a discovered constraint (for example a flaky library, a rate limit, or a deadlock) in `memory/lessons.md`.
@@ -286,9 +289,10 @@ The Execution Record is an **append-only** record inside the work-item. Never re
 - **Start line**: when you start the work-item, write `Start: <git ref>. Commit policy: <manual | branch | auto>.` In a project without a repository, give the starting file state instead of the git ref. Under `branch`, also give the branch name and its starting point.
 - **Unit entry**: after each unit of work, append `### <unit> — <YYYY-MM-DD>`. The unit is a task, a story, a task group, or the whole work-item. The final code review uses the whole work-item as its unit. Give these fields, and leave out each field that has no content:
   - **Changes**: what changed in each task.
+  - **Tests**: the reason for each new test (constitution §7 Test design).
   - **Evidence**: each verification command and its decisive output.
   - **Review**: the code review verdict, the reviewed files, each finding, and its fix and reverify.
-  - **Notes**: the Story 0 outcome and its code marking, each deviation that you routed upstream with its resolution, and side bugs.
+  - **Notes**: the Story 0 outcome and its code marking, each deviation that you routed upstream with its resolution, side bugs, and cleanup candidates.
 - **Diagnosis entry**: `### Diagnosis — <YYYY-MM-DD>`. Give the switch and its trigger, the reproduction, the failed attempts, and the root cause with its revisions.
 - **Approach Challenge entry**: `### Approach Challenge — <YYYY-MM-DD>`. Give the challenge, the ruling, and the outcome.
 - **Completion entry**: append it last, as `### Completion — <YYYY-MM-DD>`. Give these fields: **Exit Criteria evidence**, **Required setup**, **QA checklist** for user-facing features, and **Remaining Risks**.

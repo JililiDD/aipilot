@@ -42,9 +42,10 @@ Project-document paths are relative to the resolved documents root. The constitu
 
 - `../workflow-orchestrator/references/document-system-spec.md`: the plugin-owned constitution. It is not a project document. Follow it without restating it. `memory/agent-guideline.md` holds project-specific overrides.
 - The target work-item: read all of its sections. The master documents lag behind an active work-item by design (constitution §6). This lag is never a staleness finding.
-- `product-spec.md` and `design-spec.md`, for the surrounding state.
+- `product-spec.md`, `design-spec.md`, and `architecture.md`, for the surrounding state.
 - `memory/decisions.md` and `memory/lessons.md` (constitution §2).
 - For UI-facing changes, explicitly use the target work-item's Design section plus `design-spec.md` as the UI review lens. Do not rely on conversation memory or screenshots alone.
+- When they exist, use the target work-item's Architecture subsection plus `architecture.md` as the structure review lens.
 - The diff, and the source files and tests that the diff touches.
 
 ## Review Levels
@@ -65,7 +66,7 @@ Project-document paths are relative to the resolved documents root. The constitu
 
 ## Findings Discipline
 
-- **Every finding attaches to a requirement, an AC, or a concrete named risk.** Style preferences, taste, and "for future flexibility" hardening are not findings. A reviewer who invents improvements causes scope creep in reverse.
+- **Every finding attaches to a requirement, an AC, or a concrete named risk.** Style preferences, taste, and "for future flexibility" hardening are not findings. A finding may also attach to an architecture view. A reviewer who invents improvements causes scope creep in reverse.
 - Use these severities:
   - **P0**: broken behavior or data risk.
   - **P1**: a cited AC is unmet.
@@ -104,7 +105,10 @@ Project-document paths are relative to the resolved documents root. The constitu
 - there are no speculative abstractions, options, or dependencies beyond the current requirements.
 - business logic uses type-safe domain values.
 - the code follows the existing project style. Added or renamed names follow constitution §7 Code naming.
+- the changed lines add no new lint warning, even when CI allows it.
+- the added or changed code has none of the problems in constitution §7 Code design.
 - verification is present at trust and integration boundaries.
+- the change has an Architecture subsection when it alters an architecture view, per the Trigger in `dev-plan-builder`'s `planning-rules.md`. Only a recorded refusal of the baseline pass excuses its absence, while `architecture.md` does not exist. When views exist, the code adds no element or relationship that they do not show.
 - no leftover debug code or dead code remains.
 
 **Tests and evidence**: check these points:
@@ -112,9 +116,10 @@ Project-document paths are relative to the resolved documents root. The constitu
 - the test tier the story names is green at its completion.
 - at the final review, the full tier is green and fresh. The full tier builds every module that the change touches, with its tests.
 - if the Plan has no tiers, the whole suite replaces the story tier at each story. In that Plan, the whole suite plus the build replaces the full tier at the end.
-- changed or new behavior has corresponding tests.
+- changed or new behavior has a corresponding test, new or existing.
 - **when the project's declared Testing Strategy includes automated UI tests**, a page-affecting change carries a passing automated UI test. Never invent tooling requirements that the project does not declare.
 - the tests genuinely assert the cited ACs, rather than merely executing the code. A test that cannot fail when the business logic changes verifies nothing. Such a test is a finding.
+- the added or extended tests follow constitution §7 Test design. Each new test has its reason in the Execution Record.
 
 **Robustness**: check the failure paths, because generated code most often breaks there. Check these points:
 

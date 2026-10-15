@@ -10,7 +10,7 @@ The document system has three layers:
 - Change documents (work-items) carry one bounded change from requirement to merge-back.
 - `CHANGELOG.md` is the append-only history of pointers.
 
-While a change is in flight, it never edits the state documents. Merge-back (§6) does that.
+While a change is in flight, it never edits the state documents. Merge-back (§6) does that. A baseline pass (`dev-plan-builder` Architecture Baseline Mode) is not part of a change. It writes `architecture.md` as the system is before the change.
 
 ## 2. Document Responsibilities
 
@@ -18,6 +18,7 @@ While a change is in flight, it never edits the state documents. Merge-back (§6
 |---|---|---|---|
 | `product-spec.md` | State | What the product does now | `product-spec-builder` (new product / core re-scoping); `workflow-orchestrator` (merge-back) |
 | `design-spec.md` | State | How it looks and interacts | `design-spec-builder` (0-to-1 Mode); `workflow-orchestrator` (merge-back of Design sections) |
+| `architecture.md` | State | How the system is built: its elements and their relationships, as architecture views (§7) | `dev-plan-builder` (Roadmap Mode for a new product; Architecture Baseline Mode); `workflow-orchestrator` (merge-back of Architecture subsections) |
 | `dev-phase-plan.md` | State | Phase map only: order, dependencies, risks, and testing and code review strategy. It holds no stories or tasks. | `dev-plan-builder` Roadmap Mode. Phase pointers are backfilled as phases start and reach `merged`. |
 | `memory/decisions.md` | State (append-only) | Choices that bind future work-items and are not visible in the state documents ("Redis for caching" yes; "this button is red" no). Entry heading: `## YYYY-MM-DD <title>`. Never edit a past entry. A new choice tags the old one `[superseded by <date entry>]`. | The stage that made the choice: `product-spec-builder`, `design-spec-builder`, `dev-plan-builder`, `dev-builder` |
 | `memory/lessons.md` | State (append-only) | Discovered constraints that bind future work ("vendor API rate-limits at 10/s"). Same entry heading. A new entry supersedes an old one only when the world changes. The new entry says what changed. | Whoever discovers the constraint: `dev-plan-builder`, `dev-builder`. Read-only skills (`code-reviewer`, `release-builder`) note findings for the builder to record. |
@@ -92,7 +93,7 @@ Each skill writes only its own section and reads all of them. If an upstream sec
   - a milestone summary, only for work with distinct stages or releases.
 - **Requirement**: the context, the scope with its product non-goals, the behavior or bug symptom, and the Acceptance Criteria. Assumptions, Open Questions, Deferred Choices, and the **Impact on Product-Spec** merge map appear only when they have content. `product-spec-builder` defines the subsections.
 - **Design** (only with a UI surface): design deltas, Design Acceptance Criteria, and the **Impact on Design-Spec** merge map. In-flight design decisions live here, not in `design-spec.md`.
-- **Plan**: approach decisions, stories and tasks with verification, execution granularity, reuse notes, and implementation non-goals. It references acceptance criteria from Requirement and Design. It never invents them. If a change introduces a new page or screen, its Plan opens with **Story 0**. Story 0 is a visual-direction smoke. `dev-plan-builder`'s `planning-rules.md` defines its markers.
+- **Plan**: approach decisions, stories and tasks with verification, execution granularity, reuse notes, and implementation non-goals. It references acceptance criteria from Requirement and Design. It never invents them. A Plan may also hold an Architecture subsection. `dev-plan-builder`'s `planning-rules.md` defines when. If a change introduces a new page or screen, its Plan opens with **Story 0**. Story 0 is a visual-direction smoke. `dev-plan-builder`'s `planning-rules.md` defines its markers.
 - **Execution Record**: what was actually done, with evidence, reviews, and remaining risks. `dev-builder` also records the `code-reviewer` results here. `dev-builder`'s Execution Record Format defines the entries.
 
 Plans use one vocabulary: **Phase → User Story** (user-visible) **or Task Group** (invisible work) **→ Task**. Every task carries its own verification.
@@ -119,10 +120,11 @@ After `code-reviewer` passes a work-item, `workflow-orchestrator` performs merge
 
 1. If the Requirement has an **Impact on Product-Spec** map, apply it to update `product-spec.md`. Write only the state-level outcome, with no interview detail. Without the map, leave `product-spec.md` unchanged.
 2. If a Design section exists, apply the **Design section deltas / Impact on Design-Spec** to update `design-spec.md`.
-3. Append one line to `CHANGELOG.md`: the timestamp, a one-sentence summary, and the work-item **filename only**. Never write a directory path, because the file is about to move.
-4. Ensure that `work-items/merged/` exists. Set the frontmatter to `status: merged`, and move the file there.
-5. For a phase work-item, update the phase status in `dev-phase-plan.md`.
-6. If the Plan's `Commit policy` is `branch` or `auto`, commit the merge-back as one commit, on the branch of the work-item's other commits. The commit holds the Completion entry, the changes of steps 1–5, and the moved work-item. Its message names the work-item slug and "merge-back". Commit nothing under `manual`, in a project without a repository, or when the documents root is not in the project's repository.
+3. If the Plan has an Architecture subsection, apply its **Impact on Architecture** map to update `architecture.md`.
+4. Append one line to `CHANGELOG.md`: the timestamp, a one-sentence summary, and the work-item **filename only**. Never write a directory path, because the file is about to move.
+5. Ensure that `work-items/merged/` exists. Set the frontmatter to `status: merged`, and move the file there.
+6. For a phase work-item, update the phase status in `dev-phase-plan.md`.
+7. If the Plan's `Commit policy` is `branch` or `auto`, commit the merge-back as one commit, on the branch of the work-item's other commits. The commit holds the Completion entry, the changes of steps 1–6, and the moved work-item. Its message names the work-item slug and "merge-back". Commit nothing under `manual`, in a project without a repository, or when the documents root is not in the project's repository.
 
 If a work-item is still in the top level, its merge-back is unfinished. Until then, the work-item is the authoritative source for its change. The state documents lag behind it by design. This lag is never a staleness defect.
 
@@ -163,6 +165,28 @@ Complete the remaining merge-back steps of each such item first.
   - every label is in double quotes. It holds no `"`, `<`, `>`, `|`, or backtick. Write `List<T>` as `List of T`.
 
   After you write or change a diagram, run `node <workflow-orchestrator>/scripts/check-mermaid.js <doc.md>`. `<workflow-orchestrator>` is the `workflow-orchestrator` skill directory. Fix every reported line, and run the check again until it passes.
+- **Architecture views (all project documents)**: these rules cover the diagrams in `architecture.md` and in a Plan's Architecture subsection. They add to the Diagrams rules. They do not cover the Quick Overview.
+  1. Each diagram shows one view: Container or Component. The heading above it names the view, such as `Container View` or `Component View: order-api`. A split view adds its part to the heading, such as `Container View: billing`.
+  2. If a diagram is hard to read, split it into several diagrams. Split it by business area, bounded context, or use case. Show the inside of one element in a Component view. Keep each link label short, and move details into the text below the diagram.
+  3. Write each node label as `<Type>: <name> (<technology>)`. Omit the technology when it is not chosen yet.
+  4. Choose the type by the element's role, not by its vendor or its host. Use a core type when one fits. Never use a synonym of a core type, such as `Database` for `Data store`. The core types, with their groups in parentheses, are:
+     - `Person` (External): a human user or role.
+     - `Service` (Compute): code that the team builds and runs continuously, such as an API, a web app, or a worker.
+     - `Batch job` (Compute): code that the team builds, which starts, processes data, and ends.
+     - `Function` (Compute): a serverless function that the team builds.
+     - `Component` (Compute): a part of one element's code, such as a module or a layer. Only a Component view uses it.
+     - `Data store` (Storage): a database or a search index for structured records.
+     - `Object storage` (Storage): storage for files and blobs.
+     - `Cache` (Storage): an in-memory store for fast reads.
+     - `Queue` (Messaging): a message channel, such as a queue, a topic, or a stream.
+     - `External system` (External): a system that the team does not build or provision. A single store, queue, or cache that another team provisions takes its role type instead.
+  5. If no core type fits, declare a new type before you use it. Declare it in the Element Types table of the same document, or of `architecture.md`. The table has the columns `Type`, `Group`, and `Definition`. The group is a core group or a new group. A new group takes the next free color on the review page.
+  6. Name the provider in the technology, such as `AWS SQS`, `GCP Pub/Sub`, or `RabbitMQ`. Use the name that the code or the infrastructure code uses. Use the same name in every view and every document.
+  7. Draw one subgraph for each system that the team builds, titled `System: <name>`. It holds every element that the team builds or provisions for that system. `Person` and `External system` elements stay outside it. So does an element that another team provisions. In a Component view, the subgraph is the opened element, titled with that element's node label.
+  8. Each link reads as a sentence: `<source> <label> <target>`. The source is the element that performs the action. The label is a verb phrase, such as `saves fetched data`. A protocol may follow in parentheses, such as `(HTTPS)` or `(async)`.
+  9. A shared library that is not deployed alone is not an element of a Container view. It is part of each element that uses it. Show it only in a Component view, as a `Component`.
+
+  `check-mermaid.js` also checks the view headings, the node types, the subgraph titles, and the link labels of these diagrams.
 - **IDs**: numbered itemized lists use `- **<ID> (Concept Anchor):** ...` with sequential IDs. Scope lists and Plan Non-Goals use plain bullets without IDs. The ID prefixes are:
   - `AC-n`: requirement acceptance criteria. Older documents number them `R-n`, and those IDs stay valid. An older document keeps `R-n` for its new criteria too;
   - `D-n`: design acceptance criteria;
@@ -210,6 +234,19 @@ Complete the remaining merge-back steps of each such item first.
   For example, `List<ExchangeConfiguration> enabled` breaks these rules, because an adjective names a list. Write `enabledExchanges` instead.
 
   Name each method with a verb or a verb phrase, such as `sendMessage` or `findEnabledExchanges`. If a method returns a boolean and changes no state, name it as an assertion, such as `isEmpty` or `containsKey`.
+- **Code design (all skills)**: these rules flag three design problems in the code that you add or change. If the surrounding code consistently does the same thing, follow the project, and do not report it. Do not refactor existing code only to follow these rules. Fix a problem with the means that the project already uses, such as its injection style.
+  - **Mixed responsibilities**: one class, module, or function mixes work that changes for different reasons, such as business rules, storage access, and output formatting. Signs are a test that must fake several unrelated things, and a change for one reason that edits code for another. Keep new work of each kind in its own class, module, or function.
+  - **Broken substitution**: a subclass or an implementation breaks the contract of its parent type, so callers of the parent fail. Examples are an unsupported-operation error, a method that does nothing where the contract expects an effect, and the rejection of input that the parent accepts. Do not inherit or implement a type whose contract the class cannot keep.
+  - **Hard-wired boundary**: business logic creates an external boundary itself, or reaches it through a static call, so no test can run the logic without it. Examples of a boundary are a database, an HTTP client, the clock, the file system, and a random source. Inject the boundary instead. Add an interface only when the language cannot fake the concrete class.
+
+  In a code review, a design problem that causes a defect is **P2**. Examples are code that no test can cover and a broken contract. Any other design problem is **P3**.
+- **Test design (all skills)**: these rules stop duplicate tests. They apply to each test that you add or extend. If the project's test conventions decide how to split tests or at which level to test, follow them. Do not combine, move, or delete an existing test only to follow these rules.
+  - **Search first**: before you add a test, find the tests that already cover the behavior. Look in the tests of the code that you change and of its direct callers. If a test covers the behavior completely, add nothing, and cite that test. If it covers the behavior in part, add a case or an assertion to it. To add a case, you may turn it into a parameterized test, if every old case stays. A test that passed before your change does not prove a new or changed behavior.
+  - **Split by behavior**: write a test per behavior or rule, not per method or per branch. If several inputs of one behavior take the same setup and the same form of assertion, write one parameterized test. Examples are JUnit `@ParameterizedTest`, pytest `parametrize`, and Jest `test.each`. Use this form only when the project's test framework supports it. An outcome with another form of assertion, such as an error, gets its own test.
+  - **Lowest level**: assert each behavior once, at the lowest level that can prove it. A level that fakes the part where the risk lies cannot prove it. Use a higher-level test only for what a lower level cannot prove, such as wiring, transactions, serialization, and a user flow through the UI.
+  - **Nothing to prove**: test only what the project's own code or configuration decides. Do not test a framework or a library itself, plain getters and setters, or generated code.
+
+  Give each new test a one-line reason in the Execution Record. The reason names the behavior that the test covers, and why no existing test covers it. The new tests of one new class or module may share one line. A case or an assertion that you add to an existing test needs no reason. If you find existing tests that duplicate each other, report them as a cleanup candidate for `BACKLOG.md`. Do not change them. In a code review, a break of these rules is **P3**.
 - **Project preferences (all skills)**: when the user states a lasting project-specific preference for how AIPilot works, invoke `note-keeper`, a capture reflex rather than a stage. Then continue the current work.
 - **Question format (all skills)**: every question is multiple choice with a free-form escape. Use the runtime's native option picker when it has one. Otherwise, use lettered options in chat. Offer 2–4 options, each with a brief explanation. Put the recommended option first and label it.
 
@@ -230,7 +267,7 @@ At a stage boundary that requires explicit user confirmation:
    - the stage's deliverable;
    - its highest-risk decisions;
    - the recommended next stage.
-2. If the stage produced or updated a reviewable markdown deliverable, offer the optional browser review **before** requesting next-stage confirmation. A reviewable markdown deliverable is a product spec, design spec or Design section, work-item, plan, or roadmap. Making the offer is mandatory. Opening the browser review is optional.
+2. If the stage produced or updated a reviewable markdown deliverable, offer the optional browser review **before** requesting next-stage confirmation. A reviewable markdown deliverable is a product spec, design spec or Design section, architecture document, work-item, plan, or roadmap. Making the offer is mandatory. Opening the browser review is optional.
 
    Recommend the browser review when the deliverable is long or holds decisions the user has not yet seen in chat. Otherwise, recommend skipping it. The offer and the confirmation may share one question. Its options must then include browser review and "Skip review and continue to <next stage>"; choosing that option confirms.
 3. If the user selects browser review, run the mechanism in `review-runtime.md`. Request next-stage confirmation only after the browser review completes. If the user declines a separate review offer, ask for confirmation in chat; declining a browser review is never itself a confirmation.
@@ -253,7 +290,7 @@ Every skill uses these words with one meaning only.
 - **assumption**: a decision made without the user's answer, recorded as `A-n`.
 - **route to X**: hand the work to X in the same run (§7 Routing). A **handoff** is the message that carries it: the target, the execution mode, and the granularity.
 - **the user**: the person who works with AIPilot. People who use the product being built are **end users**. "Target user", "new user", and "power users" also mean end users.
-- **execution mode**: the Gate 1 choice, (a), (b), or (c), always written in full. A skill's own modes carry a capital: Build Mode, Diagnosis Mode, Roadmap Mode, Breakdown Mode, Arbitration Mode, 0-to-1 Mode, and Iteration Mode.
+- **execution mode**: the Gate 1 choice, (a), (b), or (c), always written in full. A skill's own modes carry a capital: Build Mode, Diagnosis Mode, Roadmap Mode, Breakdown Mode, Arbitration Mode, Architecture Baseline Mode, 0-to-1 Mode, and Iteration Mode.
 - **Approach Challenge**: `dev-builder`'s evidence-based proposal to change an approach choice that the Plan records. A clean-context **arbiter** rules on it in `dev-plan-builder` Arbitration Mode.
 - **goal mode** is the user's choice; the **Goal Wrap** is the autonomous run that the choice starts.
 - **blocker**: a situation that stops the run because only the user can resolve it. Examples are a fired Plan Stop Condition, a code review that will not converge, and a Diagnosis dead end. Under a Goal Wrap, only the Gate 1 list is a blocker. A **blocking question** is one that the work cannot continue without; Open Questions tag it `blocks implementation`.
@@ -262,4 +299,5 @@ Every skill uses these words with one meaning only.
 - **stage**: one step of the workflow, owned by one skill. **phase**: one entry of `dev-phase-plan.md`, built as one work-item. **unit**: what a granularity stop closes: a task, a story or task group, or the whole work-item.
 - **code review**: `code-reviewer` checks the code. **browser review**: the user annotates a rendered document or prototype in the review runtime; a **review offer** is the §8 offer of one. **self-review**: the builder checks its own diff. A bare "review" appears only where a file means one kind throughout: code review in `dev-builder` and `code-reviewer`, browser review in `review-runtime.md`.
 - **stage report**: what a stage reports at its end (§8). **stop report**: `dev-builder`'s report at a unit's stop. **completion report**: `dev-builder`'s report when a work-item's build is done. **final report**: the report that ends a Goal Wrap.
+- **architecture view**: one diagram of the system's architecture: a Container or Component view (§7 Architecture views). `architecture.md` holds the current views. A Plan's Architecture subsection holds the views that its change alters.
 - **merge-back**: the §6 bookkeeping that folds a finished work-item into the state documents. **merged**: the status of a work-item or phase after its merge-back. Merging a branch is always written as **git merge**.

@@ -103,6 +103,27 @@ test('each construct that breaks Mermaid, mangles a label, or lays out badly is 
   }
 });
 
+test('architecture views check typed nodes and labeled links, including types declared in architecture.md', () => {
+  // Quick Overview uses the old rules; only architecture views require typed elements and labeled links.
+  const architecture = path.join(tempDir, 'architecture.md');
+  fs.writeFileSync(architecture, '# Architecture\n\n## Element Types\n| Type | Group | Definition |\n|---|---|---|\n| Gateway | Network | routes calls |\n');
+  const source = 'flowchart TD\n  subgraph S["System: Shop"]\n    direction TB\n    A["Service: API (Node.js)"] -->|"routes through"| B["Gateway: Edge"]\n  end';
+  const valid = `# Architecture\n\n## Container View\n\n\`\`\`mermaid\n${source}\n\`\`\`\n`;
+  fs.appendFileSync(architecture, `\n${valid}`);
+  let result = spawnSync(process.execPath, [checker, architecture], { encoding: 'utf8' });
+  assert.strictEqual(result.status, 0, result.stderr);
+  const invalid = valid.replace('Gateway: Edge', 'Unknown: Edge').replace('-->|"routes through"|', '-->');
+  fs.writeFileSync(architecture, invalid);
+  result = spawnSync(process.execPath, [checker, architecture], { encoding: 'utf8' });
+  assert.strictEqual(result.status, 1);
+  assert.match(result.stderr, /not a core type/);
+  assert.match(result.stderr, /label every link/);
+  fs.writeFileSync(architecture, '# Architecture\n\n## Element Types\n| Type | Group | Definition |\n|---|---|---|\n| Gateway | Network | routes calls |\n');
+  const planned = `# Work-item\n\n## Plan\n\n### Architecture\n\n#### Container View\n\n\`\`\`mermaid\n${source}\n\`\`\`\n`;
+  assert.strictEqual(check(planned).status, 0, 'a Plan architecture view uses declarations in architecture.md');
+  assert.strictEqual(check(quickOverview('flowchart TD\n  A["Unknown: Edge"] --> B["Service: API"]')).status, 0);
+});
+
 test('a text diagram in the Quick Overview is rejected, and code blocks elsewhere are left alone', () => {
   // A text diagram in the Quick Overview shows as raw code on the review page; reviewers expect a picture there.
   const textDiagram = '# Work-item\n\n## Quick Overview\n\n### Proposed Pipeline\n\n```\nReader\n  │\n  ▼\nDao\n```\n';

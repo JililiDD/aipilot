@@ -11,6 +11,9 @@
   --r: #1d4ed8; --d: #7c3aed; --q: #a21caf; --ng: #be123c; --ec: #0f766e; --a: #b45309; --p: #15803d; --code-ink: #0369a1; --ok: #2c7a3b; --ok-soft: #eef7ef;
   --warn: #9a5b00; --warn-soft: #fdf6e7; --flash: #fff1b0; --shadow: 0 12px 32px rgba(20,22,28,.10), 0 2px 6px rgba(20,22,28,.06);
   --measure: 76ch; --gutter: 7.5rem;
+  /* Architecture node groups: Compute, Storage, Messaging, External, then four colors for declared groups. */
+  --g1: #3454d1; --g1-soft: #eef1fd; --g2: #0f766e; --g2-soft: #e6f3f1; --g3: #b45309; --g3-soft: #fbf0e3; --g4: #6a707b; --g4-soft: #f4f2ed;
+  --g5: #7c3aed; --g5-soft: #f2ecfd; --g6: #be123c; --g6-soft: #fcebee; --g7: #15803d; --g7-soft: #e9f5ec; --g8: #a21caf; --g8-soft: #f9eafb;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -18,6 +21,8 @@
     --line: #2a2d33; --line-2: #3a3e46; --accent: #8ea6ff; --accent-soft: #1d2440; --accent-ink: #b3c2ff;
     --r: #60a5fa; --d: #a78bfa; --q: #e879f9; --ng: #fb7185; --ec: #2dd4bf; --a: #fbbf24; --p: #4ade80; --code-ink: #7dd3fc; --ok: #82cf8e; --ok-soft: #16271a;
     --warn: #f0b552; --warn-soft: #2b2312; --flash: #4b4216; --shadow: 0 12px 32px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3);
+    --g1: #8ea6ff; --g1-soft: #1d2440; --g2: #2dd4bf; --g2-soft: #0f2d2a; --g3: #fbbf24; --g3-soft: #2d2410; --g4: #9da3ad; --g4-soft: #1d1f24;
+    --g5: #a78bfa; --g5-soft: #241d3d; --g6: #fb7185; --g6-soft: #37181f; --g7: #4ade80; --g7-soft: #13291a; --g8: #e879f9; --g8-soft: #331a38;
   }
 }
 :root[data-theme="dark"] {
@@ -25,6 +30,8 @@
   --line: #2a2d33; --line-2: #3a3e46; --accent: #8ea6ff; --accent-soft: #1d2440; --accent-ink: #b3c2ff;
   --r: #60a5fa; --d: #a78bfa; --q: #e879f9; --ng: #fb7185; --ec: #2dd4bf; --a: #fbbf24; --p: #4ade80; --code-ink: #7dd3fc; --ok: #82cf8e; --ok-soft: #16271a;
   --warn: #f0b552; --warn-soft: #2b2312; --flash: #4b4216; --shadow: 0 12px 32px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3);
+  --g1: #8ea6ff; --g1-soft: #1d2440; --g2: #2dd4bf; --g2-soft: #0f2d2a; --g3: #fbbf24; --g3-soft: #2d2410; --g4: #9da3ad; --g4-soft: #1d1f24;
+  --g5: #a78bfa; --g5-soft: #241d3d; --g6: #fb7185; --g6-soft: #37181f; --g7: #4ade80; --g7-soft: #13291a; --g8: #e879f9; --g8-soft: #331a38;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 24px; -webkit-text-size-adjust: 100%; }
@@ -126,7 +133,15 @@ ul.tasks input:checked { border-color: var(--ok); background: var(--ok) url("dat
 /* ---------------- diagram ---------------- */
 figure.diagram { margin: 0 0 30px; padding: 22px 22px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
 figure.diagram svg { display: block; height: auto; margin: 0 auto; }
+.diagram-view { overflow-x: auto; }
 .diagram-view:empty { display: none; }
+.diagram-warn { margin: 0 0 14px; padding: 8px 12px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); font-size: 14px; line-height: 1.5; }
+/* Architecture views: rounded nodes, a dashed system boundary, and a legend that names each node color. */
+figure.diagram.arch .node rect { rx: 6px; ry: 6px; }
+figure.diagram.arch .cluster rect { rx: 10px; ry: 10px; stroke-dasharray: 6 4; }
+.diagram-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+.diagram-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.diagram-legend i { width: 16px; height: 11px; border: 1.5px solid; border-radius: 3px; }
 details.source { margin-top: 10px; border-top: 1px dashed var(--line); padding-top: 8px; }
 details.source summary { cursor: pointer; color: var(--muted); font-size: 13px; list-style: none; width: max-content; }
 details.source summary::-webkit-details-marker { display: none; }
@@ -282,6 +297,9 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   .shell { display: block; }
   main { padding: 0; }
   details.source { display: none; }
+  /* Paper cannot scroll, so a wide diagram shrinks to the page width only when printed. */
+  .diagram-view { overflow: visible; }
+  .diagram-view svg { max-width: 100% !important; height: auto; }
   .story, .table-card, ul.criteria > li, figure.diagram, li.approach, ul.focus > li { break-inside: avoid; }
 }
 </style>
@@ -303,6 +321,7 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
 </main>
 </div>
 
+{{TYPE_COLORS}}
 {{MERMAID}}
 <script>
 (function () {
@@ -372,8 +391,83 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   /* ---------- diagrams: render each verbatim Mermaid source with the page palette ---------- */
   var figures = doc.querySelectorAll("figure.diagram");
   var diagramRun = 0;
+  var typeColors = { colorsByType: {}, neutralGroupsByType: {}, groupsByColor: {} };
+  try { typeColors = JSON.parse(document.getElementById("type-colors").textContent); } catch (e) {}
   function cssVar(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
   function openSource(f) { var d = f.querySelector("details.source"); if (d) d.open = true; }
+  // Gives each typed node the color of its group, so that a "Data store: orders" node takes the Storage color.
+  // The shown source stays verbatim; only the copy that Mermaid draws gets the class lines.
+  function colorize(source) {
+    var idsByColor = {}, neutralGroups = [];
+    if (!/^\s*flowchart\b/.test(source)) return { source: source, colors: [], neutralGroups: neutralGroups };
+    source.split("\n").forEach(function (line) {
+      // A subgraph title and a comment name no node.
+      if (/^\s*(subgraph\b|%%)/.test(line)) return;
+      var node, nodePattern = /([A-Za-z][A-Za-z0-9_]*)(?:\["([^"]*)"\]|\{"([^"]*)"\})/g;
+      while ((node = nodePattern.exec(line))) {
+        var label = node[2] !== undefined ? node[2] : node[3];
+        if (label.indexOf(": ") < 0) continue;
+        var type = label.split(": ")[0], color = typeColors.colorsByType[type], group = typeColors.neutralGroupsByType[type];
+        if (color === undefined && group) {
+          color = 0;
+          if (neutralGroups.indexOf(group) < 0) neutralGroups.push(group);
+        }
+        if (color === undefined) continue;
+        var ids = idsByColor[color] = idsByColor[color] || [];
+        if (ids.indexOf(node[1]) < 0) ids.push(node[1]);
+      }
+    });
+    var classLines = Object.keys(idsByColor).map(function (color) {
+      var stroke = color === "0" ? cssVar("--muted") : cssVar("--g" + color);
+      var fill = color === "0" ? cssVar("--sunk") : cssVar("--g" + color + "-soft");
+      return "classDef aipilotG" + color + " fill:" + fill + ",stroke:" + stroke + ",color:" + cssVar("--ink")
+        + "\nclass " + idsByColor[color].join(",") + " aipilotG" + color;
+    });
+    return {
+      source: classLines.length ? source + "\n" + classLines.join("\n") : source,
+      colors: Object.keys(idsByColor),
+      neutralGroups: neutralGroups
+    };
+  }
+  // Names each node color that the diagram uses, in color order. The neutral color comes last.
+  function showLegend(f, view, colors, neutralGroups) {
+    var old = f.querySelector(".diagram-legend");
+    if (old) old.remove();
+    if (!colors.length) return;
+    var legend = el("div", "diagram-legend");
+    colors.slice().sort(function (a, b) { return (+a || 99) - (+b || 99); }).forEach(function (color) {
+      var item = el("span", null, color === "0" ? neutralGroups.join(", ") : typeColors.groupsByColor[color]);
+      var swatch = el("i");
+      swatch.style.background = color === "0" ? "var(--sunk)" : "var(--g" + color + "-soft)";
+      swatch.style.borderColor = color === "0" ? "var(--muted)" : "var(--g" + color + ")";
+      item.insertBefore(swatch, item.firstChild);
+      legend.appendChild(item);
+    });
+    view.insertAdjacentElement("afterend", legend);
+  }
+  // Counts the pairs of nodes and link labels whose boxes overlap or touch. Touching labels read as one sentence.
+  // A link line that crosses a label is not counted.
+  function countCrowdedPairs(svg) {
+    var gap = 4, boxes = [];
+    svg.querySelectorAll("g.node, g.edgeLabel").forEach(function (g) {
+      var r = g.getBoundingClientRect();
+      if (r.width > 1 && r.height > 1) boxes.push(r);
+    });
+    var count = 0;
+    for (var i = 0; i < boxes.length; i++) {
+      for (var j = i + 1; j < boxes.length; j++) {
+        var a = boxes[i], b = boxes[j];
+        if (a.left < b.right + gap && b.left < a.right + gap && a.top < b.bottom + gap && b.top < a.bottom + gap) count += 1;
+      }
+    }
+    return count;
+  }
+  function warn(f, notes) {
+    var old = f.querySelector(".diagram-warn");
+    if (old) old.remove();
+    if (!notes.length) return;
+    f.insertBefore(el("p", "diagram-warn", notes.join(" ")), f.firstChild);
+  }
   function renderDiagrams() {
     if (!figures.length) return;
     if (!window.mermaid) { figures.forEach(openSource); return; }
@@ -388,15 +482,32 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
         clusterBkg: cssVar("--sunk"), clusterBorder: cssVar("--line-2"), titleColor: cssVar("--ink-2"),
         edgeLabelBackground: cssVar("--paper")
       },
-      flowchart: { htmlLabels: false, padding: 12, nodeSpacing: 34, rankSpacing: 36 }
+      // Mermaid's default spacing; tighter spacing lets link labels overlap.
+      flowchart: { htmlLabels: false, padding: 12, nodeSpacing: 50, rankSpacing: 50 }
     });
     figures.forEach(function (f) {
       var src = f.querySelector("pre.mermaid-src"), view = f.querySelector(".diagram-view");
       if (!src || !view) return;
       diagramRun += 1;
-      window.mermaid.render("dg-" + diagramRun, src.textContent)
-        .then(function (out) { view.innerHTML = out.svg; })
-        .catch(function () { view.innerHTML = ""; openSource(f); });
+      var drawing = colorize(src.textContent);
+      window.mermaid.render("dg-" + diagramRun, drawing.source)
+        .then(function (out) {
+          view.innerHTML = out.svg;
+          // A diagram with typed nodes is an architecture view: it gets the rounded style and a legend.
+          f.classList.toggle("arch", drawing.colors.length > 0);
+          showLegend(f, view, drawing.colors, drawing.neutralGroups);
+          var svg = view.querySelector("svg");
+          // Every diagram keeps its natural size, so its text stays readable. A wide one scrolls sideways.
+          if (svg && svg.viewBox.baseVal && svg.viewBox.baseVal.width) {
+            svg.style.maxWidth = "none";
+            svg.style.width = svg.viewBox.baseVal.width + "px";
+          }
+          var crowdedPairCount = svg ? countCrowdedPairs(svg) : 0, notes = [];
+          if (crowdedPairCount) notes.push(crowdedPairCount + (crowdedPairCount === 1 ? " pair of labels overlaps or touches" : " pairs of labels overlap or touch") + " in this diagram. Shorten the labels, or split the view.");
+          drawing.neutralGroups.forEach(function (g) { notes.push("No color is free for the group " + g + ", so its nodes stay neutral."); });
+          warn(f, notes);
+        })
+        .catch(function () { view.innerHTML = ""; warn(f, []); showLegend(f, view, [], []); openSource(f); });
     });
   }
   // Mermaid measures label text, so render after the web fonts load, or labels get clipped.

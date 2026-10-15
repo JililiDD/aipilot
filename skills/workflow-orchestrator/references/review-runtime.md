@@ -123,7 +123,7 @@ Procedure:
    node <this-skill>/scripts/render-review.js <doc.md> <scratchpad>/review-<slug>.html --title "<Stage>: <doc name>"
    ```
 
-   The script loads the bundled `vendor/marked/marked.esm.mjs` from `marked@18.0.6`. When the document has a Mermaid block, the script inlines the bundled `vendor/mermaid/mermaid.min.js` from `mermaid@11.17.2`. The browser then draws each diagram. Markdown rendering does not call `npx`, install packages, or require network access. Always use this renderer for Markdown review artifacts. Do not call marked directly or hand-write a converter.
+   The script loads the bundled `vendor/marked/marked.esm.mjs` from `marked@18.0.6`. When the document has a Mermaid block, the script inlines the bundled `vendor/mermaid/mermaid.min.js` from `mermaid@11.17.2`. The browser then draws each diagram. It colors each typed node of an architecture view by its group, and a legend names each color. An architecture view also gets rounded nodes and a dashed system boundary. Each diagram keeps its natural size, and a wide one scrolls sideways. Above a diagram, the page warns about labels that overlap or touch, and about a group with no free color. Markdown rendering does not call `npx`, install packages, or require network access. Always use this renderer for Markdown review artifacts. Do not call marked directly or hand-write a converter.
 
    The script wraps the rendered document in the review template. It stores the markdown source path only in the non-visual `data-source-md` attribute. Above the content, do not add a document banner or a copy of the review instructions.
 3. **Open and wait** per the Commands section above.

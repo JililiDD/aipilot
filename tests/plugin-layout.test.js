@@ -1218,10 +1218,11 @@ test('merge-back is committed on the work branch, so one git merge carries the c
 
   // The last code commit came before the Completion entry and the merge-back, so the branch the user merged
   // lacked the spec updates, and the working tree stayed dirty.
-  const commitStep = constitution.indexOf("6. If the Plan's `Commit policy` is `branch` or `auto`, commit the merge-back as one commit");
+  const commitStep = constitution.indexOf("7. If the Plan's `Commit policy` is `branch` or `auto`, commit the merge-back as one commit");
   assert.ok(commitStep > 0);
-  assert.ok(commitStep > constitution.indexOf('5. For a phase work-item'), 'the commit comes last, so it holds the moved work-item');
-  assert.ok(constitution.includes('The commit holds the Completion entry, the changes of steps 1–5, and the moved work-item.'));
+  assert.ok(commitStep > constitution.indexOf('6. For a phase work-item'), 'the commit comes last, so it holds the moved work-item');
+  assert.ok(constitution.includes('The commit holds the Completion entry, the changes of steps 1–6, and the moved work-item.'));
+  assert.ok(constitution.includes('apply its **Impact on Architecture** map to update `architecture.md`'));
   // There is nothing to commit when the user commits, when there is no git, or when the documents live elsewhere.
   assert.ok(constitution.includes("Commit nothing under `manual`, in a project without a repository, or when the documents root is not in the project's repository."));
   // The multi-phase wrap already committed each merge-back; it now points to the one rule.

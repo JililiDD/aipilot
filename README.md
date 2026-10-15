@@ -153,6 +153,7 @@ AIPilot writes the resolved location into the project-root `AGENTS.md` under an 
 docs/aipilot/
 ├── product-spec.md
 ├── design-spec.md
+├── architecture.md       # appears with the first architecture views
 ├── dev-phase-plan.md
 ├── memory/               # appears when the first memory is recorded
 │   ├── decisions.md

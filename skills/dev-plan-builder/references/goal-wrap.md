@@ -8,6 +8,7 @@ The full pipeline runs: Requirement → Design → Plan → Build → Code revie
 
 - Its design is inferred rather than interviewed (`design-spec-builder`).
 - Any Story 0 it needs is recorded `[stop: skip]` with the recommended `html` direction source.
+- Any Architecture subsection it needs is inferred. A missing `architecture.md` gets a baseline pass first, unless a refusal is recorded (`planning-rules.md` Architecture Views).
 - Its Plan records whole-work-item granularity and the commit policy collected when the user chose goal mode (orchestrator Gates).
 
 ## Multiple phases
@@ -16,17 +17,18 @@ The full pipeline runs: Requirement → Design → Plan → Build → Code revie
 2. Every phase's Plan records whole-work-item granularity and those answers without asking again. Every Story 0 is recorded `[stop: skip]`.
 3. The run reports at each phase's merge-back and continues. It has no reporting stops.
 4. A phase that introduces a screen that `design-spec.md` does not cover does not stop the run. Its work-item goes to `design-spec-builder`, which under a Goal Wrap infers the Design section from the spec's existing style without interviewing. The run's final report lists every such screen as designed without user confirmation.
-5. Write a short wrap with these parts:
+5. A phase that alters an architecture view does not stop the run either. Its Architecture subsection, and any baseline pass, is inferred. The run's final report lists each one as made without user confirmation.
+6. Write a short wrap with these parts:
    - the objective in one sentence;
    - the remaining phases in roadmap order. Each phase's work-item is derived just in time when the run reaches it. The exit of each phase is its merge-back;
    - the aggregate exit: the last phase's merge-back;
    - the run-wide answers. Under `branch`, these rules also apply:
      - every phase commits to one run branch, `aipilot/<objective slug>`;
      - each phase's merge-back is its own commit there, so the user does one git merge into mainline at the end (constitution §6);
-   - one instruction: *Follow the `workflow-orchestrator` stages throughout. These all apply: the Stop Conditions, the code review cadence, and the merge-backs. The report at each phase's merge-back does not stop the run. These are waived: the stage and phase confirmations, their review offers, and the Story 0 stops. A new screen that the design spec does not cover follows the spec's existing style without a stop. The final report lists that screen. Ask nothing. Each unknown becomes an assumption, and the final report lists it (constitution §7).*
+   - one instruction: *Follow the `workflow-orchestrator` stages throughout. These all apply: the Stop Conditions, the code review cadence, and the merge-backs. The report at each phase's merge-back does not stop the run. These are waived: the stage and phase confirmations, their review offers, and the Story 0 stops. A new screen that the design spec does not cover follows the spec's existing style without a stop. The final report lists that screen. An architecture view is inferred without a stop, and the final report lists it. Ask nothing. Each unknown becomes an assumption, and the final report lists it (constitution §7).*
 
    The wrap points at the system and never restates it. It is a **derived delivery artifact**. It is never stored in the document system.
-6. Run the wrap in this session, without stopping. When the runtime has a separate goal or long-run feature, also show the wrap to the user.
+7. Run the wrap in this session, without stopping. When the runtime has a separate goal or long-run feature, also show the wrap to the user.
 
 ## Escalation inside a single work-item
 

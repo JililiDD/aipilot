@@ -158,6 +158,7 @@ AIPilot は解決された場所をプロジェクトルートの `AGENTS.md` �
 docs/aipilot/
 ├── product-spec.md
 ├── design-spec.md
+├── architecture.md       # 最初のアーキテクチャビューが作成されたときに生成
 ├── dev-phase-plan.md
 ├── memory/               # 最初のメモリが記録されたときに生成
 │   ├── decisions.md

@@ -2,9 +2,12 @@
 
 // Checks every Mermaid block in Markdown files against the safe subset (constitution §7, Diagrams).
 // The subset parses in every Mermaid viewer, keeps labels intact, and lays out readably on the review page.
+// A diagram of an architecture view also gets the checks of constitution §7, Architecture views.
 // Prints each failing line as <file>:<line>: <reason> and exits 1; exits 0 when every block passes.
 
 const fs = require('fs');
+const path = require('path');
+const { loadTypeCatalog } = require('./architecture-types');
 
 function fail(message) {
   console.error(`check-mermaid: ${message}`);
@@ -26,25 +29,41 @@ const SUBGRAPH = new RegExp(`^subgraph ${ID}\\[${LABEL}\\]$`);
 const ORDER = /^[A-Za-z][A-Za-z0-9_]*(?: ~~~ [A-Za-z][A-Za-z0-9_]*)+$/;
 const UNSUPPORTED = 'unsupported syntax. Use ID["label"], ID{"label"}, A --> B, A -->|"label"| B, '
   + 'subgraph ID["title"] ... end, BEFORE ~~~ AFTER, or a %% comment. A label never contains ", <, >, |, or a backtick.';
+const VIEW = /^(Container|Component) View\b/i;
+const TYPED_LABEL = /^([^:]+): \S/;
 
-// Returns the node IDs of a statement such as `A["x"] -->|"y"| B --> C`, or null when any part is outside the subset.
+// Returns the nodes of a statement such as `A["x"] -->|"y"| B --> C`, with its unlabeled link count,
+// or null when any part is outside the subset.
 function parseStatement(line) {
-  const ids = [];
+  const nodes = [];
+  let unlabeledLinks = 0;
   let pos = 0;
   for (;;) {
     NODE.lastIndex = pos;
     const node = NODE.exec(line);
     if (!node) return null;
-    ids.push(node[1]);
+    nodes.push({ id: node[1], label: node[2] !== undefined ? node[2] : node[3] });
     pos = NODE.lastIndex;
-    if (pos === line.length) return ids;
+    if (pos === line.length) return { nodes, unlabeledLinks };
     LINK.lastIndex = pos;
-    if (!LINK.exec(line)) return null;
+    const link = LINK.exec(line);
+    if (!link) return null;
+    if (link[1] === undefined) unlabeledLinks += 1;
     pos = LINK.lastIndex;
   }
 }
 
-function checkBlock(lines, startLine, report) {
+// In an architecture view, a node label names a core or declared type before its name.
+function checkNodeType(label, lineNumber, catalog, view, report) {
+  const typeMatch = label.match(TYPED_LABEL);
+  if (!typeMatch) report(lineNumber, `write the label "${label}" as "<Type>: <name> (<technology>)".`);
+  else if (!catalog.groupsByType.has(typeMatch[1])) report(lineNumber, `"${typeMatch[1]}" is not a core type, and no Element Types table declares it.`);
+  // A Component node is a part of one element's code, so only the view that opens that element shows it.
+  else if (typeMatch[1] === 'Component' && !/^component$/i.test(view)) report(lineNumber, 'use the Component type only in a Component view.');
+}
+
+// Checks a flowchart. The catalog and the view are set only for an architecture view, which adds the Architecture views checks.
+function checkBlock(lines, startLine, report, catalog, view) {
   // Long code names make a left-to-right picture too wide, so every diagram and every track runs top-down.
   if (lines[0].trim() !== 'flowchart TD') {
     report(startLine, 'start the block with "flowchart TD" on its first line.');
@@ -73,7 +92,13 @@ function checkBlock(lines, startLine, report) {
       const subgraph = line.match(SUBGRAPH);
       if (openSubgraph) report(lineNumber, 'do not nest subgraphs.');
       else if (!subgraph) report(lineNumber, UNSUPPORTED);
-      else subgraphIds.push(subgraph[1]);
+      else {
+        subgraphIds.push(subgraph[1]);
+        const typeMatch = subgraph[2].match(TYPED_LABEL);
+        if (catalog && !/^System: \S/.test(subgraph[2]) && !(typeMatch && catalog.groupsByType.has(typeMatch[1]))) {
+          report(lineNumber, 'title the subgraph "System: <name>", or with the node label of the element that a Component view opens.');
+        }
+      }
       openSubgraph = { directed: false };
       return;
     }
@@ -83,12 +108,17 @@ function checkBlock(lines, startLine, report) {
       ids.forEach(id => { if (!subgraphIds.includes(id)) report(lineNumber, `"${id}" is not a subgraph above. "~~~" only orders subgraphs.`); });
       return;
     }
-    const ids = parseStatement(line);
-    if (!ids) {
+    const statement = parseStatement(line);
+    if (!statement) {
       report(lineNumber, UNSUPPORTED);
       return;
     }
-    ids.forEach(id => uses.push({ id, lineNumber }));
+    statement.nodes.forEach(({ id, label }) => {
+      uses.push({ id, lineNumber });
+      if (catalog && label !== undefined) checkNodeType(label, lineNumber, catalog, view, report);
+    });
+    // In an architecture view, each link reads as a sentence, so it needs its verb phrase.
+    if (catalog && statement.unlabeledLinks > 0) report(lineNumber, 'label every link with a verb phrase, such as -->|"saves fetched data"|.');
   });
   if (openSubgraph) report(startLine + lines.length, 'close the subgraph with "end".');
   for (const { id, lineNumber } of uses) {
@@ -102,6 +132,20 @@ function checkBlock(lines, startLine, report) {
   }
 }
 
+// Sends a block to its check. Only a diagram in an architecture section gets the Architecture views checks.
+function checkDiagram(lines, startLine, report, context, catalog) {
+  if (!context.architecture) {
+    checkBlock(lines, startLine, report, null);
+    return;
+  }
+  const view = (context.heading.match(VIEW) || [])[1];
+  if (!view) {
+    report(startLine, 'name the view in the heading above the diagram: Container View or Component View.');
+    return;
+  }
+  checkBlock(lines, startLine, report, catalog, view);
+}
+
 let blocks = 0;
 let errors = 0;
 for (const file of files) {
@@ -111,15 +155,25 @@ for (const file of files) {
     errors += 1;
     console.error(`${file}:${lineNumber}: ${message}`);
   };
+  const catalog = loadTypeCatalog(file);
+  // architecture.md is one architecture section; a work-item has one under its "### Architecture" heading.
+  const wholeFileIsArchitecture = path.basename(file).toLowerCase() === 'architecture.md';
+  let insideArchitecture = wholeFileIsArchitecture;
   let fence = null;
   let section = null;
+  let heading = '';
   for (let i = 0; i < lines.length; i++) {
     if (!fence) {
-      const heading = lines[i].match(/^## +(.+?)\s*$/);
-      if (heading) section = heading[1];
+      const anyHeading = lines[i].match(/^(#{1,6}) +(.+?)\s*$/);
+      if (anyHeading) {
+        const depth = anyHeading[1].length;
+        heading = anyHeading[2];
+        if (depth === 2) section = heading;
+        if (!wholeFileIsArchitecture && depth <= 3) insideArchitecture = depth === 3 && /^Architecture$/i.test(heading);
+      }
       const open = lines[i].match(/^ {0,3}(`{3,}|~{3,})\s*(\S*)/);
       if (open) {
-        fence = { marker: open[1], mermaid: /^mermaid$/i.test(open[2]), start: i };
+        fence = { marker: open[1], mermaid: /^mermaid$/i.test(open[2]), start: i, heading, architecture: insideArchitecture };
         // A text diagram here shows as raw code on the review page.
         if (!fence.mermaid && section === 'Quick Overview') {
           report(i + 1, 'draw the Quick Overview diagram as a Mermaid block, not as text.');
@@ -133,7 +187,7 @@ for (const file of files) {
       blocks += 1;
       const body = lines.slice(fence.start + 1, i);
       if (body.length === 0) report(fence.start + 2, 'the Mermaid block is empty.');
-      else checkBlock(body, fence.start + 2, report);
+      else checkDiagram(body, fence.start + 2, report, fence, catalog);
     }
     fence = null;
   }

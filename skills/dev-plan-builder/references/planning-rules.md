@@ -98,9 +98,41 @@ Design patterns are smell detectors, not ceremony. A design pattern is acceptabl
 - isolates an external boundary;
 - serves a real variation point.
 
-Never plan an interface, base class, factory, or registry for a single local implementation.
+Never plan an interface, base class, factory, or registry for a single local implementation. The one exception is an interface for an external boundary that a test cannot fake otherwise (constitution §7 Code design).
 
 When the language supports them, use type-safe representations for domain categories, states, modes, and action types. Raw strings stay acceptable for display copy and one-off labels that drive no branching or persistence.
+
+## Architecture Views
+
+**Trigger**: a Plan holds an Architecture subsection when the change adds, removes, or replaces an element or a relationship in any architecture view. Compare the change with `architecture.md` to decide. If that file does not exist, compare the change with the code. These rules apply:
+
+- An element is replaced when its technology changes.
+- Adding or removing a module or a layer inside an element alters that element's Component view, if `architecture.md` has one.
+- Complexity alone is not a trigger. The Approach Decisions and the Quick Overview describe a complex change inside one element.
+
+For example, a new queue, a new external API, a split service, or a database change triggers it. A new endpoint in an existing service or a new table column does not.
+
+**Content**: the subsection follows `plan-section-template.md` and the constitution §7 Architecture views. Do these steps:
+
+1. Show only the views that the change alters. Draw each one as it will be after the change.
+2. Below each diagram, list the added, removed, and replaced elements and relationships.
+3. Declare each new element type in the subsection's Element Types table.
+4. End with the **Impact on Architecture** map. It names the `architecture.md` sections that the change alters. If the subsection declares a new type, the map also names Element Types. The orchestrator applies it at merge-back.
+
+**Architecture tests**: if the subsection holds a Component view, and the language has an architecture-test tool, ask whether to test the view's dependencies. Such a test fails when the code adds a dependency that the view does not show. Recommend yes. Examples of the tool are ArchUnit for Java, dependency-cruiser for JS/TS, and import-linter for Python. On yes, add the tests as their own task group. Record the answer in `memory/decisions.md`, and do not ask again. After a yes, each later Plan that alters a Component view also adds or updates the tests of that view.
+
+**New product**: in Roadmap Mode, write `architecture.md` per `architecture-template.md`. Give it every view that the product needs. Phase work-items then compare their changes with it.
+
+**Missing baseline**: when the trigger fires and `architecture.md` does not exist, do these steps:
+
+1. If `memory/agent-guideline.md` records a refusal of the baseline pass, skip the Architecture subsection. Do not ask.
+2. Otherwise, ask (constitution §7) with these options:
+   - (a) run a baseline pass first (recommended). It describes the whole current system, so later changes show only their deltas.
+   - (b) skip it, and do not ask again for this project.
+3. On (a), run Architecture Baseline Mode. Then return to this breakdown.
+4. On (b), skip the Architecture subsection. Invoke `note-keeper` to record the refusal in `memory/agent-guideline.md`.
+
+**User request**: the user may ask about the architecture, or ask for an architecture document, while `architecture.md` does not exist. Then say that it does not exist yet, and ask whether to run the baseline pass now. After a refusal, ask again only for such a request.
 
 ## Test Tiers
 
@@ -112,6 +144,7 @@ Every Plan names two tiers:
 Rules for the tiers:
 
 - Discover the commands once. Look in the CI configuration first, then in package scripts, Makefiles, or build files. For the full tier, record the command that builds one module, such as `./gradlew :<module>:build`. Confirm the commands with the user, and record them as a dated entry in `memory/decisions.md`. Later Plans cite that entry instead of rediscovering the commands. A change in how the project tests is a new, superseding entry.
+- If the project has no linter or no formatter, ask once (constitution §7) whether to add the missing tool as a separate change. Recommend yes. On yes, add it to `BACKLOG.md`. Record the answer in `memory/decisions.md`, and do not ask again. Never add a tool inside an unrelated change.
 - Each Plan names the modules that its change touches, and its full tier builds each of them.
 - A change to shared build configuration, such as a root build file, touches every module. The full tier then builds the whole project.
 - The fast tier itself can be slow, beyond a couple of minutes. In that case, narrow it only through the toolchain's own selector, never by guessing which tests are related. Examples of such selectors are `jest --findRelatedTests`, `nx affected`, and incremental Gradle.
@@ -140,6 +173,8 @@ Every phase and task names at least one of these verification methods:
 - export/import check.
 
 If nothing on this menu applies, the phase or task is not well-defined yet.
+
+If you know an existing test that covers a task's behavior, the task's `— Verify:` names that test. If the test needs a new case, the task extends it instead of adding a new test (constitution §7 Test design).
 
 ## Risk Routing
 
