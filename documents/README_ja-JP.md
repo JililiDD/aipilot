@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 2.2.1" src="https://img.shields.io/badge/release-2.2.1-12B5EA">
+  <img alt="Release 2.3.0" src="https://img.shields.io/badge/release-2.3.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v2.2.1 --trust
+grok plugin install JililiDD/aipilot@v2.3.0 --trust
 ```
 
 ## 単一エントリポイントの使用
@@ -99,7 +99,7 @@ Git を使用していないプロジェクトでは、この質問は省略さ�
 
 AIPilot は [ezreview](https://github.com/JililiDD/ezreview) と連携し、プロダクト仕様、設計仕様、計画、および UI プロトタイプ向けの対話型ブラウザレビューサイクルを提供します。
 
-1. **トークン消費ゼロのレンダリング:** AIPilot は、API トークンを消費することなく [marked](https://github.com/markedjs/marked) を使用して Markdown ソースを一時的な HTML ファイルにローカル変換します。Mermaid 図は同梱の [Mermaid](https://github.com/mermaid-js/mermaid) で描画されます。
+1. **トークン消費ゼロのレンダリング:** AIPilot は、API トークンを消費することなく [marked](https://github.com/markedjs/marked) を使用して Markdown ソースを一時的な HTML ファイルにローカル変換します。同梱の [Mermaid](https://github.com/mermaid-js/mermaid) は、オフラインの ELK レイアウトでフローチャートを描画し、失敗時には Dagre に切り替えます。図のソースは引き続き Mermaid のみです。各図を全画面表示し、幅に合わせる・全体表示・拡大縮小ができます。`ezreview` で注釈する前に全画面表示を終了してください。
 2. **ブラウザ内注釈:** `ezreview` は注釈ツールを備えたページを開き、特定の見出し、段落、または UI 要素にコメントを添付できるようにします。
 3. **自動更新:** AIPilot はフィードバックを Markdown ソースに直接適用し、注釈に返信して、次のパスのために HTML プレビューを再読み込みします。
 4. **承認とクリーンアップ:** 最終承認を与えるまでサイクルが繰り返されます。Markdown は単一の信頼できる情報源（Single Source of Truth）として維持され、レビュー終了時に一時 HTML ファイルはセッションスクラッチパッドから削除されます（ビジュアルデザイン成果物として保持する場合を除く）。
@@ -176,10 +176,10 @@ docs/aipilot/
 
 ## サードパーティソフトウェア
 
-AIPilot には、オフラインドキュメントレビュー用に MIT ライセンスの 3 つのコンポーネントが含まれています：
+AIPilot には、オフラインドキュメントレビュー用に 3 つのオープンソースコンポーネントが含まれています：
 
 - [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` レビュー可能な HTML を開き、要素にアンカーされた注釈を返します
 - [marked](https://github.com/markedjs/marked) `18.0.6` 実行時のダウンロードなしで Markdown をレンダリングします
-- [mermaid](https://github.com/mermaid-js/mermaid) `11.17.2` レビュー対象ドキュメントの図を描画します
+- [mermaid](https://github.com/mermaid-js/mermaid) `12.2.0` は内蔵の ELK レイアウトで図を描画します。`elkjs` には別途 EPL-2.0 ライセンスが適用されます
 
 ソースとライセンスの詳細については [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) を参照してください。

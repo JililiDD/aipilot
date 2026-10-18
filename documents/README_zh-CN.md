@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 2.2.1" src="https://img.shields.io/badge/release-2.2.1-12B5EA">
+  <img alt="Release 2.3.0" src="https://img.shields.io/badge/release-2.3.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v2.2.1 --trust
+grok plugin install JililiDD/aipilot@v2.3.0 --trust
 ```
 
 ## 单一入口启动
@@ -99,7 +99,7 @@ flowchart LR
 
 AIPilot 与 [ezreview](https://github.com/JililiDD/ezreview) 结合，为产品规格、设计规格、计划和 UI 原型提供交互式的浏览器审查循环。
 
-1. **零 Token 消耗渲染：** AIPilot 使用 [marked](https://github.com/markedjs/marked) 将 Markdown 源码本地转换为临时 HTML 文件，不消耗任何 API Token。Mermaid 图由内置的 [Mermaid](https://github.com/mermaid-js/mermaid) 绘制。
+1. **零 Token 消耗渲染：** AIPilot 使用 [marked](https://github.com/markedjs/marked) 将 Markdown 源码本地转换为临时 HTML 文件，不消耗任何 API Token。内置的 [Mermaid](https://github.com/mermaid-js/mermaid) 使用离线 ELK 布局绘制流程图，渲染失败时回退 Dagre。Mermaid 仍是唯一图源。每张图可全屏查看、适应宽度或完整视图，也可缩放；退出全屏后再使用 `ezreview` 批注。
 2. **浏览器内批注：** `ezreview` 在浏览器中打开页面并提供批注工具，允许你针对具体标题、段落或界面元素附带反馈意见。
 3. **自动化更新循环：** AIPilot 直接将反馈更新至 Markdown 源码，回复批注，并重新加载 HTML 预览以进行下一轮审查。
 4. **批准与清理：** 循环持续直至你给予最终批准。Markdown 始终保持为唯一的真实来源——当审查关闭时，临时 HTML 文件会自动从会话暂存区中清理（或作为视觉设计产物保留）。
@@ -176,10 +176,10 @@ docs/aipilot/
 
 ## 第三方软件
 
-AIPilot 内置了三个采用 MIT 许可证的组件，用于离线文档审查：
+AIPilot 内置三个开源组件，用于离线文档审查：
 
 - [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` 打开可审查的 HTML 并返回锚定到元素的批注
 - [marked](https://github.com/markedjs/marked) `18.0.6` 无需运行下载即可渲染 Markdown
-- [mermaid](https://github.com/mermaid-js/mermaid) `11.17.2` 绘制审查文档中的图
+- [mermaid](https://github.com/mermaid-js/mermaid) `12.2.0` 使用内置 ELK 布局绘制图；`elkjs` 另按 EPL-2.0 授权
 
 参阅 [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) 获取源码与许可证详情。

@@ -283,10 +283,11 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
   const mermaidRoot = path.join(root, 'skills/workflow-orchestrator/vendor/mermaid');
   const mermaidVersion = fs.readFileSync(path.join(mermaidRoot, 'VERSION'), 'utf8');
   assert.match(renderer, /\.\.\/vendor\/mermaid\/mermaid\.min\.js/);
-  assert.match(runtime, /`mermaid@11\.17\.2`/);
-  assert.match(mermaidVersion, /^version: 11\.17\.2$/m);
-  assert.deepStrictEqual(fs.readdirSync(mermaidRoot).sort(), ['LICENSE', 'VERSION', 'mermaid.min.js']);
-  for (const [file, key] of [['mermaid.min.js', 'mermaid\\.min\\.js-sha256'], ['LICENSE', 'license-sha256']]) {
+  assert.match(runtime, /`mermaid@12\.2\.0`/);
+  assert.match(mermaidVersion, /^version: 12\.2\.0$/m);
+  assert.match(mermaidVersion, /^elkjs-version: 0\.9\.3$/m);
+  assert.deepStrictEqual(fs.readdirSync(mermaidRoot).sort(), ['ELKJS-LICENSE.md', 'LICENSE', 'VERSION', 'mermaid.min.js']);
+  for (const [file, key] of [['mermaid.min.js', 'mermaid\\.min\\.js-sha256'], ['LICENSE', 'license-sha256'], ['ELKJS-LICENSE.md', 'ELKJS-LICENSE\\.md-sha256']]) {
     const recorded = mermaidVersion.match(new RegExp(`^${key}: ([0-9a-f]{64})$`, 'm'));
     assert.ok(recorded, `mermaid VERSION must record the ${file} sha256`);
     assert.strictEqual(

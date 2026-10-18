@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-AIPilot 2.2.1 includes the following vendored open-source components so its
+AIPilot 2.3.0 includes the following vendored open-source components so its
 document-review workflow can run without downloading packages at runtime.
 
 ## ezreview 1.0.0
@@ -18,16 +18,21 @@ document-review workflow can run without downloading packages at runtime.
 - License: MIT
 - License text: `skills/workflow-orchestrator/vendor/marked/LICENSE`
 
-## mermaid 11.17.2
+## mermaid 12.2.0
 
 - Source: https://github.com/mermaid-js/mermaid
-- Published package: https://www.npmjs.com/package/mermaid/v/11.17.2 (`dist/mermaid.min.js`)
+- Published package: https://www.npmjs.com/package/mermaid/v/12.2.0 (`dist/mermaid.min.js`)
 - Files: `skills/workflow-orchestrator/vendor/mermaid/`
 - License: MIT
 - License text: `skills/workflow-orchestrator/vendor/mermaid/LICENSE`
-- The bundle also contains Mermaid's npm dependencies, under their own licenses:
-  MIT for most, ISC for `d3`, BSD-3-Clause for `d3-sankey`, and
-  MPL-2.0 or Apache-2.0 for `dompurify`, whose notice stays in the bundle.
+- The bundle includes `elkjs` 0.9.3 for ELK layout, under EPL-2.0.
+  The `elkjs` 0.9.3 source code is available under EPL-2.0 at
+  https://github.com/kieler/elkjs and
+  https://www.npmjs.com/package/elkjs/v/0.9.3.
+  License text: `skills/workflow-orchestrator/vendor/mermaid/ELKJS-LICENSE.md`.
+- Other bundled Mermaid dependencies retain their own licenses: MIT for most,
+  ISC for `d3`, BSD-3-Clause for `d3-sankey`, and MPL-2.0 or Apache-2.0
+  for `dompurify`, whose notice stays in the bundle.
 
 The corresponding version files and license texts are distributed with the
 plugin. AIPilot's test suite also verifies the expected ezreview payload and

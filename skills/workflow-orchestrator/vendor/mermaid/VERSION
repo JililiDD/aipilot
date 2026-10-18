@@ -1,6 +1,10 @@
 name: mermaid
-version: 11.17.2
-source: https://registry.npmjs.org/mermaid/-/mermaid-11.17.2.tgz
-tarball-shasum: e3caf3717582c0e44e5d04cff043e025caec7cba
-mermaid.min.js-sha256: 581ed7d74bd9048d0e3a91363927d72ef22942d7722546b27f7cc29e35390eb8
+version: 12.2.0
+source: https://registry.npmjs.org/mermaid/-/mermaid-12.2.0.tgz
+tarball-shasum: 8500d2500a57bd10f0c8ab03ec4deff87df36c39
+mermaid.min.js-sha256: a8a6a6f805b074a8261a2825c86f99c8054acb3b35f50bb7e24a4f9f2c3c3b9f
 license-sha256: ec9fb67dcb25eccc416ed56e1aab819222c805a2a4bfe4cb19e7556bf2ffde80
+elkjs-version: 0.9.3
+elkjs-source: https://registry.npmjs.org/elkjs/-/elkjs-0.9.3.tgz
+elkjs-tarball-shasum: 16711f8ceb09f1b12b99e971b138a8384a529161
+ELKJS-LICENSE.md-sha256: 89591d4578fb1ebd91501312a3d25f021bd865a2e436641c1cf7b1bc7e3c1617

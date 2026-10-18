@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 2.2.1" src="https://img.shields.io/badge/release-2.2.1-12B5EA">
+  <img alt="Release 2.3.0" src="https://img.shields.io/badge/release-2.3.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v2.2.1 --trust
+grok plugin install JililiDD/aipilot@v2.3.0 --trust
 ```
 
 ## Uso de un único punto de entrada
@@ -99,7 +99,7 @@ Un proyecto sin Git omite esta pregunta.
 
 AIPilot se integra con [ezreview](https://github.com/JililiDD/ezreview) para proporcionar un ciclo de revisión interactivo en el navegador para especificaciones de producto, especificaciones de diseño, planes y prototipos de interfaz.
 
-1. **Renderizado sin consumo de tokens:** AIPilot convierte el código fuente Markdown en un archivo HTML temporal localmente mediante [marked](https://github.com/markedjs/marked) sin consumir tokens de la API. Los diagramas Mermaid se dibujan con [Mermaid](https://github.com/mermaid-js/mermaid), incluido en el plugin.
+1. **Renderizado sin consumo de tokens:** AIPilot convierte el código fuente Markdown en un archivo HTML temporal localmente mediante [marked](https://github.com/markedjs/marked) sin consumir tokens de la API. [Mermaid](https://github.com/mermaid-js/mermaid), incluido en el plugin, dispone los diagramas de flujo con ELK sin conexión y recurre a Dagre si falla el renderizado. Mermaid sigue siendo la única fuente de los diagramas. Cada diagrama se puede ver en pantalla completa, ajustar al ancho o completo y ampliar; salga de pantalla completa antes de anotar con `ezreview`.
 2. **Anotaciones en el navegador:** `ezreview` abre la página con herramientas de anotación, permitiéndole adjuntar comentarios a encabezados, párrafos o elementos de interfaz específicos.
 3. **Actualización automatizada:** AIPilot aplica sus comentarios directamente al código fuente Markdown, responde a las anotaciones y recarga la vista previa HTML para otra ronda de revisión.
 4. **Aprobación y limpieza:** El ciclo se repite hasta que otorgue la aprobación final. Markdown sigue siendo la única fuente de verdad: los archivos HTML temporales se eliminan del borrador de la sesión al cerrar la revisión (o se conservan si se requieren como entregables de diseño visual).
@@ -176,10 +176,10 @@ El inicio en frío crea `work-items/`, `work-items/merged/` y `design-assets/`. 
 
 ## Software de terceros
 
-AIPilot incluye tres componentes con licencia MIT para la revisión fuera de línea de documentos:
+AIPilot incluye tres componentes de código abierto para la revisión fuera de línea de documentos:
 
 - [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` abre HTML revisable y devuelve anotaciones ancladas a elementos
 - [marked](https://github.com/markedjs/marked) `18.0.6` renderiza Markdown sin descargas en tiempo de ejecución
-- [mermaid](https://github.com/mermaid-js/mermaid) `11.17.2` dibuja los diagramas de los documentos revisados
+- [mermaid](https://github.com/mermaid-js/mermaid) `12.2.0` dibuja diagramas con ELK integrado; `elkjs` tiene una licencia EPL-2.0 independiente
 
 Consulte [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md) para obtener detalles sobre el código fuente y las licencias.

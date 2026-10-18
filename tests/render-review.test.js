@@ -474,7 +474,34 @@ test('a Mermaid block becomes a figure that the bundled Mermaid fills, with its 
   assert.match(page, /securityLevel: "strict"/);
 });
 
-test('a page without a Mermaid block does not carry the 3.5 MB library', () => {
+test('ELK stays a local rendering choice and edge annotations retain endpoint IDs', () => {
+  const template = fs.readFileSync(templatePath, 'utf8');
+  assert.match(template, /layout: "elk", securityLevel: "strict"/);
+  assert.match(template, /return window\.mermaid\.render\(renderId \+ "-dagre", "---\\nconfig:\\n  layout: dagre\\n---\\n" \+ drawing\.source\)/);
+  assert.match(template, /label\.id = svg\.id \+ "-edge-" \+ label\.getAttribute\("data-id"\)/);
+  const source = 'flowchart TD\n  A["One"] -->|"reviews"| B["Two"]';
+  const content = render(mermaid(source));
+  assert.ok(content.includes('<pre class="mermaid-src"><code>flowchart TD'));
+  assert.ok(content.includes('A[&quot;One&quot;] --&gt;|&quot;reviews&quot;| B[&quot;Two&quot;]'));
+  assert.doesNotMatch(content, /layout: elk|layout: dagre/);
+});
+
+test('a rendered diagram can fill the screen without replacing its annotated SVG', () => {
+  const template = fs.readFileSync(templatePath, 'utf8');
+  assert.match(template, /f\.requestFullscreen\(\)/);
+  assert.match(template, /document\.exitFullscreen\(\)/);
+  assert.match(template, /f\.classList\.add\("diagram-focus"\)/);
+  assert.match(template, /event\.stopImmediatePropagation\(\)/);
+  assert.match(template, /if \(event\.key === "Escape"\) \{ event\.preventDefault\(\); closeDiagram\(expandedDiagram\); \}/);
+  assert.match(template, /\[\["fit-width", "Fit width"/);
+  assert.match(template, /\["fit-all", "Fit all"/);
+  assert.match(template, /button\.setAttribute\("aria-expanded", "false"\)/);
+  const content = render(mermaid('flowchart TD\n  A["One"] --> B["Two"]'));
+  assert.match(content, /<pre class="mermaid-src"><code>flowchart TD/);
+  assert.doesNotMatch(content, /<iframe|Full screen/);
+});
+
+test('a page without a Mermaid block does not carry the bundled library', () => {
   // Most review pages have no diagram; inlining the library everywhere would slow every review.
   const page = renderPage('# Review\n\n## Plan\n\n```java\nint rows = 1;\n```\n');
 

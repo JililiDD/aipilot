@@ -3,6 +3,25 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [2.3.0] - 2026-10-17
+
+### Added
+
+- Every rendered Mermaid diagram in document review, including work-item diagrams, has a Full screen control. The same SVG expands in place with Fit width, Fit all, 100%, and zoom controls. Escape or the exit button restores the review. When browser fullscreen is unavailable, a page-level expanded view is used instead.
+
+### Changed
+
+- Review flowcharts now use the offline Mermaid 12.2.0 bundle with ELK layout. If ELK rendering fails, the browser retries with Dagre; if rendering still fails, it opens the original Mermaid source. Mermaid remains the only diagram source.
+- Edge labels receive stable endpoint-based IDs so ezreview can locate comments on a relationship. The new bundle includes `elkjs` 0.9.3 under EPL-2.0, with its license and source location documented in `THIRD_PARTY_NOTICES.md`.
+
+### Known limitations
+
+- ELK can make large diagrams taller. On a narrow screen, Fit width may make text small; use 100% or zoom and scroll instead. Diagram annotations must be made after leaving native browser fullscreen because the ezreview comment composer is behind it.
+
+### Upgrade notes
+
+- Existing Mermaid documents need no migration. To roll back, install v2.2.1 or check out tag `v2.2.1`.
+
 ## [2.2.1] - 2026-10-15
 
 ### Changed
@@ -162,6 +181,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[2.3.0]: https://github.com/JililiDD/aipilot/compare/v2.2.1...v2.3.0
 [2.2.1]: https://github.com/JililiDD/aipilot/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/JililiDD/aipilot/compare/v2.1.2...v2.2.0
 [2.1.2]: https://github.com/JililiDD/aipilot/compare/v2.1.1...v2.1.2
@@ -180,3 +200,4 @@ RELEASE 2.1.1 — 2026-10-12T14:41:51
 RELEASE 2.1.2 — 2026-10-13T23:09:41
 RELEASE 2.2.0 — 2026-10-15T14:31:22
 RELEASE 2.2.1 — 2026-10-15T16:39:28
+RELEASE 2.3.0 — 2026-10-17T20:41:25

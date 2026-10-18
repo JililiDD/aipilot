@@ -135,6 +135,21 @@ figure.diagram { margin: 0 0 30px; padding: 22px 22px 14px; background: var(--pa
 figure.diagram svg { display: block; height: auto; margin: 0 auto; }
 .diagram-view { overflow-x: auto; }
 .diagram-view:empty { display: none; }
+.diagram-toolbar { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 10px; }
+.diagram-zoom-tools { display: none; align-items: center; gap: 6px; margin-right: auto; }
+.diagram-zoom-value { min-width: 42px; text-align: right; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.diagram-hint { display: none; color: var(--muted); font-size: 13px; }
+figure.diagram:is(:fullscreen, .diagram-focus) .diagram-hint { display: inline; }
+.diagram-control { min-height: 36px; padding: 6px 11px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--paper); color: var(--ink-2); font: 600 13px/1.2 Inter, system-ui, sans-serif; cursor: pointer; }
+.diagram-control:hover { border-color: var(--accent); color: var(--accent-ink); background: var(--accent-soft); }
+.diagram-control:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.diagram-control[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-ink); background: var(--accent-soft); }
+figure.diagram:is(:fullscreen, .diagram-focus) { box-sizing: border-box; display: flex; flex-direction: column; width: 100vw; height: 100dvh; margin: 0; padding: 16px; border: 0; border-radius: 0; background: var(--paper); }
+figure.diagram.diagram-focus { position: fixed; inset: 0; z-index: 100; }
+figure.diagram:is(:fullscreen, .diagram-focus) .diagram-zoom-tools { display: flex; }
+figure.diagram:is(:fullscreen, .diagram-focus) .diagram-view { display: flex; align-items: safe center; justify-content: safe center; flex: 1 1 auto; min-width: 0; min-height: 0; padding: 8px; overflow: auto; }
+figure.diagram:is(:fullscreen, .diagram-focus) .diagram-view svg { flex: none; min-width: 0; max-width: none; margin: auto; }
+figure.diagram:is(:fullscreen, .diagram-focus) details.source { display: none; }
 .diagram-warn { margin: 0 0 14px; padding: 8px 12px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); font-size: 14px; line-height: 1.5; }
 /* Architecture views: rounded nodes, a dashed system boundary, and a legend that names each node color. */
 figure.diagram.arch .node rect { rx: 6px; ry: 6px; }
@@ -278,6 +293,11 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   section.band { margin-top: 60px; }
   figure.diagram { padding: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   figure.diagram svg { min-width: 600px; margin: 0; }
+  figure.diagram:is(:fullscreen, .diagram-focus) { padding: 10px; overflow: hidden; }
+  figure.diagram:is(:fullscreen, .diagram-focus) .diagram-toolbar { flex-wrap: wrap; }
+  figure.diagram:is(:fullscreen, .diagram-focus) .diagram-zoom-tools { flex-wrap: wrap; }
+  figure.diagram:is(:fullscreen, .diagram-focus) .diagram-hint { display: none; }
+  figure.diagram:is(:fullscreen, .diagram-focus) .diagram-view { -webkit-overflow-scrolling: touch; }
   .lead { font-size: 18.5px; }
   h2 { font-size: 25px; }
   ul.criteria > li { padding: 12px 16px; }
@@ -292,7 +312,7 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   ul.notes > li.approach { margin-left: -1.5em; padding: 14px 16px; }
 }
 @media print {
-  .rail, .pop, .band-toggle { display: none !important; }
+  .rail, .pop, .band-toggle, .diagram-toolbar { display: none !important; }
   section.band.collapsed > :not(h2) { display: revert !important; }
   .shell { display: block; }
   main { padding: 0; }
@@ -468,11 +488,156 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
     if (!notes.length) return;
     f.insertBefore(el("p", "diagram-warn", notes.join(" ")), f.firstChild);
   }
+  /* ---------- diagram focus: the same SVG, never a separate viewer ---------- */
+  var expandedDiagram = null, priorOverflow = "";
+  function setDiagramScale(f, scale, mode) {
+    var svg = f.querySelector(".diagram-view svg"), view = f.querySelector(".diagram-view");
+    if (!svg || !svg.viewBox.baseVal.width) return;
+    scale = Math.max(0.1, Math.min(2.5, scale));
+    f.dataset.diagramScale = String(scale);
+    f.dataset.diagramMode = mode;
+    svg.style.width = Math.round(svg.viewBox.baseVal.width * scale) + "px";
+    svg.style.height = Math.round(svg.viewBox.baseVal.height * scale) + "px";
+    f.querySelector(".diagram-zoom-value").textContent = Math.round(scale * 100) + "%";
+    f.querySelector('[data-diagram-action="fit-width"]').setAttribute("aria-pressed", String(mode === "fit-width"));
+    f.querySelector('[data-diagram-action="fit-all"]').setAttribute("aria-pressed", String(mode === "fit-all"));
+    f.querySelector('[data-diagram-action="actual"]').setAttribute("aria-pressed", String(mode === "actual"));
+    if (mode === "custom" || mode === "actual") {
+      view.scrollLeft = Math.max(0, (view.scrollWidth - view.clientWidth) / 2);
+      view.scrollTop = Math.max(0, (view.scrollHeight - view.clientHeight) / 2);
+    }
+  }
+  function fitDiagram(f, all) {
+    var view = f.querySelector(".diagram-view"), svg = view.querySelector("svg");
+    if (!svg || !view.clientWidth || !view.clientHeight) return;
+    var box = svg.viewBox.baseVal;
+    var widthScale = (view.clientWidth - 24) / box.width;
+    var scale = all ? Math.min(widthScale, (view.clientHeight - 24) / box.height, 1.2) : Math.min(widthScale, 1.2);
+    setDiagramScale(f, scale, all ? "fit-all" : "fit-width");
+  }
+  function restoreDiagram(f) {
+    if (!f) return;
+    if (f.classList.contains("diagram-focus")) document.body.style.overflow = priorOverflow;
+    f.classList.remove("diagram-focus");
+    f.removeAttribute("role");
+    f.removeAttribute("aria-modal");
+    f.removeAttribute("aria-label");
+    var svg = f.querySelector(".diagram-view svg"), button = f.querySelector('[data-diagram-action="toggle"]');
+    if (svg) { svg.style.width = svg.viewBox.baseVal.width + "px"; svg.style.height = ""; }
+    button.textContent = "Full screen";
+    button.setAttribute("aria-expanded", "false");
+    delete f.dataset.diagramPending;
+    expandedDiagram = null;
+    button.focus({ preventScroll: true });
+  }
+  function enterDiagram(f) {
+    var button = f.querySelector('[data-diagram-action="toggle"]');
+    f.setAttribute("role", "dialog");
+    f.setAttribute("aria-modal", "true");
+    f.setAttribute("aria-label", "Diagram viewer");
+    button.textContent = f.classList.contains("diagram-focus") ? "Exit expanded view" : "Exit full screen";
+    button.setAttribute("aria-expanded", "true");
+    requestAnimationFrame(function () { if (expandedDiagram === f) fitDiagram(f, false); });
+  }
+  function expandDiagram(f) {
+    if (f.dataset.diagramPending) return;
+    expandedDiagram = f;
+    if (!f.requestFullscreen) {
+      priorOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      f.classList.add("diagram-focus");
+      enterDiagram(f);
+      return;
+    }
+    f.dataset.diagramPending = "true";
+    f.requestFullscreen().then(function () {
+      delete f.dataset.diagramPending;
+      if (expandedDiagram === f) enterDiagram(f);
+    }).catch(function () {
+      delete f.dataset.diagramPending;
+      if (expandedDiagram !== f) return;
+      priorOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      f.classList.add("diagram-focus");
+      enterDiagram(f);
+    });
+  }
+  function closeDiagram(f) {
+    if (document.fullscreenElement === f) document.exitFullscreen().catch(function () { restoreDiagram(f); });
+    else restoreDiagram(f);
+  }
+  document.addEventListener("fullscreenchange", function () {
+    if (expandedDiagram && !document.fullscreenElement && !expandedDiagram.classList.contains("diagram-focus") && !expandedDiagram.dataset.diagramPending) restoreDiagram(expandedDiagram);
+  });
+  addEventListener("keydown", function (event) {
+    if (!expandedDiagram) return;
+    if (event.key === "Escape") { event.preventDefault(); closeDiagram(expandedDiagram); }
+    if (event.key !== "Tab") return;
+    var controls = expandedDiagram.querySelectorAll("button.diagram-control");
+    if (!controls.length) return;
+    var first = controls[0], last = controls[controls.length - 1];
+    if (event.shiftKey && (document.activeElement === first || !expandedDiagram.contains(document.activeElement))) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && (document.activeElement === last || !expandedDiagram.contains(document.activeElement))) {
+      event.preventDefault(); first.focus();
+    }
+  });
+  addEventListener("resize", function () {
+    if (expandedDiagram && /^fit-/.test(expandedDiagram.dataset.diagramMode || "")) requestAnimationFrame(function () {
+      if (expandedDiagram) fitDiagram(expandedDiagram, expandedDiagram.dataset.diagramMode === "fit-all");
+    });
+  });
+  // ezreview intercepts document clicks in review mode. Handle only these local
+  // buttons at window capture; node and edge clicks still reach its annotation tool.
+  addEventListener("click", function (event) {
+    var button = event.target.closest("button[data-diagram-action]");
+    if (!button) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    var f = button.closest("figure.diagram"), action = button.dataset.diagramAction;
+    if (action === "toggle") {
+      if (expandedDiagram === f && !f.dataset.diagramPending) closeDiagram(f);
+      else if (!expandedDiagram) expandDiagram(f);
+    } else if (expandedDiagram === f) {
+      if (action === "fit-width" || action === "fit-all") fitDiagram(f, action === "fit-all");
+      if (action === "actual") setDiagramScale(f, 1, "actual");
+      if (action === "in" || action === "out") setDiagramScale(f, +f.dataset.diagramScale + (action === "in" ? 0.25 : -0.25), "custom");
+    }
+  }, true);
+  function addDiagramControls(f, view, svg) {
+    view.id = svg.id + "-view";
+    var existing = f.querySelector(".diagram-toolbar");
+    if (existing) {
+      existing.querySelector('[data-diagram-action="toggle"]').setAttribute("aria-controls", view.id);
+      return;
+    }
+    var toolbar = el("div", "diagram-toolbar");
+    toolbar.setAttribute("data-chrome", "");
+    var zoom = el("div", "diagram-zoom-tools");
+    [["fit-width", "Fit width", "Fit diagram to screen width"], ["fit-all", "Fit all", "Fit whole diagram"], ["actual", "100%", "Actual size"], ["out", "−", "Zoom out"], ["in", "+", "Zoom in"]].forEach(function (spec) {
+      var control = el("button", "diagram-control", spec[1]);
+      control.type = "button";
+      control.dataset.diagramAction = spec[0];
+      control.setAttribute("aria-label", spec[2]);
+      if (spec[0] === "fit-width" || spec[0] === "fit-all" || spec[0] === "actual") control.setAttribute("aria-pressed", "false");
+      zoom.appendChild(control);
+    });
+    zoom.appendChild(el("span", "diagram-zoom-value", "100%"));
+    toolbar.appendChild(zoom);
+    toolbar.appendChild(el("span", "diagram-hint", "Esc to return and comment"));
+    var toggle = el("button", "diagram-control", "Full screen");
+    toggle.type = "button";
+    toggle.dataset.diagramAction = "toggle";
+    toggle.setAttribute("aria-controls", view.id);
+    toggle.setAttribute("aria-expanded", "false");
+    toolbar.appendChild(toggle);
+    f.insertBefore(toolbar, view);
+  }
   function renderDiagrams() {
     if (!figures.length) return;
     if (!window.mermaid) { figures.forEach(openSource); return; }
     window.mermaid.initialize({
-      startOnLoad: false, securityLevel: "strict", theme: "base",
+      startOnLoad: false, layout: "elk", securityLevel: "strict", theme: "base",
       themeVariables: {
         fontFamily: "Inter, system-ui, sans-serif", fontSize: "14px",
         // Nodes and links take the accent, as on the review page; groups stay on a quiet tint.
@@ -482,25 +647,41 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
         clusterBkg: cssVar("--sunk"), clusterBorder: cssVar("--line-2"), titleColor: cssVar("--ink-2"),
         edgeLabelBackground: cssVar("--paper")
       },
-      // Mermaid's default spacing; tighter spacing lets link labels overlap.
+      // Keep the source unchanged; ELK lays out every flowchart, including future work-item graphs.
       flowchart: { htmlLabels: false, padding: 12, nodeSpacing: 50, rankSpacing: 50 }
     });
     figures.forEach(function (f) {
       var src = f.querySelector("pre.mermaid-src"), view = f.querySelector(".diagram-view");
       if (!src || !view) return;
       diagramRun += 1;
-      var drawing = colorize(src.textContent);
-      window.mermaid.render("dg-" + diagramRun, drawing.source)
+      var renderId = "dg-" + diagramRun, drawing = colorize(src.textContent);
+      window.mermaid.render(renderId, drawing.source)
+        .catch(function () {
+          // An ELK failure must not make a valid Mermaid diagram disappear.
+          return window.mermaid.render(renderId + "-dagre", "---\nconfig:\n  layout: dagre\n---\n" + drawing.source);
+        })
         .then(function (out) {
           view.innerHTML = out.svg;
           // A diagram with typed nodes is an architecture view: it gets the rounded style and a legend.
           f.classList.toggle("arch", drawing.colors.length > 0);
           showLegend(f, view, drawing.colors, drawing.neutralGroups);
           var svg = view.querySelector("svg");
+          // The edge label already carries its Mermaid endpoints in data-id. Give
+          // ezreview a stable ancestor selector even when the user clicks a tspan.
+          if (svg) svg.querySelectorAll("g.edgeLabel > g.label[data-id]").forEach(function (label) {
+            label.id = svg.id + "-edge-" + label.getAttribute("data-id");
+          });
           // Every diagram keeps its natural size, so its text stays readable. A wide one scrolls sideways.
           if (svg && svg.viewBox.baseVal && svg.viewBox.baseVal.width) {
             svg.style.maxWidth = "none";
             svg.style.width = svg.viewBox.baseVal.width + "px";
+            addDiagramControls(f, view, svg);
+            if (expandedDiagram === f) {
+              var mode = f.dataset.diagramMode;
+              if (mode === "fit-width" || mode === "fit-all") {
+                requestAnimationFrame(function () { if (expandedDiagram === f) fitDiagram(f, mode === "fit-all"); });
+              } else if (mode) setDiagramScale(f, +f.dataset.diagramScale, mode);
+            }
           }
           var crowdedPairCount = svg ? countCrowdedPairs(svg) : 0, notes = [];
           if (crowdedPairCount) notes.push(crowdedPairCount + (crowdedPairCount === 1 ? " pair of labels overlaps or touches" : " pairs of labels overlap or touch") + " in this diagram. Shorten the labels, or split the view.");
