@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 2.3.0" src="https://img.shields.io/badge/release-2.3.0-12B5EA">
+  <img alt="Release 2.4.0" src="https://img.shields.io/badge/release-2.4.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -20,7 +20,7 @@
 
 AIPilot es un conjunto de habilidades de flujo de trabajo especializadas para agentes de código IA que automatiza y estructura el desarrollo diario de software. Convierte el trabajo de producto en un proceso supervisado y dividido en fases: definición de requisitos, toma de decisiones de diseño, creación de planes ejecutables, implementación de cambios, revisión de resultados y fusión de actualizaciones aprobadas en la documentación del proyecto. Partiendo de un único punto de entrada, AIPilot inspecciona automáticamente el estado del proyecto y dirige el trabajo a la habilidad adecuada.
 
-Junto con [ezreview](https://github.com/JililiDD/ezreview), AIPilot renderiza documentos Markdown como páginas HTML interactivas para su revisión en el navegador. Puede añadir anotaciones directamente a encabezados, párrafos y elementos de interfaz; AIPilot aplica sus comentarios al código fuente Markdown, recarga la vista previa HTML y mantiene el ciclo de revisión hasta su aprobación final.
+Junto con [ezreview](https://github.com/JililiDD/ezreview), AIPilot renderiza documentos Markdown como páginas HTML interactivas para su revisión en el navegador. Puede añadir anotaciones directamente a encabezados, párrafos y elementos de interfaz; AIPilot aplica sus comentarios al código fuente Markdown, recarga la vista previa HTML y mantiene el ciclo de revisión hasta aprobar o rechazar esta versión. Si se rechaza, conserva el Markdown, detiene el flujo y pregunta qué hacer después.
 
 ## Instalación de AIPilot
 
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v2.3.0 --trust
+grok plugin install JililiDD/aipilot@v2.4.0 --trust
 ```
 
 ## Uso de un único punto de entrada
@@ -178,7 +178,7 @@ El inicio en frío crea `work-items/`, `work-items/merged/` y `design-assets/`. 
 
 AIPilot incluye tres componentes de código abierto para la revisión fuera de línea de documentos:
 
-- [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` abre HTML revisable y devuelve anotaciones ancladas a elementos
+- [ezreview](https://github.com/JililiDD/ezreview) `1.0.1` abre HTML revisable, devuelve anotaciones ancladas a elementos y permite rechazar la versión actual
 - [marked](https://github.com/markedjs/marked) `18.0.6` renderiza Markdown sin descargas en tiempo de ejecución
 - [mermaid](https://github.com/mermaid-js/mermaid) `12.2.0` dibuja diagramas con ELK integrado; `elkjs` tiene una licencia EPL-2.0 independiente
 

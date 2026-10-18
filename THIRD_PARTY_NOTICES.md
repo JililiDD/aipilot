@@ -1,12 +1,13 @@
 # Third-Party Notices
 
-AIPilot 2.3.0 includes the following vendored open-source components so its
+AIPilot 2.4.0 includes the following vendored open-source components so its
 document-review workflow can run without downloading packages at runtime.
 
-## ezreview 1.0.0
+## ezreview 1.0.1
 
-- Source: https://github.com/JililiDD/ezreview
-- Published package: https://www.npmjs.com/package/ezreview/v/1.0.0 (`dist/ezreview.mjs`)
+- Source: https://github.com/JililiDD/ezreview/releases/tag/v1.0.1 (commit `73cf7f23962a6f13ed15c78aedf7070ba2aa0fa2`)
+- Published package: https://www.npmjs.com/package/ezreview/v/1.0.1
+- Standalone `dist/ezreview.mjs` is not included in the npm tarball. The vendored file was built from the tagged source using `npm ci --ignore-scripts` and `npm run build:standalone`; its SHA-256 is checked in the test suite.
 - Files: `skills/workflow-orchestrator/vendor/ezreview/`
 - License: MIT
 - License text: `skills/workflow-orchestrator/vendor/ezreview/LICENSE`

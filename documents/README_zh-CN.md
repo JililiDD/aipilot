@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 2.3.0" src="https://img.shields.io/badge/release-2.3.0-12B5EA">
+  <img alt="Release 2.4.0" src="https://img.shields.io/badge/release-2.4.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -20,7 +20,7 @@
 
 AIPilot 是一套面向 AI Coding Agent 的专业工作流 Skill 集合，旨在对日常软件开发流程进行自动化与结构化管理。它将产品开发提炼为一个可审查的阶段门控过程：定义需求、作出设计决策、创建可执行计划、编写与实施代码、审查结果，并将已批准的更新合并回项目文档中。用户只需从单一入口启动，AIPilot 便会自动检查项目状态并将任务路由至相应的 Skill。
 
-配合 [ezreview](https://github.com/JililiDD/ezreview)，AIPilot 可将 Markdown 文档渲染为可交互的 HTML 页面供浏览器端审查。你可以在浏览器中直接对特定标题、段落或界面元素添加批注；AIPilot 会将反馈自动应用至 Markdown 源码、刷新 HTML 预览，并保持审查循环直至最终批准。
+配合 [ezreview](https://github.com/JililiDD/ezreview)，AIPilot 可将 Markdown 文档渲染为可交互的 HTML 页面供浏览器端审查。你可以在浏览器中直接对特定标题、段落或界面元素添加批注；AIPilot 会将反馈自动应用至 Markdown 源码、刷新 HTML 预览，并持续审查直至批准或拒绝当前版本。拒绝后会停止流程、保留 Markdown 源文件并询问下一步。
 
 ## 安装 AIPilot
 
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v2.3.0 --trust
+grok plugin install JililiDD/aipilot@v2.4.0 --trust
 ```
 
 ## 单一入口启动
@@ -178,7 +178,7 @@ docs/aipilot/
 
 AIPilot 内置三个开源组件，用于离线文档审查：
 
-- [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` 打开可审查的 HTML 并返回锚定到元素的批注
+- [ezreview](https://github.com/JililiDD/ezreview) `1.0.1` 打开可审查的 HTML，返回锚定到元素的批注，并支持拒绝当前版本
 - [marked](https://github.com/markedjs/marked) `18.0.6` 无需运行下载即可渲染 Markdown
 - [mermaid](https://github.com/mermaid-js/mermaid) `12.2.0` 使用内置 ELK 布局绘制图；`elkjs` 另按 EPL-2.0 授权
 

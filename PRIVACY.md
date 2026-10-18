@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Effective date: July 19, 2026
+Effective date: October 17, 2026
 
 AIPilot is a local, skills-only plugin. The plugin does not operate a hosted
 service, create user accounts, use analytics, include advertising, or transmit
@@ -12,7 +12,10 @@ AIPilot instructs the host coding agent to read and update files that the user
 places in scope. Depending on the requested workflow, these files can include
 source code, product specifications, plans, review documents, and project
 memory files. Generated review HTML is temporary and the workflow instructs
-the host to delete it after the review session.
+the host to delete it after the review session. Visual HTML deliverables are
+reviewed through temporary copies, not the original files. Selecting Disapprove
+deletes the submitted temporary HTML and that ezreview session's feedback history;
+the original source file is retained.
 
 The selected host application may process prompts, files, tool output, and
 telemetry under its own terms and privacy policy. AIPilot does not control the

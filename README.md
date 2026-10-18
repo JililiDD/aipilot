@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 2.3.0" src="https://img.shields.io/badge/release-2.3.0-12B5EA">
+  <img alt="Release 2.4.0" src="https://img.shields.io/badge/release-2.4.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -20,7 +20,7 @@
 
 AIPilot is a suite of specialized workflow skills for AI coding agents that automates and structures daily software development. It turns product work into an inspectable, stage-gated process: defining requirements, making design decisions, creating executable plans, implementing changes, reviewing results, and merging approved updates back into project documentation. Starting from a single entry point, AIPilot automatically inspects project state and routes work to the right skill.
 
-Paired with [ezreview](https://github.com/JililiDD/ezreview), AIPilot renders Markdown documents as interactive HTML pages for in-browser review. You can annotate specific headings, paragraphs, and interface elements directly in your browser; AIPilot applies your feedback to the Markdown source, reloads the HTML preview, and maintains the review loop until final approval.
+Paired with [ezreview](https://github.com/JililiDD/ezreview), AIPilot renders Markdown documents as interactive HTML pages for in-browser review. You can annotate specific headings, paragraphs, and interface elements directly in your browser; AIPilot applies your feedback to the Markdown source, reloads the HTML preview, and continues the review until approval or rejection of this version. Rejection stops the workflow and prompts you for the next instruction.
 
 ## Install AIPilot
 
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v2.3.0 --trust
+grok plugin install JililiDD/aipilot@v2.4.0 --trust
 ```
 
 ## Use one entry point
@@ -97,7 +97,7 @@ AIPilot pairs with [ezreview](https://github.com/JililiDD/ezreview) to provide a
 1. **Zero-token rendering:** AIPilot converts Markdown to temporary HTML with [marked](https://github.com/markedjs/marked) without consuming API tokens. Bundled [Mermaid](https://github.com/mermaid-js/mermaid) uses its local ELK layout for flowcharts, with Dagre as a render-failure fallback. Mermaid remains the diagram source. Each rendered diagram offers full-screen viewing, fit-to-width, fit-all, and zoom controls; exit full screen to add an `ezreview` annotation.
 2. **In-browser annotation:** `ezreview` opens the page with annotation tools, letting you attach comments to specific headings, paragraphs, or interface elements.
 3. **Automated updates:** AIPilot applies your feedback directly to the Markdown source, replies to annotations, and reloads the HTML preview for another pass.
-4. **Approval & cleanup:** The loop repeats until you grant final approval. Markdown remains the single source of truth—temporary HTML files are cleaned up from the session scratchpad when the review closes (or retained as visual design deliverables).
+4. **Decision & cleanup:** Approve ends the review successfully. Disapprove rejects only the current preview: AIPilot stops, preserves the Markdown or original visual deliverable, and asks what you want next. It never advances the workflow or rolls back source files on rejection. ezreview deletes the temporary reviewed HTML and its feedback history.
 
 ## Know what each skill does
 
@@ -173,7 +173,7 @@ Cold start creates `work-items/`, `work-items/merged/`, and `design-assets/`. Th
 
 AIPilot vendors three open-source components for offline document review:
 
-- [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` opens reviewable HTML and returns element-anchored annotations
+- [ezreview](https://github.com/JililiDD/ezreview) `1.0.1` opens reviewable HTML, returns element-anchored annotations, and supports Disapprove
 - [marked](https://github.com/markedjs/marked) `18.0.6` renders Markdown without a runtime download
 - [mermaid](https://github.com/mermaid-js/mermaid) `12.2.0` draws diagrams with bundled ELK layout; `elkjs` carries its separate EPL-2.0 license
 

@@ -270,7 +270,7 @@ At a stage boundary that requires explicit user confirmation:
 2. If the stage produced or updated a reviewable markdown deliverable, offer the optional browser review **before** requesting next-stage confirmation. A reviewable markdown deliverable is a product spec, design spec or Design section, architecture document, work-item, plan, or roadmap. Making the offer is mandatory. Opening the browser review is optional.
 
    Recommend the browser review when the deliverable is long or holds decisions the user has not yet seen in chat. Otherwise, recommend skipping it. The offer and the confirmation may share one question. Its options must then include browser review and "Skip review and continue to <next stage>"; choosing that option confirms.
-3. If the user selects browser review, run the mechanism in `review-runtime.md`. Request next-stage confirmation only after the browser review completes. If the user declines a separate review offer, ask for confirmation in chat; declining a browser review is never itself a confirmation.
+3. If the user selects browser review, run the mechanism in `review-runtime.md`. Request next-stage confirmation only after **Approve** (or a separate explicit confirmation in chat). **Disapprove** rejects only this review version. Stop without confirming the document or entering the next stage. Preserve its source, tell the user it was rejected, and ask what to do next. Do not automatically revise or roll back the source. If the user declines a separate review offer, ask for confirmation in chat; declining a browser review is never itself a confirmation.
 4. A stage report that asks only to continue to the next stage before making the required offer is invalid.
 
 The gate never creates a boundary that has been waived. When the session's execution mode waives a stage confirmation, it also waives the review offer there. These execution modes waive a stage confirmation:
@@ -286,7 +286,7 @@ Every skill uses these words with one meaning only.
 
 - **stop**: end the turn and wait for the user's reply before doing more work. "Halt" and "pause" are not used for it.
 - **ask**: put a question to the user in the §7 format, then stop until it is answered.
-- **confirm**: give the user's explicit go-ahead at a stop. **User-confirmed** content is content the user answered or confirmed, never content a Goal Wrap inferred. **Approve** names only the review runtime's Approve action, which alone confirms nothing (§8).
+- **confirm**: give the user's explicit go-ahead at a stop. **User-confirmed** content is content the user answered or confirmed, never content a Goal Wrap inferred. **Approve** names the review runtime's accept action, which alone confirms nothing (§8). **Disapprove** names its reject action; it stops the review without confirming the source or the next stage (§8).
 - **assumption**: a decision made without the user's answer, recorded as `A-n`.
 - **route to X**: hand the work to X in the same run (§7 Routing). A **handoff** is the message that carries it: the target, the execution mode, and the granularity.
 - **the user**: the person who works with AIPilot. People who use the product being built are **end users**. "Target user", "new user", and "power users" also mean end users.

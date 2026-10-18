@@ -3,6 +3,25 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [2.4.0] - 2026-10-17
+
+### Added
+
+- Disapprove support in browser review with the vendored ezreview 1.0.1 standalone build. Rejection ends only the current review, stops the workflow, preserves source files, and prompts the user for the next instruction. A zero `wait` exit code no longer implies approval.
+
+### Changed
+
+- Visual HTML deliverables are reviewed through scratchpad copies so rejection cannot delete the original mock. The rejected preview and ezreview feedback history are deleted by ezreview. Existing Markdown edits are not rolled back.
+
+### Known limitations
+
+- If Disapprove occurs between attached `wait` calls, ezreview 1.0.1 can delete its session before the next call receives the event. A missing preview stops the gate without assuming approval or claiming a confirmed rejection.
+
+### Upgrade notes
+
+- No project document migration is needed. Disapprove permanently deletes the submitted temporary HTML and its ezreview feedback history; retain a separate copy of any original visual deliverable.
+- To roll back, install v2.3.0 or check out tag `v2.3.0`.
+
 ## [2.3.0] - 2026-10-17
 
 ### Added
@@ -181,6 +200,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[2.4.0]: https://github.com/JililiDD/aipilot/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/JililiDD/aipilot/compare/v2.2.1...v2.3.0
 [2.2.1]: https://github.com/JililiDD/aipilot/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/JililiDD/aipilot/compare/v2.1.2...v2.2.0
@@ -201,3 +221,4 @@ RELEASE 2.1.2 — 2026-10-13T23:09:41
 RELEASE 2.2.0 — 2026-10-15T14:31:22
 RELEASE 2.2.1 — 2026-10-15T16:39:28
 RELEASE 2.3.0 — 2026-10-17T20:41:25
+RELEASE 2.4.0 — 2026-10-17T22:35:16

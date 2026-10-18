@@ -34,7 +34,7 @@ function openInBrowser(url, platform = process.platform, spawnFn = (command, arg
 
 // src/server.ts
 import { createServer as createHttpServer } from "node:http";
-import { readFileSync as readFileSync3 } from "node:fs";
+import { readFileSync as readFileSync3, unlinkSync as unlinkSync2 } from "node:fs";
 import { basename, resolve as resolve2 } from "node:path";
 
 // src/shell-client.ts
@@ -52,7 +52,9 @@ function renderClientScript() {
   var railCollapseAllBtn = document.getElementById("rail-collapse-all");
   var railFooter = document.getElementById("rail-footer");
   var approveButton = document.getElementById("approve");
+  var disapproveButton = document.getElementById("disapprove");
   var confirmModalBackdrop = document.getElementById("confirm-modal-backdrop");
+  var confirmModalMessage = document.getElementById("confirm-modal-message");
   var confirmModalOk = document.getElementById("confirm-modal-ok");
   var confirmModalCancel = document.getElementById("confirm-modal-cancel");
   var agentStatusLabel = document.getElementById("agent-status");
@@ -71,6 +73,8 @@ function renderClientScript() {
   var customAccentVisual = document.getElementById("custom-accent-visual");
   var documentReadOnly = false;
   var documentConfirmed = false;
+  var reviewDecision = "approve";
+  var decisionPending = false;
 
   // ---- Appearance settings ----
 
@@ -451,6 +455,9 @@ function renderClientScript() {
   source.onerror = setDisconnected;
   source.addEventListener("confirmed", function () {
     documentConfirmed = true;
+  });
+  source.addEventListener("disapproved", function () {
+    enterReadOnlyMode("disapprove");
   });
   source.addEventListener("reload", function () {
     currentHoverTarget = null;
@@ -2039,11 +2046,16 @@ function renderClientScript() {
       });
   });
 
-  function enterReadOnlyMode() {
+  function enterReadOnlyMode(decision) {
     documentReadOnly = true;
     documentConfirmed = true;
     approveButton.disabled = true;
-    approveButton.textContent = "Confirmed";
+    disapproveButton.disabled = true;
+    if (decision === "disapprove") {
+      disapproveButton.textContent = "Disapproved";
+    } else {
+      approveButton.textContent = "Confirmed";
+    }
     submitReviewButton.disabled = true;
     if (reviewOn) {
       reviewOn = false;
@@ -2055,30 +2067,66 @@ function renderClientScript() {
     reviewSwitch.style.opacity = "0.5";
   }
 
-  approveButton.addEventListener("click", function () {
+  function openDecisionModal(decision) {
+    if (decisionPending || documentReadOnly) return;
     if (queue.length > 0) {
       showSendFailure("Send or clear the queue first");
       return;
     }
+    reviewDecision = decision;
+    confirmModalMessage.textContent = decision === "disapprove"
+      ? "Disapprove this version? The submitted HTML file and all feedback history will be deleted. The agent will disconnect."
+      : "Confirm this document is done? All feedback history will be deleted.";
+    confirmModalOk.textContent = decision === "disapprove" ? "Disapprove" : "OK";
+    confirmModalOk.setAttribute("data-decision", decision);
     confirmModalBackdrop.classList.add("visible");
+    confirmModalCancel.focus();
+  }
+
+  approveButton.addEventListener("click", function () {
+    openDecisionModal("approve");
+  });
+  disapproveButton.addEventListener("click", function () {
+    openDecisionModal("disapprove");
   });
 
   confirmModalCancel.addEventListener("click", function () {
     confirmModalBackdrop.classList.remove("visible");
+    (reviewDecision === "disapprove" ? disapproveButton : approveButton).focus();
+  });
+  confirmModalBackdrop.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      confirmModalCancel.click();
+    } else if (event.key === "Tab") {
+      if (event.shiftKey && document.activeElement === confirmModalCancel) {
+        event.preventDefault();
+        confirmModalOk.focus();
+      } else if (!event.shiftKey && document.activeElement === confirmModalOk) {
+        event.preventDefault();
+        confirmModalCancel.focus();
+      }
+    }
   });
 
   confirmModalOk.addEventListener("click", function () {
+    if (decisionPending) return;
+    decisionPending = true;
     confirmModalBackdrop.classList.remove("visible");
-    fetch("/confirm-document", { method: "POST" })
+    var decision = reviewDecision;
+    fetch(decision === "disapprove" ? "/disapprove-document" : "/confirm-document", { method: "POST" })
       .then(function (res) {
         if (!res.ok) {
-          showSendFailure("Confirm failed \u2014 please retry");
+          showSendFailure(decision === "disapprove" ? "Disapprove failed \u2014 check the HTML file before retrying" : "Confirm failed \u2014 please retry");
           return;
         }
-        enterReadOnlyMode();
+        enterReadOnlyMode(decision);
       })
       .catch(function () {
-        showSendFailure("Confirm failed \u2014 network error");
+        showSendFailure(decision === "disapprove" ? "Disapprove failed \u2014 check whether the HTML was removed" : "Confirm failed \u2014 network error");
+      })
+      .finally(function () {
+        decisionPending = false;
       });
   });
 
@@ -2643,7 +2691,7 @@ function renderShellPage(fileName, filePath) {
   #appearance-reset:hover {
     color: var(--accent);
   }
-  #approve {
+  #approve, #disapprove {
     background: transparent;
     color: var(--accent);
     border: 1px solid var(--accent);
@@ -2657,6 +2705,18 @@ function renderShellPage(fileName, filePath) {
   #approve:hover {
     background: var(--accent-soft);
   }
+  #disapprove {
+    color: var(--human-color);
+    border-color: var(--human-color);
+    margin-right: 8px;
+  }
+  #disapprove:hover {
+    background: var(--human-soft);
+  }
+  #disapprove:focus-visible {
+    outline: 2px solid var(--human-color);
+    outline-offset: 2px;
+  }
   #approve:focus-visible,
   #confirm-modal-ok:focus-visible,
   .bubble-add:focus-visible,
@@ -2668,7 +2728,7 @@ function renderShellPage(fileName, filePath) {
   .followup-reply-btn:hover {
     box-shadow: 0 0 0 3px var(--accent-soft);
   }
-  #approve:disabled {
+  #approve:disabled, #disapprove:disabled {
     background: transparent;
     color: var(--chrome-dim);
     border-color: var(--chrome-border);
@@ -2944,7 +3004,26 @@ function renderShellPage(fileName, filePath) {
     background: var(--accent);
     color: var(--accent-ink);
   }
+  #confirm-modal-ok[data-decision="disapprove"] {
+    background: var(--human-color);
+    color: var(--chrome-bg-solid);
+  }
+  @media (max-width: 800px) {
+    #wordmark, #file-name { display: none; }
+    #toolbar { gap: 8px; padding: 0 10px; }
+  }
   @media (max-width: 520px) {
+    #review-mode > span:first-child { display: none; }
+    #agent-status, #status-text {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    #disapprove, #approve { padding: 6px 8px; font-size: 12px; }
+    #disapprove { margin-right: 0; }
     #appearance-popover {
       width: min(292px, calc(100vw - 24px));
     }
@@ -3028,7 +3107,8 @@ function renderShellPage(fileName, filePath) {
       <span>REVIEW MODE</span>
       <span class="switch" id="review-mode-switch" data-on="true"><span class="switch-knob"></span></span>
     </div>
-    <button id="approve">Approve</button>
+    <button id="disapprove" type="button">Disapprove</button>
+    <button id="approve" type="button">Approve</button>
   </div>
   <div id="stage">
     <div id="artifact-pane">
@@ -3046,8 +3126,8 @@ function renderShellPage(fileName, filePath) {
     </div>
   </div>
   <div id="confirm-modal-backdrop">
-    <div id="confirm-modal">
-      <p>Confirm this document is done? All feedback history will be deleted.</p>
+    <div id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-message">
+      <p id="confirm-modal-message">Confirm this document is done? All feedback history will be deleted.</p>
       <div id="confirm-modal-actions">
         <button id="confirm-modal-cancel">Cancel</button>
         <button id="confirm-modal-ok">OK</button>
@@ -3459,6 +3539,26 @@ function createRequestHandler(artifactPath, sseHub, sessionDir, onConfirmDocumen
       });
       return;
     }
+    if (pathname === "/disapprove-document" && req.method === "POST") {
+      if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`) {
+        res.writeHead(403, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ error: "cross-origin requests are not allowed" }));
+        return;
+      }
+      try {
+        unlinkSync2(absoluteArtifactPath);
+        resetSessionFiles(sessionDir);
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ error: `Could not delete the review document: ${err.message}` }));
+        return;
+      }
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      res.end(JSON.stringify({ ok: true }));
+      sseHub.broadcast("disapproved", {});
+      onConfirmDocument();
+      return;
+    }
     if (pathname === "/confirm-document" && req.method === "POST") {
       resetSessionFiles(sessionDir);
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
@@ -3571,6 +3671,8 @@ var WaitError = class extends Error {
 };
 var ReviewConfirmed = class extends Error {
 };
+var ReviewDisapproved = class extends Error {
+};
 function truncate(text, max) {
   return text.length > max ? `${text.slice(0, max)}\u2026` : text;
 }
@@ -3676,6 +3778,9 @@ async function waitForFeedback(file, opts = {}) {
       const chunk = await nextSseChunk(reader, decoder, state);
       if (chunk.startsWith("event: confirmed")) {
         throw new ReviewConfirmed("Review confirmed complete \u2014 no further feedback will arrive.");
+      }
+      if (chunk.startsWith("event: disapproved")) {
+        throw new ReviewDisapproved("Review disapproved \u2014 the submitted HTML was deleted. Stop this review; wait for the user's instructions before creating a new version.");
       }
       if (!chunk.startsWith("event: feedback")) {
         continue;
@@ -3827,7 +3932,7 @@ async function main(argv = process.argv.slice(2)) {
 `);
       return 0;
     } catch (err) {
-      if (err instanceof ReviewConfirmed) {
+      if (err instanceof ReviewConfirmed || err instanceof ReviewDisapproved) {
         process.stdout.write(`${err.message}
 `);
         return 0;

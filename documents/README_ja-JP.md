@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release 2.3.0" src="https://img.shields.io/badge/release-2.3.0-12B5EA">
+  <img alt="Release 2.4.0" src="https://img.shields.io/badge/release-2.4.0-12B5EA">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0B1537">
   <img alt="Claude Code, Codex, and Grok Build" src="https://img.shields.io/badge/agents-Claude%20Code%20%7C%20Codex%20%7C%20Grok-F7B32B">
 </p>
@@ -20,7 +20,7 @@
 
 AIPilot は、AI コーディングエージェント向けの専門的なワークフロースキル群であり、日常のソフトウェア開発を自動化および構造化します。要件の定義、設計上の決定、実行可能な計画の作成、コードの実装、結果のレビュー、承認された更新のプロジェクトドキュメントへのマージといったプロダクト開発を、検査可能なステージゲートプロセスに変換します。単一のエントリポイントから開始すると、AIPilot はプロジェクトの状態を自動的に検査し、適切なスキルに作業をルーティングします。
 
-[ezreview](https://github.com/JililiDD/ezreview) と連携することで、AIPilot は Markdown ドキュメントをブラウザレビュー用の対話型 HTML ページとしてレンダリングします。ブラウザ上で特定の見出し、段落、インターフェース要素に直接注釈を追加できます。AIPilot はフィードバックを Markdown ソースに適用し、HTML プレビューを更新して、最終承認が得られるまでレビューサイクルを維持します。
+[ezreview](https://github.com/JililiDD/ezreview) と連携することで、AIPilot は Markdown ドキュメントをブラウザレビュー用の対話型 HTML ページとしてレンダリングします。ブラウザ上で特定の見出し、段落、インターフェース要素に直接注釈を追加できます。AIPilot はフィードバックを Markdown ソースに適用し、HTML プレビューを更新して、承認または現在の版の却下までレビューサイクルを維持します。却下後は元の Markdown を保持して停止し、次の指示を尋ねます。
 
 ## AIPilot のインストール
 
@@ -41,7 +41,7 @@ codex plugin add aipilot@aipilot
 ### Grok Build
 
 ```bash
-grok plugin install JililiDD/aipilot@v2.3.0 --trust
+grok plugin install JililiDD/aipilot@v2.4.0 --trust
 ```
 
 ## 単一エントリポイントの使用
@@ -178,7 +178,7 @@ docs/aipilot/
 
 AIPilot には、オフラインドキュメントレビュー用に 3 つのオープンソースコンポーネントが含まれています：
 
-- [ezreview](https://github.com/JililiDD/ezreview) `1.0.0` レビュー可能な HTML を開き、要素にアンカーされた注釈を返します
+- [ezreview](https://github.com/JililiDD/ezreview) `1.0.1` レビュー可能な HTML を開き、要素にアンカーされた注釈を返し、現在の版の却下をサポートします
 - [marked](https://github.com/markedjs/marked) `18.0.6` 実行時のダウンロードなしで Markdown をレンダリングします
 - [mermaid](https://github.com/mermaid-js/mermaid) `12.2.0` は内蔵の ELK レイアウトで図を描画します。`elkjs` には別途 EPL-2.0 ライセンスが適用されます
 

@@ -150,9 +150,11 @@ test('canonical constitution exclusively owns the markdown stage review gate', (
   ].map(relativePath => fs.readFileSync(path.join(root, relativePath), 'utf8'));
 
   const offerIndex = constitution.indexOf('offer the optional browser review **before** requesting next-stage confirmation');
-  const confirmationIndex = constitution.indexOf('Request next-stage confirmation only after the browser review completes');
+  const confirmationIndex = constitution.indexOf('Request next-stage confirmation only after **Approve**');
   assert.ok(offerIndex >= 0, 'constitution must own the browser-review offer');
   assert.ok(confirmationIndex > offerIndex, 'constitution must order review before confirmation');
+  assert.match(constitution, /Disapprove\*\* rejects only this review version/);
+  assert.match(constitution, /Stop without confirming the document or entering the next stage/);
   assert.ok(constitution.includes('asks only to continue to the next stage before making the required offer is invalid'));
   assert.ok(constitution.includes('Goal Wrap'));
   assert.ok(orchestrator.includes('constitution §8'));
@@ -213,16 +215,23 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
   assert.match(runtime, /node <this-skill>\/vendor\/ezreview\/ezreview\.mjs <file\.html>/);
   assert.match(runtime, /node <this-skill>\/vendor\/ezreview\/ezreview\.mjs wait <file\.html>/);
   assert.match(runtime, /node <this-skill>\/vendor\/ezreview\/ezreview\.mjs reply/);
-  assert.match(runtime, /plugin-vendored `ezreview` 1\.0\.0 standalone file/);
+  assert.match(runtime, /plugin-vendored `ezreview` 1\.0\.1 standalone file/);
+  assert.match(runtime, /Approve and Disapprove both exit with code 0/);
+  assert.match(runtime, /Stop this review\. Do not confirm the document or advance the workflow/);
+  assert.match(runtime, /Do not recreate the HTML, automatically revise or roll back the Markdown/);
+  assert.match(runtime, /Tell the user that this version was rejected, that the source remains, and ask what to do next/);
+  assert.match(runtime, /Without an explicit Disapprove result, report only that the preview is missing/);
+  assert.match(runtime, /Never pass its path to ezreview 1\.0\.1: Disapprove would delete it/);
+  assert.match(runtime, /Apply annotations to the original deliverable, then refresh the scratchpad copy only while the review remains active/);
   assert.match(runtime, /Do not substitute `npm`, `npx`, a global `ezreview` command, or any runtime download/);
   assert.doesNotMatch(runtime, /npx -y ezreview|npm (?:install|exec) ezreview/);
-  assert.strictEqual(ezreviewVersion, '1.0.0\n');
+  assert.strictEqual(ezreviewVersion, '1.0.1\n');
   if (process.platform !== 'win32') {
     assert.ok((fs.statSync(ezreviewStandalone).mode & 0o111) !== 0, 'vendored ezreview must stay executable');
   }
   assert.strictEqual(
     crypto.createHash('sha256').update(fs.readFileSync(ezreviewStandalone)).digest('hex'),
-    '7749773f89462838ad57350f8e0554347ebdca7a653c8e2473218c37bc7b6033',
+    '4c8153180e278a37bf1bb06b6c90edc68c81b37ac0dcdef80d62914264f6e6f9',
   );
   assert.strictEqual(
     crypto.createHash('sha256').update(fs.readFileSync(ezreviewLicense)).digest('hex'),
@@ -238,26 +247,26 @@ test('review runtime uses ezreview commands and no injected browser bridge', () 
   assert.match(runtime, /There is no agent-imposed idle timeout for human review/);
   assert.match(runtime, /Never interrupt, terminate, kill, or close either process solely because no feedback has arrived/);
   assert.match(runtime, /A poll boundary exists only so the host can return control; it is not a review deadline/);
-  assert.match(runtime, /Preserve the exact review HTML and its source document/);
+  assert.match(runtime, /Preserve the source document and the exact review HTML if it still exists/);
   assert.match(runtime, /start exactly one new attached `wait` for the \*\*same HTML file\*\*/);
   assert.match(runtime, /reopen the \*\*same HTML file\*\*/);
   assert.match(runtime, /interruption is a recovery event, not approval or cancellation/);
   assert.match(runtime, /cancellation leaves the workflow gate unconfirmed/);
   assert.match(runtime, /the review gate remains active/);
-  assert.match(runtime, /shut down only unusable processes and preserve the HTML\/source for the fallback review/);
-  assert.match(runtime, /Never shut down a usable review process before approval or explicit cancellation/);
+  assert.match(runtime, /shut down only unusable processes and preserve any remaining HTML\/source for fallback review/);
+  assert.match(runtime, /Never shut down a usable review process before approval, disapproval, or explicit cancellation/);
   assert.match(runtime, /`wait` intentionally returns one structured batch and exits/);
   assert.match(runtime, /\*\*Reply to every submitted annotation ID after handling it\.\*\*/);
   assert.match(runtime, /Never treat a source edit or HTML reload as an implicit reply/);
   assert.match(runtime, /Give each annotation its own reply, including when one edit addresses multiple comments/);
   assert.match(runtime, /verify that every annotation ID in the returned batch has received an outcome reply/);
-  assert.match(runtime, /Run `wait` again only after all replies are visible to the review channel/);
+  assert.match(runtime, /Start another `wait` only if the HTML still exists and every reply is visible/);
   assert.match(runtime, /Keep the current review turn open across every batch/);
   assert.match(runtime, /End the ezreview loop only under the exit-event rules above/);
-  assert.match(runtime, /tool failure and fallback are never an implicit confirmation/);
-  assert.match(runtime, /cancellation never authorizes it/);
+  assert.match(runtime, /missing file or a tool failure is never an implicit confirmation/);
+  assert.match(runtime, /Disapproval and cancellation never authorize it/);
   assert.match(runtime, /Delete it from local disk after the session/);
-  assert.match(runtime, /Delete the exact scratchpad HTML created for this review from local disk/);
+  assert.match(runtime, /after approval or explicit cancellation, delete the exact scratchpad HTML/);
   // Node is already required for ezreview, so this delete works in bash, PowerShell, and cmd alike;
   // PowerShell rejects `rm -f --` as an ambiguous parameter.
   assert.ok(runtime.includes(`node -e "require('fs').rmSync(process.argv[1], { force: true })" <exact-review-html-path>`));
@@ -313,6 +322,8 @@ test('vendored ezreview standalone works offline without npm or npx', () => {
   assert.match(result.stdout, /ezreview wait <file\.html>/);
   assert.match(result.stdout, /ezreview reply <file\.html>/);
   assert.match(bundle, /^#!\/usr\/bin\/env node/);
+  assert.match(bundle, /Review disapproved \\u2014 the submitted HTML was deleted/);
+  assert.match(bundle, /disapprove-document/);
   assert.doesNotMatch(bundle, /\bfrom\s+["']\./);
   assert.doesNotMatch(bundle, /\bimport\s*\(\s*["']\./);
   for (const favicon of [
