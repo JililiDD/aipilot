@@ -104,6 +104,8 @@ A stop means: report the unit's results and wait. At whole-work-item granularity
    - minimal state and surface;
    - explicit data flow;
    - verification at trust and integration boundaries.
+
+   Apply constitution §7 Code design to the touched code. Use its applicable safeguards and verification guidance, not a separate checklist.
 3. **YAGNI check**: name anything that you defer because the current requirements do not prove it.
 4. Implement the smallest coherent change.
 5. Self-review the task-scoped diff once before verification. Check the diff against the Requirement, Design, Plan, project conventions, constitution §7 Test design, reuse decision, and YAGNI boundary. Correct the defects that you find. Remove accidental complexity, duplication, unclear naming, dead code, and debug residue that this task introduced. Keep the refactoring inside this task's changes, and do not improve unrelated code or invent alternative approaches merely to satisfy this step.

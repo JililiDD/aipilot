@@ -3,6 +3,28 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [2.5.0] - 2026-10-27
+
+### Added
+
+- Shared Code design guidance for domain invariants, boundary parsing and validation, shared-state ownership, repeated execution, and compiler/type-check exceptions.
+- Seven document-contract regression tests for the code-design safeguards and their shared ownership.
+
+### Changed
+
+- Expanded the mixed-responsibility rule to separate independently testable calculations from effects without breaking transactions, consistency, or authorization. Valid states come from requirements, not a preferred type shape.
+- Builder and reviewer reference the same scoped safeguards and verification guidance. Project conventions govern structure but do not excuse correctness or safety defects. Review severity preserves P0/P1 findings instead of treating every design defect as P2.
+
+### Known limitations
+
+- The regression tests check the written rules and references, not agent compliance during real tasks. No Crapper, Dryer, or Mutator integration is included.
+- Existing browser-review limitations documented in v2.4.0 remain unchanged.
+
+### Upgrade notes
+
+- No project document migration, new dependency, or permission change is required.
+- To roll back, install v2.4.0 or check out tag `v2.4.0`.
+
 ## [2.4.0] - 2026-10-17
 
 ### Added

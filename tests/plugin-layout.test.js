@@ -1125,6 +1125,80 @@ test('code names follow one shared naming rule, and only the project form comes 
   assert.ok(!backendChecks.includes('naming conventions'));
 });
 
+// These are document-contract checks, not evidence that an agent follows the rules at runtime.
+const codeDesignCases = [
+  ['Mixed responsibilities', [
+    'When this separates a real business rule, pass required values into independently testable calculations and keep external effects in the calling code.',
+    'Preserve transaction, consistency, and authorization boundaries when separating calculation from effects.',
+    'Do not add layers merely to make a function pure.',
+  ]],
+  ['Domain invariants', [
+    'Derive invalid states from the requirements, not from a preferred type shape.',
+    'Keep runtime checks for constraints that types cannot express.',
+    'Do not remove states that the requirements permit, such as cached data during a refresh when the product allows it.',
+  ]],
+  ['Parsing and validation', [
+    'Parse and validate external data at each trust boundary.',
+    'Enforce domain invariants in domain operations, including calls from background jobs or other entry points.',
+    'Recheck constraints that depend on mutable state when performing the operation.',
+    'Use transactions, conditional writes, or equivalent mechanisms when correctness requires an atomic check and update.',
+    'Keep authorization checks at the operations that require them.',
+  ]],
+  ['Shared mutable state', [
+    'Prefer task-local state, immutable values, and separate resources before adding synchronization.',
+    'When sharing is necessary, define who may write and enforce that ownership through structure or a concurrency mechanism.',
+    'A process-local lock does not protect writes from other processes.',
+  ]],
+  ['Repeated execution', [
+    'When writes can be retried, redelivered, or resumed after interruption, define their repeated-execution behavior.',
+    'Where the contract requires one effect, prevent duplicates across retries and partial failures.',
+    'An idempotency key alone does not make the effect and its completion record atomic.',
+    'If safe retry is unavailable, state the restriction and recovery path instead of adding automatic retries.',
+    'Do not require idempotency for operations whose contract does not need it.',
+  ]],
+  ['Compiler and type checks', [
+    'Do not use unchecked casts, broad types, or disabled checks merely to hide a defect.',
+    'If an interop or tool limitation requires an exception, keep it local and record the reason and safety evidence.',
+    'A type assertion is not runtime validation.',
+  ]],
+];
+
+for (const [rule, safeguards] of codeDesignCases) {
+  test(`shared code design defines ${rule} with its safeguards`, () => {
+    const constitution = read(CONSTITUTION);
+    const design = constitution.split('- **Code design (all skills)**:')[1]?.split('- **Test design (all skills)**:')[0];
+    assert.ok(design, 'Code design must remain the canonical home');
+    const prefix = `  - **${rule}**:`;
+    const start = design.indexOf(prefix);
+    assert.ok(start >= 0, `${rule} must be defined in Code design`);
+    const end = design.indexOf('\n  - **', start + prefix.length);
+    const section = design.slice(start, end < 0 ? undefined : end).split('\n\n')[0];
+    for (const safeguard of safeguards) {
+      assert.ok(section.includes(safeguard), `${rule}: missing safeguard: ${safeguard}`);
+    }
+  });
+}
+
+test('code design stays scoped, evidence-based, and shared by builder and reviewer', () => {
+  const constitution = read(CONSTITUTION);
+  const design = constitution.split('- **Code design (all skills)**:')[1]?.split('- **Test design (all skills)**:')[0];
+  assert.ok(design);
+  assert.ok(design.includes('Do not refactor existing code only to follow these rules.'));
+  assert.ok(design.includes('This exception covers structure, not correctness or safety.'));
+  assert.ok(design.includes('Use constitution §7 Test design to select or extend the smallest check that proves each applicable constraint.'));
+  assert.ok(design.includes('Do not add duplicate tests or new tooling solely for this checklist.'));
+  assert.ok(design.includes('Attach each finding to a requirement or a concrete risk, not a preference for purity or abstraction.'));
+  assert.ok(design.includes('Use P0 or P1 when the code-reviewer severity rules require it.'));
+  assert.ok(read('skills/dev-builder/SKILL.md').includes('Apply constitution §7 Code design to the touched code.'));
+  assert.ok(read('skills/code-reviewer/SKILL.md').includes('Check its applicable safeguards and verification evidence.'));
+  for (const file of ['skills/dev-builder/SKILL.md', 'skills/code-reviewer/SKILL.md']) {
+    const contents = read(file);
+    for (const [rule] of codeDesignCases) {
+      assert.ok(!contents.includes(`**${rule}**:`), `${file} must reference, not duplicate, the shared rule`);
+    }
+  }
+});
+
 test('a work-item has one fixed structure, with no empty or duplicate subsections', () => {
   const constitution = read(CONSTITUTION);
   const productSpecBuilder = read('skills/product-spec-builder/SKILL.md');

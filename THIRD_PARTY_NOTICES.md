@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-AIPilot 2.4.0 includes the following vendored open-source components so its
+AIPilot 2.5.0 includes the following vendored open-source components so its
 document-review workflow can run without downloading packages at runtime.
 
 ## ezreview 1.0.1

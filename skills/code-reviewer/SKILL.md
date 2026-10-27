@@ -106,7 +106,7 @@ Project-document paths are relative to the resolved documents root. The constitu
 - business logic uses type-safe domain values.
 - the code follows the existing project style. Added or renamed names follow constitution §7 Code naming.
 - the changed lines add no new lint warning, even when CI allows it.
-- the added or changed code has none of the problems in constitution §7 Code design.
+- the added or changed code follows constitution §7 Code design. Check its applicable safeguards and verification evidence. Do not require a particular abstraction without a concrete risk.
 - verification is present at trust and integration boundaries.
 - the change has an Architecture subsection when it alters an architecture view, per the Trigger in `dev-plan-builder`'s `planning-rules.md`. Only a recorded refusal of the baseline pass excuses its absence, while `architecture.md` does not exist. When views exist, the code adds no element or relationship that they do not show.
 - no leftover debug code or dead code remains.
