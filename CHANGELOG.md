@@ -3,6 +3,48 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [2.6.0] - 2026-11-12
+
+### Added
+
+- **Premise status.** Each premise of an approach choice ends with `[verified: …]` or `[unverified: …]`. `dev-plan-builder` checks a premise while it plans, when a probe that leaves project files untouched can check it. An unverified premise gets a task that checks it, placed before the tasks that depend on the choice.
+- **Approach pre-check.** Before the Plan's stage report, a clean-context arbiter checks each approach choice that is hard to reverse or binds future work-items. It looks for a failed gate, a premise that the code contradicts, and an unlisted candidate that ranks higher. The Plan records the ruling in a `Pre-check:` line.
+- **Simpler candidate outside the scope.** When a candidate that only the scope gate dropped would clearly rank first, `dev-builder` asks whether to change the specification. A Goal Wrap lists the candidate in its final report instead.
+- **`check-writing.js`.** The script reports each sentence of a project document over its word limit: 20 words in a step, 25 in a description. It also reports each `AC-n` or `D-n` outside the EARS forms. Constitution §7 Writing says when to run it.
+- **Closed value sets** (`engineering-rules.md` Code design). Code that compares or branches on a string or number literal of a fixed set uses an enum instead. It uses the existing enum of that set, or adds one when the set is new. An external string is parsed into the enum once, at the trust boundary. When the project already compares that set as literals, the project's way wins. `dev-builder`'s self-review and `code-reviewer` check each compared literal.
+- **Real candidates.** Each candidate of an approach choice names its source and a "Choose this if" condition, and a candidate without them is left out. Every candidate is written down before any is gated or ranked. The Approach Decisions table has the new columns Source and Choose this if. When `dev-builder` or `dev-plan-builder` skips the exploration because the way is obvious, it says why in one line.
+- **Eval cases** under `evals/`, for `claude plugin eval`. Four read-only cases check the code review of names, comments, and compared literals, the approach pre-check, and the candidates of an approach choice. The folder is a development file.
+- **Code text rules** (`engineering-rules.md`). Comments, documentation comments such as Javadoc and docstrings, and commit messages follow rules 1 to 8 of the condensed ASD-STE100. Each format keeps its standard form: a summary sentence may start with its verb, a tag description may be a phrase, and a commit subject is a short command. The rules apply to added or changed text only. Program output, such as log messages, exception messages, and UI text, is not covered. `dev-builder` checks each added or changed comment in its self-review, and `code-reviewer` reports a break as P3.
+
+### Changed
+
+- **Engineering rules moved to their own file.** Code naming, Code text, Code design, and Test design moved from constitution §7 to `workflow-orchestrator/references/engineering-rules.md`. The file stays part of the constitution. Only `dev-plan-builder`, `dev-builder`, and `code-reviewer` read it, and their references now name `engineering-rules.md`.
+- **Approach exploration.** `dev-builder` looks for candidates that differ in where the change lives, which mechanism it uses, and what it reuses. It always includes the smallest change and the candidate that reuses the most. The limit of 10 candidates is gone, and a candidate is never added only to fill the list. In the ranking, an earlier criterion decides only when the survivors clearly differ on it.
+- **Code naming is checked at fixed points.** `dev-builder`'s self-review goes through each added or renamed name, one name at a time. `code-reviewer` does the same, and reports a break as a P3 finding instead of dropping it as a style preference. A new name that a Plan proposes follows the same rules, and the Plan's Quality Gate checks it.
+- **Value names keep the full class name.** A value whose class names what it is takes the full class name as its head word: `instrumentReader` for an `InstrumentReader`, not `reader`. A collection takes the plural. A role word comes before the class name when two values of one class need different names. A general type, such as a string or a number, still takes a role name.
+- **Code naming covers type names and test method names.** A class, an interface, or an enum takes a noun whose head word comes from the project's existing role words. A head word that fits any class, such as `Manager` or `Helper`, is allowed only where the project already uses it for that role. A single implementation may take `Impl`; several implementations are named by their difference. An enum type is singular, and a constant does not repeat the type name. A test method name states the condition and the expected result of one behavior, in the project's own test-name pattern.
+- `dev-builder`'s Maintainability Scan points to Code design and keeps only the points that Code design does not hold. Its Engineering Rules no longer repeat the Test design pointer.
+- `review-runtime.md` no longer lists the display features of the review page.
+
+### Fixed
+
+- The approach pre-check now inspects a recorded choice before applying the challenge-only trigger gate.
+- Added the missing `[2.5.0]` compare link.
+
+### Known limitations
+
+- The new eval cases describe agent behavior. They do not prove runtime compliance without a separate `claude plugin eval` run.
+- Existing browser-review limitations from v2.4.0 remain unchanged.
+
+### Verification performed
+
+- Plugin layout validation, 109 Node tests, writing checks, and release preflight passed for this candidate.
+
+### Upgrade notes
+
+- No project document migration, new runtime dependency, or permission change is required.
+- To roll back, install v2.5.0 or check out tag `v2.5.0`.
+
 ## [2.5.0] - 2026-10-27
 
 ### Added
@@ -222,6 +264,8 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[2.6.0]: https://github.com/JililiDD/aipilot/compare/v2.5.0...v2.6.0
+[2.5.0]: https://github.com/JililiDD/aipilot/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/JililiDD/aipilot/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/JililiDD/aipilot/compare/v2.2.1...v2.3.0
 [2.2.1]: https://github.com/JililiDD/aipilot/compare/v2.2.0...v2.2.1
