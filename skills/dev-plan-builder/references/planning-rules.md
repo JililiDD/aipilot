@@ -98,9 +98,9 @@ Design patterns are smell detectors, not ceremony. A design pattern is acceptabl
 - isolates an external boundary;
 - serves a real variation point.
 
-Never plan an interface, base class, factory, or registry for a single local implementation. The one exception is an interface for an external boundary that a test cannot fake otherwise (constitution §7 Code design).
+Never plan an interface, base class, factory, or registry for a single local implementation. The one exception is an interface for an external boundary that a test cannot fake otherwise (`engineering-rules.md` Code design).
 
-When the language supports them, use type-safe representations for domain categories, states, modes, and action types. Raw strings stay acceptable for display copy and one-off labels that drive no branching or persistence.
+When the language supports them, use type-safe representations for domain categories, states, modes, and action types. Raw strings stay acceptable for display copy and one-off labels that drive no branching or persistence. Closed value sets in `engineering-rules.md` Code design holds the rule for the code.
 
 ## Architecture Views
 
@@ -174,7 +174,7 @@ Every phase and task names at least one of these verification methods:
 
 If nothing on this menu applies, the phase or task is not well-defined yet.
 
-If you know an existing test that covers a task's behavior, the task's `— Verify:` names that test. If the test needs a new case, the task extends it instead of adding a new test (constitution §7 Test design).
+If you know an existing test that covers a task's behavior, the task's `— Verify:` names that test. If the test needs a new case, the task extends it instead of adding a new test (`engineering-rules.md` Test design).
 
 ## Risk Routing
 

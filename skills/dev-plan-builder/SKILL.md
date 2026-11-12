@@ -12,6 +12,7 @@ You are a senior engineering planner. Turn confirmed requirements and design dec
 Project paths are relative to the resolved documents root. The constitution path is relative to the plugin. Read these files when they exist:
 
 - `../workflow-orchestrator/references/document-system-spec.md`: the constitution. The plugin owns it. It is not a project document. `memory/agent-guideline.md` holds the project-specific overrides.
+- `../workflow-orchestrator/references/engineering-rules.md`: the constitution's rules for code. A Plan follows its Code naming, Code design, and Test design.
 - The **target work-item** in the top level of `docs/aipilot/work-items/`. Identify it by the Target Resolution rule (constitution §3). Never guess the target. Its Requirement and Design sections are the authoritative input.
 - `product-spec.md`.
 - `design-spec.md`, when the work has a UI surface.
@@ -39,7 +40,7 @@ Then the input selects the planning mode:
 
 - A resolved work-item selects **Breakdown Mode**.
 - A project or large feature to sequence, with no single work-item as the target, selects **Roadmap Mode**.
-- An Approach Challenge from `dev-builder` selects **Arbitration Mode**. It always runs in a clean-context sub-agent.
+- An Approach Challenge from `dev-builder` selects **Arbitration Mode**. So does an approach pre-check from Breakdown Mode. It always runs in a clean-context sub-agent.
 - If the user explicitly requests a new `architecture.md`, select **Architecture Baseline Mode** without asking again. For a question about the architecture while the file does not exist, ask per `planning-rules.md` User request. A yes there, or in Missing baseline, also selects Architecture Baseline Mode. Under a Goal Wrap, `references/goal-wrap.md` gives the yes. A no ends the request.
 
 For a new requirement where the planning mode is genuinely unclear, apply the Routing Checks in `planning-rules.md`. **On ambiguity, default to Breakdown.** The Valves correct a wrong choice cheaply.
@@ -85,9 +86,11 @@ Fill the **Plan section** of the target work-item. Follow `references/plan-secti
 
 ## Arbitration Mode
 
-Rule on one Approach Challenge from `dev-builder`. You run in a clean-context sub-agent. Judge only the challenge, the work-item, and the code. Change no project file. Return the ruling to the main agent.
+Rule on one Approach Challenge from `dev-builder`, or pre-check one recorded choice from Breakdown Mode. Run in a clean-context sub-agent. Judge only the work-item, the code, and the challenge when one exists. Change no project file. Return the ruling to the main agent.
 
-1. Check the trigger. If the challenge names neither a contradicted premise nor a new candidate with evidence, rule Keep.
+For a pre-check, inspect the chosen candidate for a failed gate, a contradicted premise, or a stronger unlisted candidate. Apply `dev-builder`'s Explore, Gate, and Rank steps to any new candidate. Rule Keep when you find none. Otherwise, rule Switch or Escalate as in step 4. Return the ruling without applying the challenge-only steps 1–3.
+
+1. For an Approach Challenge, check the trigger. If it names neither a contradicted premise nor a new candidate with evidence, rule Keep.
 2. Run the Gate and Rank steps of `dev-builder`'s Approach Decision Discipline on the recorded choice and the proposed candidate. The Requirement's constraints are gates.
 3. Use the cost of switching now only to separate close candidates. Work already done never decides alone.
 4. Give one ruling. Name the gate that failed or the criterion that decided, with the evidence.
@@ -139,6 +142,14 @@ Both are normal outcomes, not failures.
 
 - **Material Uncertainty Scan** before writing: look for a missing decision that affects behavior, acceptance, data boundaries, integration, verification expectations, trust, cost, or data-loss risk. If you find one, ask the smallest useful question and stop. `planning-rules.md` Risk Routing says where each kind of gap goes. Under a Goal Wrap, take the recommended option and record it as an assumption instead (constitution §7). Never infer material requirements from convention or convenience, and never silently turn uncertainty into plan text. You may choose low-risk implementation defaults, but label them as assumptions.
 - An approach choice can shape the Plan, for example which layer to change or which library or pattern to use. When it does, choose it by `dev-builder`'s Approach Decision Discipline. Each `[plan]` line in the Requirement's Deferred Choices is such a choice. Its constraints are gates that every candidate must pass. Record the choice, the dropped candidates, and the premises of the choice in the Plan's Approach Decisions. A premise is a checkable claim that the choice relies on.
+- **Premise status**: check each premise while you plan, when a probe that leaves project files untouched can check it. Mark it `[verified]`, with the probe and its result. Mark each other premise `[unverified]`, and give it a task that checks it. Place that task before the tasks that depend on the choice. A premise that fails while you plan drops its candidate, so choose again.
+- **Approach pre-check**: run one when an approach choice is hard to reverse or binds future work-items. Run it before the stage report, in Arbitration Mode, in a clean-context sub-agent. Give the sub-agent the work-item, with read access to the code. Do not give it this conversation. Act on its ruling:
+  - **Keep**: record `Pre-check: Keep` under the choice.
+  - **Switch**: apply the ruling to the Plan, and record it under the choice.
+  - **Escalate**: ask the user (constitution §7), with both sides' reasons.
+
+  Run at most one pre-check per choice. If no inspectable clean-context result is available, skip the pre-check and record `clean-context result unavailable`.
+- When the Plan proposes a new name for a value, a method, or a type, choose it by `engineering-rules.md` Code naming. Such a name can appear in a task or in the Approach Decisions. `dev-builder` copies the names that the Plan gives.
 - When you plan Java backend work, load the `java-backend-expert` overlay for phase/task boundaries, API contracts, and transaction/persistence strategy.
 - Record per constitution §2:
   - a planning choice, as a dated entry in `memory/decisions.md`;
@@ -155,10 +166,15 @@ The plan is not ready if any of these is true:
 - a new page lacks Story 0;
 - the change alters an architecture view, but the Plan lacks an Architecture subsection. Only a recorded refusal of the baseline pass excuses this, while `architecture.md` does not exist;
 - a diagram fails `check-mermaid.js`;
+- a line that you wrote fails `check-writing.js` (constitution §7 Writing);
 - a phase lacks a verification dependency or an inspectable result;
 - reuse was ignored without stated reasons;
+- a new name that the Plan proposes breaks `engineering-rules.md` Code naming;
 - a `[plan]` line in Deferred Choices has no recorded choice;
 - an approach choice lacks its dropped candidates or its premises;
+- a candidate lacks its source or its "Choose this if" condition;
+- a premise lacks its status, or an unverified premise lacks a task that checks it;
+- a choice that is hard to reverse or binds future work-items lacks its Pre-check line;
 - a Stop Condition restates a premise;
 - the Plan names no test tiers or a story names no `Tests:` tier;
 - material uncertainty was filled in silently;

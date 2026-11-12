@@ -510,7 +510,7 @@ test('questions recommend what fits, and facts are looked up before they are ask
   assert.ok(constitution.includes('Recommend the browser review when the deliverable is long or holds decisions the user has not yet seen in chat'));
   // A bare "skip" would read as both "no review" and "go ahead", so the combined option names the next stage.
   assert.ok(constitution.includes('"Skip review and continue to <next stage>"; choosing that option confirms'));
-  assert.ok(constitution.includes('declining a browser review is never itself a confirmation'));
+  assert.ok(constitution.includes('Declining a browser review is not confirmation.'));
   // A multi-phase run must neither pile up uncommitted phases nor stall at every merge-back.
   assert.ok(goalWrap.includes('Recommend `branch` as the commit policy, since several phases of uncommitted work would otherwise pile up'));
   assert.ok(goalWrap.includes("The run reports at each phase's merge-back and continues. It has no reporting stops"));
@@ -847,7 +847,7 @@ test('every question comes before the spec is written, and the review offer come
   assert.ok(constitution.includes('a class name rarely needs the user; one that clashes with an existing name may'));
   // The review offer closes the stage, so nothing may still be waiting for an answer when it appears.
   assert.ok(constitution.includes('Finish the stage first: every question it needs is asked and answered, and the deliverable is written'));
-  assert.ok(constitution.includes('it is never folded into the review offer'));
+  assert.ok(constitution.includes('Never fold it into the review offer.'));
   // The report must be visible: the question in that run said "the key decisions are above" when nothing was above.
   assert.ok(constitution.includes('as chat text before any question'));
   assert.ok(productSpecBuilder.includes('If a decision still needs the user, ask about it before writing (constitution §7), never in the stage report'));
@@ -860,7 +860,11 @@ test('implementation approaches are explored, gated, ranked, and chosen by the b
   const orchestrator = read('skills/workflow-orchestrator/SKILL.md');
 
   // A model tends to build its first idea, so candidates are listed before code, across different strategies.
-  assert.ok(devBuilder.includes('List every candidate that takes a different direction, up to 10. Variants of one idea are one candidate.'));
+  assert.ok(devBuilder.includes('Write every candidate in one line before you gate or rank any of them.'));
+  assert.ok(devBuilder.includes('the smallest change, and the candidate that reuses the most existing code'));
+  assert.ok(devBuilder.includes('Never add a candidate only to fill the list.'));
+  assert.ok(devBuilder.includes('its source: an existing practice in the project with its file'));
+  assert.ok(devBuilder.includes('the condition under which you would choose it, written as "Choose this if …"'));
   // A blind test (2026-10-07) found no loss without a menu of typical candidates, which could anchor the search.
   assert.ok(!devBuilder.includes('Typical candidates are these'));
   assert.ok(devBuilder.includes('Make each one the best version of its strategy'));
@@ -1082,7 +1086,7 @@ test('a builder challenges a planned approach with evidence, and a clean-context
   // The proposer cannot judge its own proposal, so the arbiter gets the documents, not the conversation.
   assert.ok(devBuilder.includes('Do not give it this conversation'));
   assert.ok(devPlanBuilder.includes('## Arbitration Mode'));
-  assert.ok(devPlanBuilder.includes('Judge only the challenge, the work-item, and the code. Change no project file'));
+  assert.ok(devPlanBuilder.includes('Judge only the work-item, the code, and the challenge when one exists. Change no project file'));
   // Two instances of one model agree too easily, so the exchange ends after two rulings.
   assert.ok(devBuilder.includes('Allow at most two rulings'));
   // Outside goal mode the user owns a confirmed Plan; in goal mode the arbiter decides and the run continues.
@@ -1091,7 +1095,7 @@ test('a builder challenges a planned approach with evidence, and a clean-context
   assert.ok(constitution.includes('under a Goal Wrap, an Approach Challenge ruling may change an approach choice in a user-confirmed Plan without a stop'));
   // Sub-agents stay judges; implementation never leaves the main agent.
   assert.ok(devBuilder.includes('Implementation never runs in sub-agents. Sub-agents are clean-context judges only'));
-  assert.ok(orchestrator.includes('the arbiter of an Approach Challenge, run by `dev-builder` in `dev-plan-builder` Arbitration Mode'));
+  assert.ok(orchestrator.includes('`dev-builder` runs it for an Approach Challenge. `dev-plan-builder` runs it for an approach pre-check.'));
   assert.ok(orchestrator.includes('every Approach Challenge and its ruling'));
   assert.ok(constitution.includes('**Approach Challenge**'));
 });
@@ -1102,26 +1106,29 @@ test('code names follow one shared naming rule, and only the project form comes 
   const reviewer = read('skills/code-reviewer/SKILL.md');
   const backendChecks = read('skills/java-backend-expert/references/backend-checks.md');
 
-  // A live run wrote `List<ExchangeConfiguration> enabled`: an adjective named a list, and no rule caught it.
-  assert.ok(constitution.includes('- **Code naming (all skills)**'));
-  assert.ok(constitution.includes('Name each value by its role, not by its type'));
-  assert.ok(constitution.includes('a collection: a plural noun for its elements'));
-  assert.ok(constitution.includes('It never stands alone as the name of a non-boolean value'));
-  assert.ok(constitution.includes('Do not use the `keyToValue` form'));
-  assert.ok(constitution.includes('Name each method with a verb or a verb phrase'));
-  // The rules choose words only; case and prefix stay with the language and the project.
-  assert.ok(constitution.includes('The language and the project decide the form of a name'));
-  // Contract-bound names and untouched names stay as they are.
-  assert.ok(constitution.includes('If an external contract or a framework fixes a name, keep that name'));
-  assert.ok(constitution.includes('Do not rename an existing name only to follow them'));
-  assert.ok(constitution.includes('Only a naming convention in `memory/agent-guideline.md` overrides them'));
-  // Every "follow the surrounding code" rule must step aside for naming, or it pulls names back to the old style.
-  assert.ok(devBuilder.includes('Naming is the exception: follow constitution §7 Code naming'));
+  const rules = read('skills/workflow-orchestrator/references/engineering-rules.md');
+  // The code rule has one home; every stage that writes or reviews code reads that home.
+  assert.ok(constitution.includes('`engineering-rules.md`, next to this file, holds Code naming, Code text, Code design, and Test design'));
+  for (const skill of [devBuilder, reviewer, read('skills/dev-plan-builder/SKILL.md')]) {
+    assert.ok(skill.includes('../workflow-orchestrator/references/engineering-rules.md'));
+  }
+  assert.ok(rules.includes('Name each value by its role, not by a general type'));
+  assert.ok(rules.includes('a collection: a plural noun for its elements'));
+  assert.ok(rules.includes('It never stands alone as the name of a non-boolean value'));
+  assert.ok(rules.includes('Do not use the `keyToValue` form'));
+  assert.ok(rules.includes('Name each method with a verb or a verb phrase'));
+  assert.ok(rules.includes('The language and the project decide the form of a name'));
+  assert.ok(rules.includes('If an external contract or a framework fixes a name, keep that name'));
+  assert.ok(rules.includes('Do not rename an existing name only to follow them'));
+  assert.ok(rules.includes('Only a naming convention in `memory/agent-guideline.md` overrides them'));
+  assert.ok(rules.includes('use the full class name as the head word'));
+  assert.ok(rules.includes('A **type name** is the name of a class, an interface, or an enum'));
+  assert.ok(rules.includes('A **test method name** states the condition and the expected result'));
+  assert.ok(devBuilder.includes('Follow `engineering-rules.md` Code naming for each name that you add or rename'));
   assert.ok(devBuilder.includes("consistency with the surrounding code's structure and layering"));
   assert.ok(!devBuilder.includes('structure, naming, and layering'));
-  // The clean-context reviewer reads only the constitution, so the rule text lives there.
-  assert.ok(reviewer.includes('Added or renamed names follow constitution §7 Code naming'));
-  assert.ok(backendChecks.includes('Name values and methods by constitution §7 Code naming'));
+  assert.ok(reviewer.includes('each name that the diff adds or renames follows `engineering-rules.md` Code naming'));
+  assert.ok(backendChecks.includes('Name values, methods, types, and tests by `engineering-rules.md` Code naming'));
   assert.ok(!backendChecks.includes('naming conventions'));
 });
 
@@ -1165,13 +1172,13 @@ const codeDesignCases = [
 
 for (const [rule, safeguards] of codeDesignCases) {
   test(`shared code design defines ${rule} with its safeguards`, () => {
-    const constitution = read(CONSTITUTION);
-    const design = constitution.split('- **Code design (all skills)**:')[1]?.split('- **Test design (all skills)**:')[0];
+    const engineeringRules = read('skills/workflow-orchestrator/references/engineering-rules.md');
+    const design = engineeringRules.split('## Code design\n')[1]?.split('## Test design\n')[0];
     assert.ok(design, 'Code design must remain the canonical home');
-    const prefix = `  - **${rule}**:`;
+    const prefix = `- **${rule}**:`;
     const start = design.indexOf(prefix);
     assert.ok(start >= 0, `${rule} must be defined in Code design`);
-    const end = design.indexOf('\n  - **', start + prefix.length);
+    const end = design.indexOf('\n- **', start + prefix.length);
     const section = design.slice(start, end < 0 ? undefined : end).split('\n\n')[0];
     for (const safeguard of safeguards) {
       assert.ok(section.includes(safeguard), `${rule}: missing safeguard: ${safeguard}`);
@@ -1180,16 +1187,16 @@ for (const [rule, safeguards] of codeDesignCases) {
 }
 
 test('code design stays scoped, evidence-based, and shared by builder and reviewer', () => {
-  const constitution = read(CONSTITUTION);
-  const design = constitution.split('- **Code design (all skills)**:')[1]?.split('- **Test design (all skills)**:')[0];
+  const engineeringRules = read('skills/workflow-orchestrator/references/engineering-rules.md');
+  const design = engineeringRules.split('## Code design\n')[1]?.split('## Test design\n')[0];
   assert.ok(design);
   assert.ok(design.includes('Do not refactor existing code only to follow these rules.'));
   assert.ok(design.includes('This exception covers structure, not correctness or safety.'));
-  assert.ok(design.includes('Use constitution §7 Test design to select or extend the smallest check that proves each applicable constraint.'));
+  assert.ok(design.includes('Use Test design, below, to select or extend the smallest check that proves each applicable constraint.'));
   assert.ok(design.includes('Do not add duplicate tests or new tooling solely for this checklist.'));
   assert.ok(design.includes('Attach each finding to a requirement or a concrete risk, not a preference for purity or abstraction.'));
   assert.ok(design.includes('Use P0 or P1 when the code-reviewer severity rules require it.'));
-  assert.ok(read('skills/dev-builder/SKILL.md').includes('Apply constitution §7 Code design to the touched code.'));
+  assert.ok(read('skills/dev-builder/SKILL.md').includes('Apply `engineering-rules.md` Code design to the touched code.'));
   assert.ok(read('skills/code-reviewer/SKILL.md').includes('Check its applicable safeguards and verification evidence.'));
   for (const file of ['skills/dev-builder/SKILL.md', 'skills/code-reviewer/SKILL.md']) {
     const contents = read(file);
@@ -1239,6 +1246,49 @@ test('a work-item has one fixed structure, with no empty or duplicate subsection
   assert.ok(devBuilder.includes('### Completion — <YYYY-MM-DD>'));
   assert.ok(constitution.includes("`dev-builder`'s Execution Record Format defines the entries."));
 });
+test('planned choices verify premises and pre-check irreversible decisions before the stage report', () => {
+  const planner = read('skills/dev-plan-builder/SKILL.md');
+  const template = read('skills/dev-plan-builder/references/plan-section-template.md');
+  const builder = read('skills/dev-builder/SKILL.md');
+  const orchestrator = read('skills/workflow-orchestrator/SKILL.md');
+
+  assert.ok(planner.includes('Mark each other premise `[unverified]`, and give it a task that checks it.'));
+  assert.ok(planner.includes('Place that task before the tasks that depend on the choice.'));
+  assert.ok(planner.includes('run one when an approach choice is hard to reverse or binds future work-items'));
+  assert.ok(planner.includes('Run at most one pre-check per choice.'));
+  assert.ok(planner.includes('For a pre-check, inspect the chosen candidate for a failed gate, a contradicted premise, or a stronger unlisted candidate.'));
+  assert.ok(planner.includes('Return the ruling without applying the challenge-only steps 1–3.'));
+  assert.ok(planner.includes('If no inspectable clean-context result is available, skip the pre-check'));
+  assert.ok(template.includes('Pre-check: <Keep | Switch | Escalate>'));
+  assert.ok(builder.includes('**Simpler outside the scope**'));
+  assert.ok(orchestrator.includes('every simpler candidate that only the scope gate dropped'));
+});
+
+test('engineering rules cover names, text, and closed values without duplicating the constitution', () => {
+  const constitution = read(CONSTITUTION);
+  const rules = read('skills/workflow-orchestrator/references/engineering-rules.md');
+  const builder = read('skills/dev-builder/SKILL.md');
+  const reviewer = read('skills/code-reviewer/SKILL.md');
+
+  for (const heading of ['## Code naming', '## Code text', '## Code design', '## Test design']) {
+    assert.ok(rules.includes(heading), `${heading} belongs in the engineering rules`);
+    assert.ok(!constitution.includes(heading), `${heading} must not be duplicated in the constitution`);
+  }
+  assert.ok(rules.includes('**Closed value sets**'));
+  assert.ok(rules.includes('If the project already compares the values of that set as literals, follow the project.'));
+  assert.ok(rules.includes('These rules cover the text that you write with code: comments'));
+  assert.ok(reviewer.includes('Check the literals one at a time.'));
+  assert.ok(builder.includes('Check each comment that this task adds or changes'));
+});
+
+test('eval fixtures are development-only while the writing checker remains in the plugin', () => {
+  assert.ok(fs.existsSync(path.join(root, 'evals/README.md')));
+  assert.ok(read('.gitattributes').includes('/evals export-ignore'));
+  assert.ok(read('.gitignore').includes('evals/results/'));
+  assert.ok(fs.existsSync(path.join(root, 'skills/workflow-orchestrator/scripts/check-writing.js')));
+  assert.ok(read(CONSTITUTION).includes('run `node <workflow-orchestrator>/scripts/check-writing.js <doc.md>`'));
+});
+
 test('a plan opens with its approach decisions, one table per choice, and reuse notes hold only reuse', () => {
   const planTemplate = read('skills/dev-plan-builder/references/plan-section-template.md');
   const devPlanBuilder = read('skills/dev-plan-builder/SKILL.md');
@@ -1247,7 +1297,10 @@ test('a plan opens with its approach decisions, one table per choice, and reuse 
   // Approach records inside Reuse Notes ran to about 95 words each, so readers could not compare the candidates.
   const plan = planTemplate.slice(planTemplate.indexOf('## Plan'));
   assert.ok(plan.indexOf('### Approach Decisions') < plan.indexOf('### Story 0'), 'the decisions come before the stories that follow from them');
-  assert.ok(planTemplate.includes('| Candidate | How it works | Strengths | Weaknesses | Result |'));
+  assert.ok(planTemplate.includes('| Candidate | Source | How it works | Choose this if | Strengths | Weaknesses | Result |'));
+  assert.ok(planTemplate.includes('[verified: <probe and its result>]'));
+  assert.ok(planTemplate.includes('[unverified: Task <n.m> checks it]'));
+  assert.ok(planTemplate.includes('Pre-check: <Keep | Switch | Escalate>'));
   assert.ok(planTemplate.includes('Dropped: <failed gate or lost criterion>'));
   assert.ok(!planTemplate.includes('- Approach for <choice>'));
   assert.ok(planTemplate.includes('Reuse Notes record only what the stories reuse'));
@@ -1281,7 +1334,7 @@ test('a phase with a UI surface always has a Design section, so its design crite
   // The planner splits confirmed requirements into phases; the constitution named only product-spec-builder,
   // so a strict reader treated the planner's phase Requirement as a section written by the wrong owner.
   assert.ok(constitution.includes('## Requirement        <- product-spec-builder (dev-plan-builder on phase-derived items)'));
-  assert.ok(constitution.includes('`dev-plan-builder` writes the Quick Overview and the Requirement from these sources, and never invents content.'));
+  assert.ok(constitution.includes('`dev-plan-builder` writes the Quick Overview and Requirement from these sources. It never invents content.'));
   // Plans cite only the Requirement and Design sections. A UI phase without a Design section left every
   // design-spec D-n outside the Plan and the final code review.
   assert.ok(devPlanBuilder.includes('every story or task AC traces to a criterion in the Requirement or Design section'));
@@ -1304,13 +1357,14 @@ test('merge-back is committed on the work branch, so one git merge carries the c
 
   // The last code commit came before the Completion entry and the merge-back, so the branch the user merged
   // lacked the spec updates, and the working tree stayed dirty.
-  const commitStep = constitution.indexOf("7. If the Plan's `Commit policy` is `branch` or `auto`, commit the merge-back as one commit");
+  const commitStep = constitution.indexOf("7. If the Plan's `Commit policy` is `branch` or `auto`, commit merge-back on the work-item's branch.");
   assert.ok(commitStep > 0);
   assert.ok(commitStep > constitution.indexOf('6. For a phase work-item'), 'the commit comes last, so it holds the moved work-item');
   assert.ok(constitution.includes('The commit holds the Completion entry, the changes of steps 1–6, and the moved work-item.'));
   assert.ok(constitution.includes('apply its **Impact on Architecture** map to update `architecture.md`'));
   // There is nothing to commit when the user commits, when there is no git, or when the documents live elsewhere.
-  assert.ok(constitution.includes("Commit nothing under `manual`, in a project without a repository, or when the documents root is not in the project's repository."));
+  assert.ok(constitution.includes('Do not commit under `manual` or without a repository.'));
+  assert.ok(constitution.includes("Do not commit when the documents root is outside the project's repository."));
   // The multi-phase wrap already committed each merge-back; it now points to the one rule.
   assert.ok(goalWrap.includes('one git merge into mainline at the end (constitution §6)'));
 });

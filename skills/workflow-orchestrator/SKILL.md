@@ -33,7 +33,7 @@ Run `design-spec-builder` only for a change with a UI surface. When you skip it,
 
 One main agent runs every stage and writes all code. Sub-agents are clean-context judges only. Each one returns its result to the main agent. The main agent decides what to do with it. There are two:
 - `code-reviewer`, run by `dev-builder` per its Review Cadence;
-- the arbiter of an Approach Challenge, run by `dev-builder` in `dev-plan-builder` Arbitration Mode.
+- the arbiter, in `dev-plan-builder` Arbitration Mode. `dev-builder` runs it for an Approach Challenge. `dev-plan-builder` runs it for an approach pre-check.
 
 ## Gates
 
@@ -90,6 +90,7 @@ When a Goal Wrap ends, finished or stopped, its final report also lists:
 - every architecture view made without user confirmation, including a baseline pass;
 - every UI request a convention overrode (the request, what was built, and why);
 - every approach choice that would otherwise have been asked;
+- every simpler candidate that only the scope gate dropped;
 - every Approach Challenge and its ruling;
 - every bug found in passing.
 

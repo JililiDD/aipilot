@@ -53,6 +53,7 @@ If you cannot reproduce the defect at all, follow **Reproduce first** instead. M
 Project paths mean the resolved documents root. The constitution path is plugin-relative. Read these documents when they exist:
 
 - `../workflow-orchestrator/references/document-system-spec.md`, the constitution. The plugin owns this file, and it is not a project document.
+- `../workflow-orchestrator/references/engineering-rules.md`, the constitution's rules for code: Code naming, Code text, Code design, and Test design.
 - `memory/agent-guideline.md`, which holds project-specific overrides.
 - The **target work-item** in the top level of `work-items/`. Identify it by the Target Resolution rule (constitution §3). Never guess. A reference-only Design section on a phase work-item is complete (constitution §3 Phase-derived items).
 - `product-spec.md`, `design-spec.md`, `architecture.md`, `memory/decisions.md`, and `memory/lessons.md` (constitution §2).
@@ -96,19 +97,19 @@ A stop means: report the unit's results and wait. At whole-work-item granularity
 **Per task:** the Plan's Stop Conditions and the Approach Decision Discipline apply throughout. Do these steps:
 
 1. **Reuse Scan**: check these sources: existing project code, Story-0 `base` code, helpers, installed dependencies, and native or standard-library features. Take the smallest reuse-first path. For any new code, state why reuse is insufficient.
-2. **Maintainability Scan**: when the task touches domain logic, architecture, an integration or trust boundary, or a large refactor, check these points:
-   - type-safe domain values over raw strings in business logic;
-   - module boundaries;
+2. **Maintainability Scan**: run it when the task touches domain logic, architecture, an integration or trust boundary, or a large refactor. Apply `engineering-rules.md` Code design to the touched code. Use its applicable safeguards and verification guidance. Also check these points, which Code design does not hold:
    - unit size;
    - a real variation or external boundary behind any pattern;
    - minimal state and surface;
-   - explicit data flow;
-   - verification at trust and integration boundaries.
-
-   Apply constitution §7 Code design to the touched code. Use its applicable safeguards and verification guidance, not a separate checklist.
+   - explicit data flow.
 3. **YAGNI check**: name anything that you defer because the current requirements do not prove it.
 4. Implement the smallest coherent change.
-5. Self-review the task-scoped diff once before verification. Check the diff against the Requirement, Design, Plan, project conventions, constitution §7 Test design, reuse decision, and YAGNI boundary. Correct the defects that you find. Remove accidental complexity, duplication, unclear naming, dead code, and debug residue that this task introduced. Keep the refactoring inside this task's changes, and do not improve unrelated code or invent alternative approaches merely to satisfy this step.
+5. Self-review the task-scoped diff once before verification. Check the diff against the Requirement, Design, Plan, project conventions, `engineering-rules.md` Test design, reuse decision, and YAGNI boundary. Correct the defects that you find. Then do these three checks, and fix each break:
+   - Go through each name that this task adds or renames, one name at a time. This covers values, methods, types, and test methods. Check each name against `engineering-rules.md` Code naming.
+   - Check each comment that this task adds or changes against `engineering-rules.md` Code text.
+   - Find each string or number literal that this task's code compares or branches on. Check it against Closed value sets in `engineering-rules.md` Code design.
+
+   Remove accidental complexity, duplication, unclear naming, dead code, and debug residue that this task introduced. Keep the refactoring inside this task's changes, and do not improve unrelated code or invent alternative approaches merely to satisfy this step.
 6. Run the task's `— Verify:` method, and quote the decisive evidence. If the cause of a failure is evident in this task's change, fix the failure in place. Otherwise, switch to Diagnosis Mode. A failed task is **never ticked**.
 7. Tick the checkbox only after verification passes, and append the facts to the Execution Record.
 
@@ -134,6 +135,8 @@ When you have handled all findings of the round, rerun the story's test tier and
 - `branch` — commit on `aipilot/<work-item slug>`, or in a multi-phase Goal Wrap on the run's single `aipilot/<objective slug>` branch. Never commit on mainline. Put the work-item slug and the story or group in the commit message. Create the branch from the current branch before the first commit, and record its name and starting point in the Execution Record. The commit ref becomes the review anchor.
 - `auto` — commit the same way on the current branch.
 
+Write each commit message by `engineering-rules.md` Code text.
+
 **Work-item completion:** do these steps:
 
 1. Run the Exit Criteria fresh, including the full test tier (the build of every touched module, with its tests).
@@ -145,7 +148,7 @@ If the Plan names no test tiers, run the whole test suite at each story. At comp
 
 ## Approach Decision Discipline
 
-Use it when a task, or a bug fix whose root cause is written, can be done in materially different ways. Skip it when the way is obvious or the Plan already fixed it. Do not reopen a settled choice without new evidence. `dev-plan-builder` applies the same discipline to an approach choice that shapes the Plan.
+Use it when a task, or a bug fix whose root cause is written, can be done in materially different ways. Skip it when the way is obvious or the Plan already fixed it. When you skip it because the way is obvious, say in one line why no other direction is viable. Write that line in the Execution Record for a task, or in the stage report for a Plan. Do not reopen a settled choice without new evidence. `dev-plan-builder` applies the same discipline to an approach choice that shapes the Plan.
 
 **Scope**: apply it only to implementation-level alternatives that preserve all of these:
 
@@ -157,7 +160,18 @@ Use it when a task, or a bug fix whose root cause is written, can be done in mat
 
 Do not treat changing or redesigning those specifications as an implementation approach. A missing, contradictory, or infeasible specification goes through Section Ownership and the Stop Conditions.
 
-1. **Explore**: explore freely. List every candidate that takes a different direction, up to 10. Variants of one idea are one candidate. Make each one the best version of its strategy.
+1. **Explore**: look for candidates that differ on one of these points:
+   - where the change lives, such as the layer or the module;
+   - which mechanism it uses;
+   - what it reuses.
+
+   Always list these two as candidates: the smallest change, and the candidate that reuses the most existing code. Listing them does not choose them. These two can be one candidate. Variants of one idea are one candidate. Make each one the best version of its strategy. Never add a candidate only to fill the list.
+
+   Write every candidate in one line before you gate or rank any of them. Give each candidate these two facts:
+   - its source: an existing practice in the project with its file, a feature of a library or framework, or a named general technique;
+   - the condition under which you would choose it, written as "Choose this if …".
+
+   Drop a candidate that has no source or no such condition. It is not a real alternative.
 2. **Gate**: drop a candidate when one of these is true:
    - It is not correct: it misses a cited acceptance criterion, or, as a bug fix, it treats the symptom instead of the root cause.
    - It is out of scope, because it does one of these things:
@@ -169,7 +183,9 @@ Do not treat changing or redesigning those specifications as an implementation a
    - It risks security or data loss.
 
    If fewer than two viable candidates remain, continue with the survivor without involving the user.
-3. **Rank** the survivors by these criteria, earlier ones first:
+
+   **Simpler outside the scope**: a candidate that only the scope gate dropped can still matter to the user. Check whether it would rank first by a clear margin without that gate. If so, still choose among the survivors. Then ask the user (constitution §7) whether to change the specification. Name the criterion to relax and what the candidate gains. On yes, route to the owner of that section. Under a Goal Wrap, do not ask. Record the candidate with the choice (step 6), and the final report lists it.
+3. **Rank** the survivors by these criteria, earlier ones first. An earlier criterion decides only when the survivors clearly differ on it. If the difference is small, go to the next criterion:
    1. reuse before new code, preferring sources in the Reuse Scan's order (project code, Story-0 `base` code, helpers, installed dependencies, then the standard library);
    2. smallest blast radius: fewest files, modules, callers, and public interfaces touched;
    3. consistency with the surrounding code's structure and layering;
@@ -191,7 +207,7 @@ Do not treat changing or redesigning those specifications as an implementation a
    - If the choice constrains future work-items and is not visible in the state documents, record it in `memory/decisions.md`.
    - If the choice is task-scoped, record it in the Execution Record.
 
-   Record the chosen candidate, each other candidate with the gate that it failed or the criterion that it lost on, and the evidence. Before you implement, re-run any Reuse, Maintainability, or YAGNI scan that the choice invalidates.
+   Record the chosen candidate, each other candidate with the gate that it failed or the criterion that it lost on, and the evidence. Record the source and the "Choose this if" condition of every candidate. Before you implement, re-run any Reuse, Maintainability, or YAGNI scan that the choice invalidates.
 7. **Revisit**: when evidence found while implementing contradicts a claim that the choice rested on, stop forcing it. Return to the Gate with the new evidence, and record why the approach changed. This step covers your own choices. For a choice that the Plan's Approach Decisions record, raise an Approach Challenge instead.
 
 ## Approach Challenge
@@ -267,12 +283,12 @@ Whatever the stop marker is, respect the code marking. Later stories build on `b
 ## Engineering Rules
 
 - Preserve existing user changes.
-- Follow existing project style before generic Clean Code or SOLID preferences. Naming is the exception: follow constitution §7 Code naming. Where the project style does not decide, follow constitution §7 Code design. If a convention is genuinely harmful, surface it to the user instead of silently forking from it.
+- Follow existing project style before generic Clean Code or SOLID preferences. Where the project style does not decide, follow `engineering-rules.md` Code design. If a convention is genuinely harmful, surface it to the user instead of silently forking from it.
+- **Names and comments**: the project style does not decide the words of a new name. Follow `engineering-rules.md` Code naming for each name that you add or rename. Follow `engineering-rules.md` Code text for each comment and commit message that you add or change.
 - **Read before you write**: read the exports, immediate callers, and shared utilities that the change touches. "Looks orthogonal" is dangerous. If you are unsure why code is structured a certain way, ask. Under a Goal Wrap, do not ask: keep the existing structure and record the open point in the Execution Record.
 - **Surgical changes**: touch only what the task requires. Clean up only your own mess. Do not "improve" adjacent code, comments, or formatting. Do not refactor what isn't broken. Run a formatter only over the lines you change, unless CI formats whole files. Change shared code only when the task needs it, and verify its other callers.
 - **No new lint warnings**: the lines you change add no new lint warning, even when CI allows warnings. Warnings on lines you do not touch stay out of scope.
-- **Keep existing tests**: never weaken, skip, or delete a test to make a change pass. Change an existing test only when the requirement changed, and record why. Extending a test per constitution §7 Test design is not such a change.
-- **Test design**: follow constitution §7 Test design for each test that you add or extend.
+- **Keep existing tests**: never weaken, skip, or delete a test to make a change pass. Change an existing test only when the requirement changed, and record why. Extending a test per `engineering-rules.md` Test design is not such a change.
 - **Surface conflicts, don't average them**: when two existing patterns contradict, pick one (more recent / better tested). Say why, and flag the other one for cleanup. Never blend them.
 - **Tests verify intent, not just behavior**: a test that cannot fail when the business logic changes is not a test.
 - **Fail fast, fail loud**: do not write fallback logic that swallows errors. Use a default parameter value only when the correct default is certain. A wrong default fails silently at the call site.
@@ -291,7 +307,7 @@ The Execution Record is an **append-only** record inside the work-item. Never re
 - **Start line**: when you start the work-item, write `Start: <git ref>. Commit policy: <manual | branch | auto>.` In a project without a repository, give the starting file state instead of the git ref. Under `branch`, also give the branch name and its starting point.
 - **Unit entry**: after each unit of work, append `### <unit> — <YYYY-MM-DD>`. The unit is a task, a story, a task group, or the whole work-item. The final code review uses the whole work-item as its unit. Give these fields, and leave out each field that has no content:
   - **Changes**: what changed in each task.
-  - **Tests**: the reason for each new test (constitution §7 Test design).
+  - **Tests**: the reason for each new test (`engineering-rules.md` Test design).
   - **Evidence**: each verification command and its decisive output.
   - **Review**: the code review verdict, the reviewed files, each finding, and its fix and reverify.
   - **Notes**: the Story 0 outcome and its code marking, each deviation that you routed upstream with its resolution, side bugs, and cleanup candidates.

@@ -77,7 +77,7 @@ phase: 2                  # only on phase-derived work-items
 
 Each skill writes only its own section and reads all of them. If an upstream section is missing or not buildable, route to its owner. Never fill it in yourself. A change without a UI surface has no Design section. That is not a missing section.
 
-**Phase-derived items**: `dev-plan-builder` derives one work-item for each phase of the roadmap (§4). Its sources are `product-spec.md` for the requirement and `design-spec.md` for the design. After an escalation, its sources are the deferred lists of the first phase (`dev-plan-builder` Valves). `dev-plan-builder` writes the Quick Overview and the Requirement from these sources, and never invents content. A phase with a UI surface always has a Design section:
+**Phase-derived items**: `dev-plan-builder` derives one work-item for each phase of the roadmap (§4). Its sources are `product-spec.md` for the requirement and `design-spec.md` for the design. After an escalation, its sources are the first phase's deferred lists (`dev-plan-builder` Valves). `dev-plan-builder` writes the Quick Overview and Requirement from these sources. It never invents content. A phase with a UI surface always has a Design section:
 
 - If the design source covers every screen of the phase and the phase changes nothing in it, `dev-plan-builder` writes a reference-only Design section. That section names the design source and the `D-n` that apply, with their source IDs. Plans and code reviews cite these `D-n` like any other Design criterion.
 - Otherwise, `design-spec-builder` writes the Design section before breakdown.
@@ -124,7 +124,7 @@ After `code-reviewer` passes a work-item, `workflow-orchestrator` performs merge
 4. Append one line to `CHANGELOG.md`: the timestamp, a one-sentence summary, and the work-item **filename only**. Never write a directory path, because the file is about to move.
 5. Ensure that `work-items/merged/` exists. Set the frontmatter to `status: merged`, and move the file there.
 6. For a phase work-item, update the phase status in `dev-phase-plan.md`.
-7. If the Plan's `Commit policy` is `branch` or `auto`, commit the merge-back as one commit, on the branch of the work-item's other commits. The commit holds the Completion entry, the changes of steps 1–6, and the moved work-item. Its message names the work-item slug and "merge-back". Commit nothing under `manual`, in a project without a repository, or when the documents root is not in the project's repository.
+7. If the Plan's `Commit policy` is `branch` or `auto`, commit merge-back on the work-item's branch. The commit holds the Completion entry, the changes of steps 1–6, and the moved work-item. Its message names the work-item slug and "merge-back". Do not commit under `manual` or without a repository. Do not commit when the documents root is outside the project's repository.
 
 If a work-item is still in the top level, its merge-back is unfinished. Until then, the work-item is the authoritative source for its change. The state documents lag behind it by design. This lag is never a staleness defect.
 
@@ -155,7 +155,9 @@ Complete the remaining merge-back steps of each such item first.
      - "If <unwanted event>, then …";
      - for a check with no trigger, "The system shall <result>".
 
-  Depth scales with the complexity of the change. Do not repeat anything across sections. Omit untouched template sections. Code, commands, and quoted output are exempt from these rules.
+  Depth scales with the complexity of the change. Do not repeat anything across sections. Omit untouched template sections. Code, commands, and quoted output are exempt from these rules. Comments and commit messages are not exempt. `engineering-rules.md` Code text covers them.
+
+  After you write or change a project document, run `node <workflow-orchestrator>/scripts/check-writing.js <doc.md>`. `<workflow-orchestrator>` is the `workflow-orchestrator` skill directory. The check reports each sentence over its word limit, and each `AC-n` or `D-n` outside the EARS forms. Fix each reported line that you wrote or changed, and run the check again. If a reported line is quoted text, keep it and name it in the stage report.
 - **Diagrams (all project documents)**: draw every diagram as a Mermaid flowchart, never as ASCII art. In the Quick Overview, every code block is a Mermaid block. The review page draws Mermaid. Write only this safe subset, which parses everywhere and stays readable:
   - every diagram starts with `flowchart TD`, so that long code names stack top-down;
   - subgraphs, such as Before and After tracks, stack top-down too. Each `subgraph ID["title"]` has `direction TB` as its first line and closes with `end`. Subgraphs do not nest;
@@ -216,44 +218,7 @@ Complete the remaining merge-back steps of each such item first.
   4. If you follow it, record it as a deliberate deviation with its reason.
 
   A request below WCAG 2.2 AA needs the user's explicit acceptance of the risk. Under a Goal Wrap, follow the convention and list each overridden request in the final report.
-- **Code naming (all skills)**: these rules cover value names and method names in code. They decide the words in a name. The language and the project decide the form of a name, such as its case and its prefix. Apply these rules to every name that you add or rename, whatever the surrounding code does. Do not rename an existing name only to follow them. Only a naming convention in `memory/agent-guideline.md` overrides them.
-
-  If an external contract or a framework fixes a name, keep that name. Examples are a JSON field, a database column, and a query method that Spring Data derives.
-
-  A **value name** is the name of a variable, field, parameter, or constant. Name each value by its role, not by its type. The **head word** is the word that the other words modify. Choose the head word by what the value holds:
-  - a boolean: an adjective or a predicate, such as `enabled`, `isActive`, or `hasStops`;
-  - one object, string, or number: a singular noun, such as `exchange` or `closePrice`;
-  - a collection: a plural noun for its elements, such as `enabledExchanges`;
-  - a map: a plural noun for its values, then `By` and the key, such as `eventsByInstrumentId`. Do not use the `keyToValue` form.
-
-  Also apply these rules to value names:
-  - An adjective can modify the head noun. It never stands alone as the name of a non-boolean value.
-  - Do not put the container type in a value name. Write `exchanges`, not `exchangeList`.
-  - Write a boolean name in the affirmative form. Write `enabled`, not `notDisabled`.
-
-  For example, `List<ExchangeConfiguration> enabled` breaks these rules, because an adjective names a list. Write `enabledExchanges` instead.
-
-  Name each method with a verb or a verb phrase, such as `sendMessage` or `findEnabledExchanges`. If a method returns a boolean and changes no state, name it as an assertion, such as `isEmpty` or `containsKey`.
-- **Code design (all skills)**: these rules apply to the code that you add or change, when the described risk exists. If the surrounding code consistently does the same thing, follow the project, and do not report it. This exception covers structure, not correctness or safety. Do not refactor existing code only to follow these rules. Fix a problem with the means that the project already uses, such as its injection style.
-  - **Mixed responsibilities**: one class, module, or function mixes work that changes for different reasons, such as business rules, storage access, and output formatting. Signs are a test that must fake several unrelated things, and a change for one reason that edits code for another. Keep new work of each kind in its own class, module, or function. When this separates a real business rule, pass required values into independently testable calculations and keep external effects in the calling code. Preserve transaction, consistency, and authorization boundaries when separating calculation from effects. Do not add layers merely to make a function pure.
-  - **Broken substitution**: a subclass or an implementation breaks the contract of its parent type, so callers of the parent fail. Examples are an unsupported-operation error, a method that does nothing where the contract expects an effect, and the rejection of input that the parent accepts. Do not inherit or implement a type whose contract the class cannot keep.
-  - **Hard-wired boundary**: business logic creates an external boundary itself, or reaches it through a static call, so no test can run the logic without it. Examples of a boundary are a database, an HTTP client, the clock, the file system, and a random source. Inject the boundary instead. Add an interface only when the language cannot fake the concrete class.
-  - **Domain invariants**: when fields or states constrain each other, make those constraints explicit. Derive invalid states from the requirements, not from a preferred type shape. Use the language's types, controlled construction, or validated transitions to prevent those states. Keep runtime checks for constraints that types cannot express. Do not remove states that the requirements permit, such as cached data during a refresh when the product allows it. Avoid wrappers that enforce no domain constraint.
-  - **Parsing and validation**: Parse and validate external data at each trust boundary. Inside that boundary, reuse explicit validated values instead of repeatedly guessing their shape or supplying speculative defaults. Enforce domain invariants in domain operations, including calls from background jobs or other entry points. Recheck constraints that depend on mutable state when performing the operation. Use transactions, conditional writes, or equivalent mechanisms when correctness requires an atomic check and update. Keep authorization checks at the operations that require them.
-  - **Shared mutable state**: when concurrent writers can interfere, first check whether they need the same mutable resource. Prefer task-local state, immutable values, and separate resources before adding synchronization. When sharing is necessary, define who may write and enforce that ownership through structure or a concurrency mechanism. A process-local lock does not protect writes from other processes. Verify the mechanism against the actual competing writers, including replicas when applicable.
-  - **Repeated execution**: When writes can be retried, redelivered, or resumed after interruption, define their repeated-execution behavior. Where the contract requires one effect, prevent duplicates across retries and partial failures. An idempotency key alone does not make the effect and its completion record atomic. Verify duplicate calls and interruption between those steps, plus concurrent delivery when applicable. If safe retry is unavailable, state the restriction and recovery path instead of adding automatic retries. Do not require idempotency for operations whose contract does not need it.
-  - **Compiler and type checks**: fix the cause of a compiler or type error instead of bypassing the check. Do not use unchecked casts, broad types, or disabled checks merely to hide a defect. If an interop or tool limitation requires an exception, keep it local and record the reason and safety evidence. A type assertion is not runtime validation.
-
-  Use constitution §7 Test design to select or extend the smallest check that proves each applicable constraint. For state constraints, check both permitted and rejected states or transitions. For input boundaries, check invalid external data and alternate entry points where relevant. Do not add duplicate tests or new tooling solely for this checklist. Record necessary exceptions and their evidence in the Execution Record.
-
-  Attach each finding to a requirement or a concrete risk, not a preference for purity or abstraction. Use P0 or P1 when the code-reviewer severity rules require it. Otherwise, a design problem that causes a defect is **P2**. Examples are code that no test can cover and a broken contract. Any other design problem is **P3**.
-- **Test design (all skills)**: these rules stop duplicate tests. They apply to each test that you add or extend. If the project's test conventions decide how to split tests or at which level to test, follow them. Do not combine, move, or delete an existing test only to follow these rules.
-  - **Search first**: before you add a test, find the tests that already cover the behavior. Look in the tests of the code that you change and of its direct callers. If a test covers the behavior completely, add nothing, and cite that test. If it covers the behavior in part, add a case or an assertion to it. To add a case, you may turn it into a parameterized test, if every old case stays. A test that passed before your change does not prove a new or changed behavior.
-  - **Split by behavior**: write a test per behavior or rule, not per method or per branch. If several inputs of one behavior take the same setup and the same form of assertion, write one parameterized test. Examples are JUnit `@ParameterizedTest`, pytest `parametrize`, and Jest `test.each`. Use this form only when the project's test framework supports it. An outcome with another form of assertion, such as an error, gets its own test.
-  - **Lowest level**: assert each behavior once, at the lowest level that can prove it. A level that fakes the part where the risk lies cannot prove it. Use a higher-level test only for what a lower level cannot prove, such as wiring, transactions, serialization, and a user flow through the UI.
-  - **Nothing to prove**: test only what the project's own code or configuration decides. Do not test a framework or a library itself, plain getters and setters, or generated code.
-
-  Give each new test a one-line reason in the Execution Record. The reason names the behavior that the test covers, and why no existing test covers it. The new tests of one new class or module may share one line. A case or an assertion that you add to an existing test needs no reason. If you find existing tests that duplicate each other, report them as a cleanup candidate for `BACKLOG.md`. Do not change them. In a code review, a break of these rules is **P3**.
+- **Engineering rules (skills that plan, write, or review code)**: `engineering-rules.md`, next to this file, holds Code naming, Code text, Code design, and Test design. It is part of this constitution, so the same change rule applies to it. `dev-plan-builder`, `dev-builder`, and `code-reviewer` read it.
 - **Project preferences (all skills)**: when the user states a lasting project-specific preference for how AIPilot works, invoke `note-keeper`, a capture reflex rather than a stage. Then continue the current work.
 - **Question format (all skills)**: every question is multiple choice with a free-form escape. Use the runtime's native option picker when it has one. Otherwise, use lettered options in chat. Offer 2–4 options, each with a brief explanation. Put the recommended option first and label it.
 
@@ -270,14 +235,14 @@ This section is the single authority for the order of browser review and confirm
 
 At a stage boundary that requires explicit user confirmation:
 
-1. Finish the stage first: every question it needs is asked and answered, and the deliverable is written. If the user still has to make a decision, ask for it now (§7); it is never folded into the review offer. Then update the deliverable with the answer before any step below. Then report these items, as chat text before any question:
+1. Finish the stage first: every question it needs is asked and answered, and the deliverable is written. If the user still has to make a decision, ask now (§7). Never fold it into the review offer. Then update the deliverable with the answer before any step below. Then report these items, as chat text before any question:
    - the stage's deliverable;
    - its highest-risk decisions;
    - the recommended next stage.
 2. If the stage produced or updated a reviewable markdown deliverable, offer the optional browser review **before** requesting next-stage confirmation. A reviewable markdown deliverable is a product spec, design spec or Design section, architecture document, work-item, plan, or roadmap. Making the offer is mandatory. Opening the browser review is optional.
 
    Recommend the browser review when the deliverable is long or holds decisions the user has not yet seen in chat. Otherwise, recommend skipping it. The offer and the confirmation may share one question. Its options must then include browser review and "Skip review and continue to <next stage>"; choosing that option confirms.
-3. If the user selects browser review, run the mechanism in `review-runtime.md`. Request next-stage confirmation only after **Approve** (or a separate explicit confirmation in chat). **Disapprove** rejects only this review version. Stop without confirming the document or entering the next stage. Preserve its source, tell the user it was rejected, and ask what to do next. Do not automatically revise or roll back the source. If the user declines a separate review offer, ask for confirmation in chat; declining a browser review is never itself a confirmation.
+3. If the user selects browser review, run the mechanism in `review-runtime.md`. Request next-stage confirmation only after **Approve** (or a separate explicit confirmation in chat). **Disapprove** rejects only this review version. Stop without confirming the document or entering the next stage. Preserve its source, tell the user it was rejected, and ask what to do next. Do not automatically revise or roll back the source. If the user declines a separate review offer, ask for confirmation in chat. Declining a browser review is not confirmation.
 4. A stage report that asks only to continue to the next stage before making the required offer is invalid.
 
 The gate never creates a boundary that has been waived. When the session's execution mode waives a stage confirmation, it also waives the review offer there. These execution modes waive a stage confirmation:
@@ -298,7 +263,7 @@ Every skill uses these words with one meaning only.
 - **route to X**: hand the work to X in the same run (§7 Routing). A **handoff** is the message that carries it: the target, the execution mode, and the granularity.
 - **the user**: the person who works with AIPilot. People who use the product being built are **end users**. "Target user", "new user", and "power users" also mean end users.
 - **execution mode**: the Gate 1 choice, (a), (b), or (c), always written in full. A skill's own modes carry a capital: Build Mode, Diagnosis Mode, Roadmap Mode, Breakdown Mode, Arbitration Mode, Architecture Baseline Mode, 0-to-1 Mode, and Iteration Mode.
-- **Approach Challenge**: `dev-builder`'s evidence-based proposal to change an approach choice that the Plan records. A clean-context **arbiter** rules on it in `dev-plan-builder` Arbitration Mode.
+- **Approach Challenge**: `dev-builder`'s evidence-based proposal to change an approach choice that the Plan records. A clean-context **arbiter** rules on it in `dev-plan-builder` Arbitration Mode. An **approach pre-check** is the arbiter's check of a risky approach choice before the Plan's stage report.
 - **goal mode** is the user's choice; the **Goal Wrap** is the autonomous run that the choice starts.
 - **blocker**: a situation that stops the run because only the user can resolve it. Examples are a fired Plan Stop Condition, a code review that will not converge, and a Diagnosis dead end. Under a Goal Wrap, only the Gate 1 list is a blocker. A **blocking question** is one that the work cannot continue without; Open Questions tag it `blocks implementation`.
 - **scope**: what a change covers, as in "out of scope". The kind of change, the frontmatter `scope:` value, is its **scope type**. A **review scope** is the unit that one code review covers. A **release scope** is the set of work-items that one release ships.

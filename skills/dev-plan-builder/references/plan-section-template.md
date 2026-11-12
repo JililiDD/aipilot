@@ -13,13 +13,16 @@ Test tiers: fast `<command>` · full `<build of each touched module>` touched mo
 
 #### <choice> (<source IDs>)
 
-| Candidate | How it works | Strengths | Weaknesses | Result |
-|---|---|---|---|---|
-| <candidate> | <one short sentence> | <criteria that it wins on> | <criteria that it loses on> | **Chosen** |
-| <candidate> | <one short sentence> | <...> | <...> | Dropped: <failed gate or lost criterion> |
+| Candidate | Source | How it works | Choose this if | Strengths | Weaknesses | Result |
+|---|---|---|---|---|---|---|
+| <candidate> | <project file, library feature, or named technique> | <one short sentence> | <condition that makes it the best choice> | <criteria that it wins on> | <criteria that it loses on> | **Chosen** |
+| <candidate> | <...> | <one short sentence> | <...> | <...> | <...> | Dropped: <failed gate or lost criterion> |
 
 Premises:
-- (P1) <checkable claim that the choice relies on>
+- (P1) <checkable claim that the choice relies on> [verified: <probe and its result>]
+- (P2) <checkable claim> [unverified: Task <n.m> checks it]
+
+Pre-check: <Keep | Switch | Escalate>. <the gate or the criterion that decided>
 
 ### Architecture
 
@@ -85,9 +88,12 @@ Notes on the parts:
 - Approach Decisions come first, because the stories follow from the chosen approach. When the Plan makes no approach choice, leave the section out.
 - Give each choice its own `####` heading, table, and premises. The heading names the source IDs, or the Deferred Choices line that handed the choice to the plan.
 - List every candidate that `dev-builder`'s Approach Decision Discipline explored, including each one that a gate dropped. Keep each cell to one short phrase or sentence.
+- Source names a project practice and its file, a library feature, or a named technique. Choose this if states when the candidate is best. Leave out a candidate that has no source or no such condition.
 - In Strengths and Weaknesses, name the ranking criterion, such as reuse, blast radius, or consistency. For a dropped candidate, the Result names the gate that it failed or the criterion that it lost on.
 - List the selected candidate first, in the first row of the table, whether the user or the agent chose it. The review page shows that row in green. Write **Chosen** in its Result cell, and record who chose it in the decision's explanation, not by replacing the Result label.
 - Number the premises across the whole Plan: P1, P2, and so on. An Approach Challenge cites these premises.
+- End each premise with its status. `[verified: …]` names the probe and its result. `[unverified: …]` names the task that checks the premise. Place that task before the tasks that depend on the choice.
+- The Pre-check line appears only when the choice had an approach pre-check (`SKILL.md` Planning Rules).
 - Reuse Notes record only what the stories reuse. Where reuse is not enough, they say why a story needs new code.
 - Non-Goals here are implementation exclusions only. Product non-goals live in the Requirement, as its Out of scope list. Write plain bullets without IDs, like the Requirement's Out of scope list. Leave the section out when there are none.
 - Stop Conditions keep the four general lines. After them, add the stops that are specific to this change. Never write a premise as a Stop Condition. When a premise fails, `dev-builder` raises an Approach Challenge, and an arbiter rules on it.

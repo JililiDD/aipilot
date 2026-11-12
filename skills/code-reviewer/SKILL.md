@@ -41,6 +41,7 @@ If any of the three items is missing, return the request to the builder. Never g
 Project-document paths are relative to the resolved documents root. The constitution path is relative to the plugin. Read these documents and files:
 
 - `../workflow-orchestrator/references/document-system-spec.md`: the plugin-owned constitution. It is not a project document. Follow it without restating it. `memory/agent-guideline.md` holds project-specific overrides.
+- `../workflow-orchestrator/references/engineering-rules.md`: the constitution's rules for code. They are Code naming, Code text, Code design, and Test design.
 - The target work-item: read all of its sections. The master documents lag behind an active work-item by design (constitution §6). This lag is never a staleness finding.
 - `product-spec.md`, `design-spec.md`, and `architecture.md`, for the surrounding state.
 - `memory/decisions.md` and `memory/lessons.md` (constitution §2).
@@ -66,7 +67,7 @@ Project-document paths are relative to the resolved documents root. The constitu
 
 ## Findings Discipline
 
-- **Every finding attaches to a requirement, an AC, or a concrete named risk.** Style preferences, taste, and "for future flexibility" hardening are not findings. A finding may also attach to an architecture view. A reviewer who invents improvements causes scope creep in reverse.
+- **Every finding attaches to a requirement, an AC, or a concrete named risk.** Style preferences, taste, and "for future flexibility" hardening are not findings. A finding may also attach to an architecture view. A break of `engineering-rules.md` Code naming, Code text, or Test design is a finding, not a style preference. A reviewer who invents improvements causes scope creep in reverse.
 - Use these severities:
   - **P0**: broken behavior or data risk.
   - **P1**: a cited AC is unmet.
@@ -103,10 +104,12 @@ Project-document paths are relative to the resolved documents root. The constitu
 
 - reuse-first is honored, or the exception is justified.
 - there are no speculative abstractions, options, or dependencies beyond the current requirements.
-- business logic uses type-safe domain values.
-- the code follows the existing project style. Added or renamed names follow constitution §7 Code naming.
+- each string or number literal that the diff compares or branches on follows Closed value sets in `engineering-rules.md` Code design. Check the literals one at a time.
+- the code follows the existing project style.
+- each name that the diff adds or renames follows `engineering-rules.md` Code naming. This covers values, methods, types, and test methods. Check the names one at a time.
+- each comment that the diff adds or changes follows `engineering-rules.md` Code text.
 - the changed lines add no new lint warning, even when CI allows it.
-- the added or changed code follows constitution §7 Code design. Check its applicable safeguards and verification evidence. Do not require a particular abstraction without a concrete risk.
+- the added or changed code follows `engineering-rules.md` Code design. Check its applicable safeguards and verification evidence. Do not require a particular abstraction without a concrete risk.
 - verification is present at trust and integration boundaries.
 - the change has an Architecture subsection when it alters an architecture view, per the Trigger in `dev-plan-builder`'s `planning-rules.md`. Only a recorded refusal of the baseline pass excuses its absence, while `architecture.md` does not exist. When views exist, the code adds no element or relationship that they do not show.
 - no leftover debug code or dead code remains.
@@ -119,7 +122,7 @@ Project-document paths are relative to the resolved documents root. The constitu
 - changed or new behavior has a corresponding test, new or existing.
 - **when the project's declared Testing Strategy includes automated UI tests**, a page-affecting change carries a passing automated UI test. Never invent tooling requirements that the project does not declare.
 - the tests genuinely assert the cited ACs, rather than merely executing the code. A test that cannot fail when the business logic changes verifies nothing. Such a test is a finding.
-- the added or extended tests follow constitution §7 Test design. Each new test has its reason in the Execution Record.
+- the added or extended tests follow `engineering-rules.md` Test design. Each new test has its reason in the Execution Record.
 
 **Robustness**: check the failure paths, because generated code most often breaks there. Check these points:
 
