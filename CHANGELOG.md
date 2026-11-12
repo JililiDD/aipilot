@@ -3,6 +3,37 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [2.7.0] - 2026-11-12
+
+### Added
+
+- Code layout guidance orders new class members by group and access. Builder self-review and code review check added members without moving existing members.
+- A fifth development-only eval case checks review findings for mixed member order.
+- Keyboard-accessible table resizing in the review page, with visible focus and announced column widths.
+
+### Changed
+
+- The review page uses available width for dense plans. Verified and unverified premise statuses have distinct labels and colors.
+
+### Fixed
+
+- Wide review tables scroll horizontally instead of clipping their final columns.
+
+### Known limitations
+
+- The five development-only eval cases have not been run as agent sessions. Contract tests do not prove runtime agent compliance.
+- Existing browser-review limitations from v2.4.0 remain unchanged.
+
+### Verification performed
+
+- Plugin layout validation, 113 Node tests, writing checks, and release preflight passed for this candidate.
+- Chrome checks covered light and dark themes, desktop and narrow screens, keyboard resizing, pointer resizing, and table scrolling.
+
+### Upgrade notes
+
+- No project document migration, runtime dependency, or new permission is required.
+- To roll back, install v2.6.0 or check out tag `v2.6.0`.
+
 ## [2.6.0] - 2026-11-12
 
 ### Added
@@ -264,6 +295,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[2.7.0]: https://github.com/JililiDD/aipilot/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/JililiDD/aipilot/compare/v2.5.0...v2.6.0
 [2.5.0]: https://github.com/JililiDD/aipilot/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/JililiDD/aipilot/compare/v2.3.0...v2.4.0
