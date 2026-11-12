@@ -218,7 +218,7 @@ Complete the remaining merge-back steps of each such item first.
   4. If you follow it, record it as a deliberate deviation with its reason.
 
   A request below WCAG 2.2 AA needs the user's explicit acceptance of the risk. Under a Goal Wrap, follow the convention and list each overridden request in the final report.
-- **Engineering rules (skills that plan, write, or review code)**: `engineering-rules.md`, next to this file, holds Code naming, Code text, Code design, and Test design. It is part of this constitution, so the same change rule applies to it. `dev-plan-builder`, `dev-builder`, and `code-reviewer` read it.
+- **Engineering rules (skills that plan, write, or review code)**: `engineering-rules.md` sits next to this file. It holds Code naming, Code text, Code layout, Code design, and Test design. It is part of this constitution, so the same change rule applies to it. `dev-plan-builder`, `dev-builder`, and `code-reviewer` read it.
 - **Project preferences (all skills)**: when the user states a lasting project-specific preference for how AIPilot works, invoke `note-keeper`, a capture reflex rather than a stage. Then continue the current work.
 - **Question format (all skills)**: every question is multiple choice with a free-form escape. Use the runtime's native option picker when it has one. Otherwise, use lettered options in chat. Offer 2–4 options, each with a brief explanation. Put the recommended option first and label it.
 

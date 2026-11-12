@@ -52,6 +52,34 @@ Each format keeps its standard form:
 
 These rules do not cover text that the program outputs, such as a log message, an exception message, or UI text. In a code review, a break of these rules is **P3**.
 
+## Code layout
+
+These rules decide the order of class members. No Java standard fixes method order, so this plugin uses this convention. For another language, use its standard order or the project's order.
+
+Put class members in these groups, from top to bottom:
+1. constants, which are `static final` fields;
+2. static fields;
+3. instance fields;
+4. constructors;
+5. `public static` methods;
+6. `public` instance methods;
+7. `protected` methods;
+8. package-private methods, which have no access modifier;
+9. `private static` methods;
+10. `private` instance methods;
+11. nested types, such as an inner class, an enum, an interface, or a record.
+
+Also apply these rules:
+- Do not mix groups. For example, a `private` method never stands between two `public` methods.
+- Inside groups 1 to 4, order members by access: `public`, `protected`, package-private, then `private`.
+- Inside groups 7 and 8, put static methods before instance methods.
+- Inside one group, keep overloads together. Put a method below a method of the same group that calls it.
+- Write modifiers in the language's customary order. In Java, write `private static final`, not `static private final`.
+
+Apply these rules to each new class and each member added to an existing class. If the class or project already follows another consistent order, follow it. If an existing class mixes groups, put the new member after the last member of its group. Do not move an existing member only to follow these rules. Only a convention in `memory/agent-guideline.md` overrides them.
+
+Check the place of each added member against these rules. `dev-builder` checks during self-review, and `code-reviewer` checks during code review. In a code review, a break of these rules is **P3**.
+
 ## Code design
 
 These rules apply to the code that you add or change, when the described risk exists. If the surrounding code consistently does the same thing, follow the project, and do not report it. This exception covers structure, not correctness or safety. Do not refactor existing code only to follow these rules. Fix a problem with the means that the project already uses, such as its injection style.

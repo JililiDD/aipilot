@@ -388,6 +388,35 @@ test('each approach decision is one card that holds its heading, table, and prem
   assertWellNested(content);
 });
 
+test('premise statuses are distinct and their evidence remains inert inside a decision', () => {
+  const content = render([
+    '# Work-item', '', '## Plan', '', '### Approach Decisions', '', '#### Compare (AC-1)', '',
+    '| Candidate | Result |', '|---|---|', '| Reuse | Chosen |', '',
+    'Premises:',
+    '- (P1) The library is compatible. [verified: probe passed]',
+    '- (P2) The service supports this input. [unverified: Task 1.2 checks <img src=x onerror=alert(1)>]', '',
+  ].join('\n'));
+
+  assert.match(content, /class="pstatus verified"/);
+  assert.match(content, /class="pstatus unverified"/);
+  assert.match(content, /The library is compatible\./);
+  assert.match(content, /Task 1\.2 checks &lt;img src=x onerror=alert\(1\)&gt;/);
+  assert.doesNotMatch(content, /<img src=x/);
+  assert.match(content, /id="P1" data-id="P1" data-name="Premise"/);
+  assertWellNested(content);
+});
+
+test('table resize handles expose a keyboard interaction and a visible focus state', () => {
+  const template = fs.readFileSync(templatePath, 'utf8');
+  assert.ok(template.includes('grip.setAttribute("role", "separator")'));
+  assert.ok(template.includes('grip.setAttribute("aria-label", "Resize " + th.textContent.trim() + " column")'));
+  assert.ok(template.includes('grip.tabIndex = 0'));
+  assert.ok(template.includes('event.key === "ArrowRight" ? 16 : -16'));
+  assert.ok(template.includes('grip.setAttribute("aria-valuenow", Math.round(nextWidth))'));
+  assert.ok(template.includes('.col-grip:focus-visible'));
+  assert.ok(template.includes('width: 24px; cursor: col-resize'));
+});
+
 test('the first row of every Approach Decisions table is green, whoever chose it and however the Result is worded', () => {
   const table = (result) => [
     '| Candidate | Result |', '|---|---|',
@@ -452,6 +481,17 @@ test('an older plan keeps its premises from an Approach line in Reuse Notes', ()
 
   assert.ok(content.includes('<li class="approach">'));
   assert.ok(content.includes('<span class="premise" id="P1" data-id="P1" data-name="Premise">'));
+});
+
+test('tagged premises inside legacy reuse notes show their status without changing the claim', () => {
+  const content = render([
+    '# Work-item', '', '## Plan', '', '### Reuse Notes',
+    '- Approach for the switch (R-8): a country list. Premises: (P1) The config can change. [verified: probe passed]', '',
+  ].join('\n'));
+
+  assert.match(content, /The config can change\. <span class="pstatus verified">/);
+  assert.match(content, /class="pstatus-key">verified<\/span>/);
+  assertWellNested(content);
 });
 
 test('a test tier shows its touched modules on the name line, with the command below', () => {

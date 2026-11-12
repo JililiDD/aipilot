@@ -113,6 +113,7 @@ const TASK = /^Task (\d+)\.(\d+):\s*([\s\S]*)$/;
 const STORY = /^(User Story|Task Group|Story) (\d+):\s*([\s\S]*?)(?:\s+\((AC:[^)]*)\))?(\s+\[[^\]]*\])?\s*$/;
 const FIELD_LINE = /^[A-Z][^:\n`]{0,40}:\s+\S/;
 const PREMISE = /^\((P\d+)\)\s+([\s\S]*)$/;
+const PREMISE_STATUS = /^([\s\S]*?)\s*\[(verified|unverified):\s*([\s\S]*)\]\s*$/;
 const TERM_SECTIONS = new Set(['existing context', 'scope']);
 
 const escapeHtml = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -174,6 +175,15 @@ function linkify(html) {
 }
 const inline = (markdown) => linkify(marked.parseInline(markdown, { gfm: true }));
 const inlineNoLinks = (markdown) => marked.parseInline(markdown, { gfm: true });
+
+// A premise ends with its status, such as "[verified: <evidence>]". The status gets its own marked line.
+// The text stays as in the markdown, so that a comment on it still maps back.
+function premiseBody(text) {
+  const status = text.match(PREMISE_STATUS);
+  if (!status) return inline(text);
+  const [, claim, kind, evidence] = status;
+  return `${inline(claim)} <span class="pstatus ${kind}"><span class="pmark">[</span><span class="pstatus-key">${kind}</span><span class="pmark">:</span> ${inline(evidence)}<span class="pmark">]</span></span>`;
+}
 
 // ---------- block renderers ----------
 // An item's first text line drives its layout; nested blocks (lists, code) render below it.
@@ -240,7 +250,7 @@ function approachItem(text) {
       for (const premise of rest.split(/\s+(?=\(P\d+\))/)) {
         const parts = premise.match(/^\((P\d+)\)\s*([\s\S]*)$/);
         html += parts
-          ? ` <span class="premise" id="${parts[1]}" data-id="${parts[1]}" data-name="Premise"><span class="pid">(${parts[1]})</span> ${inline(parts[2])}</span>`
+          ? ` <span class="premise" id="${parts[1]}" data-id="${parts[1]}" data-name="Premise"><span class="pid">(${parts[1]})</span> ${premiseBody(parts[2])}</span>`
           : ` <span class="row">${inline(premise)}</span>`;
       }
     } else {
@@ -347,7 +357,7 @@ function renderList(token, context) {
   const parts = items.map(splitItem);
   const premises = parts.map((part) => (part.blocks ? null : part.text.match(PREMISE)));
   if (context.h3 === 'approach decisions' && premises.length && premises.every(Boolean)) {
-    const rows = premises.map(([, id, text]) => `<li class="premise" id="${id}" data-id="${id}" data-name="Premise"><span class="pid">(${id})</span> ${inline(text)}</li>`);
+    const rows = premises.map(([, id, text]) => `<li class="premise" id="${id}" data-id="${id}" data-name="Premise"><span class="pid">(${id})</span> ${premiseBody(text)}</li>`);
     return `<ul class="premises">\n${rows.join('\n')}\n</ul>${doneHtml}`;
   }
   const ids = parts.map((part) => part.text.match(ID_ITEM));

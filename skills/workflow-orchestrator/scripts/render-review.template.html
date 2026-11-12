@@ -10,7 +10,8 @@
   --line: #e8e5de; --line-2: #d7d2c7; --accent: #3454d1; --accent-soft: #eef1fd; --accent-ink: #2a44ab;
   --r: #1d4ed8; --d: #7c3aed; --q: #a21caf; --ng: #be123c; --ec: #0f766e; --a: #b45309; --p: #15803d; --code-ink: #0369a1; --ok: #2c7a3b; --ok-soft: #eef7ef;
   --warn: #9a5b00; --warn-soft: #fdf6e7; --flash: #fff1b0; --shadow: 0 12px 32px rgba(20,22,28,.10), 0 2px 6px rgba(20,22,28,.06);
-  --measure: 76ch; --gutter: 7.5rem;
+  /* The content column takes the free width up to this limit. It grows when a side panel shrinks or hides. */
+  --measure: 120ch; --gutter: 7.5rem;
   /* Architecture node groups: Compute, Storage, Messaging, External, then four colors for declared groups. */
   --g1: #3454d1; --g1-soft: #eef1fd; --g2: #0f766e; --g2-soft: #e6f3f1; --g3: #b45309; --g3-soft: #fbf0e3; --g4: #6a707b; --g4-soft: #f4f2ed;
   --g5: #7c3aed; --g5-soft: #f2ecfd; --g6: #be123c; --g6-soft: #fcebee; --g7: #15803d; --g7-soft: #e9f5ec; --g8: #a21caf; --g8-soft: #f9eafb;
@@ -166,10 +167,17 @@ details.source pre { margin: 8px 0 4px; padding: 14px 16px; background: var(--su
 details.source pre code { color: var(--ink-2); background: none; border: 0; padding: 0; font-size: inherit; white-space: pre; }
 
 /* ---------------- tables ---------------- */
-.table-card { margin: 0 0 22px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+/* A table wider than its card scrolls sideways, so no column is cut off. */
+.table-card { margin: 0 0 22px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow-x: auto; }
 .table-card table { width: 100%; border-collapse: collapse; font-size: 15.5px; line-height: 1.55; }
-.table-card th { text-align: left; font-size: 13.5px; letter-spacing: 0; color: var(--muted); font-weight: 600; padding: 12px 18px; background: var(--sunk); border-bottom: 1px solid var(--line); }
-.table-card td { padding: 13px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.table-card th { position: relative; text-align: left; font-size: 13.5px; letter-spacing: 0; color: var(--muted); font-weight: 600; padding: 12px 24px 12px 18px; background: var(--sunk); border-bottom: 1px solid var(--line); }
+/* The resize handle is large enough for touch and supports arrow-key adjustments. */
+.col-grip { position: absolute; top: 0; right: 0; bottom: 0; width: 24px; cursor: col-resize; touch-action: none; user-select: none; -webkit-user-select: none; }
+.col-grip::after { content: ""; position: absolute; top: 28%; bottom: 28%; right: 7px; border-right: 1px solid var(--line-2); }
+.col-grip:hover::after, .col-grip.on::after { top: 0; bottom: 0; border-right: 2px solid var(--accent); }
+.col-grip:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; border-radius: 4px; }
+:root.col-resizing, :root.col-resizing * { cursor: col-resize !important; user-select: none; -webkit-user-select: none; }
+.table-card td { padding: 13px 24px 13px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .table-card tr:last-child td { border-bottom: 0; }
 .table-card tr.chosen td { background: var(--ok-soft); }
 .table-card tr.chosen td:first-child { box-shadow: inset 3px 0 0 var(--ok); }
@@ -258,6 +266,14 @@ li.approach .premise { display: block; position: relative; margin-top: 6px; padd
 ul.premises { list-style: none; padding-left: 0; }
 ul.premises > li.premise { position: relative; margin: 6px 0; padding-left: 44px; color: var(--ink-2); font-size: 15.5px; }
 li.approach .pid, ul.premises .pid { position: absolute; left: 0; top: 1px; font: 500 12.5px/1.6 "JetBrains Mono", monospace; color: var(--p); background: color-mix(in srgb, var(--p) 11%, transparent); padding: 0 5px; border-radius: 6px; }
+/* The status of a premise has its own line. Verified is green, unverified is amber. The text stays as in the markdown. */
+.pstatus { display: block; margin: 5px 0 2px; padding: 5px 11px; border-radius: 8px; border-left: 3px solid var(--t); background: color-mix(in srgb, var(--t) 9%, transparent); font-size: 14.5px; line-height: 1.6; }
+.pstatus.verified { --t: var(--ok); }
+.pstatus.unverified { --t: var(--warn); }
+.pstatus-key { font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t); }
+.pstatus.verified .pstatus-key::before { content: "✓ "; }
+.pstatus.unverified .pstatus-key::before { content: "? "; }
+.pstatus .pmark { color: var(--faint); }
 
 ul.focus { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 ul.focus > li { margin: 0; padding: 16px 18px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; font-size: 15.5px; color: var(--ink-2); }
@@ -312,7 +328,7 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   ul.notes > li.approach { margin-left: -1.5em; padding: 14px 16px; }
 }
 @media print {
-  .rail, .pop, .band-toggle, .diagram-toolbar { display: none !important; }
+  .rail, .pop, .band-toggle, .diagram-toolbar, .col-grip { display: none !important; }
   section.band.collapsed > :not(h2) { display: revert !important; }
   .shell { display: block; }
   main { padding: 0; }
@@ -693,6 +709,90 @@ ul.focus .f-head { display: block; font-weight: 650; color: var(--ink); margin-b
   }
   // Mermaid measures label text, so render after the web fonts load, or labels get clipped.
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(renderDiagrams);
+
+  /* ---------- tables: drag the right edge of a column heading to resize the column ---------- */
+  var MIN_COLUMN_WIDTH = 64;
+  var MAX_COLUMN_WIDTH = 2400;
+  doc.querySelectorAll(".table-card table").forEach(function (table) {
+    var columnHeads = Array.prototype.slice.call(table.querySelectorAll("thead th"));
+    // The first resize fixes every column at its drawn border-box width.
+    function fixColumnWidths() {
+      if (table.style.tableLayout === "fixed") return;
+      var widths = columnHeads.map(function (th) { return th.getBoundingClientRect().width; });
+      columnHeads.forEach(function (th, i) {
+        th.style.boxSizing = "border-box";
+        th.style.width = widths[i] + "px";
+        var handle = th.querySelector(".col-grip");
+        handle.setAttribute("aria-valuenow", Math.round(widths[i]));
+        handle.setAttribute("aria-valuetext", Math.round(widths[i]) + " pixels");
+      });
+      table.style.tableLayout = "fixed";
+    }
+    // The table is as wide as its columns. Wider than the card, it scrolls sideways.
+    function fitTableWidth() {
+      table.style.width = columnHeads.reduce(function (sum, th) { return sum + parseFloat(th.style.width); }, 0) + "px";
+    }
+    columnHeads.forEach(function (th) {
+      var grip = el("span", "col-grip");
+      grip.setAttribute("data-chrome", "");
+      grip.setAttribute("role", "separator");
+      grip.setAttribute("aria-orientation", "vertical");
+      grip.setAttribute("aria-label", "Resize " + th.textContent.trim() + " column");
+      var initialWidth = th.getBoundingClientRect().width;
+      var minWidth = Math.min(MIN_COLUMN_WIDTH, Math.floor(initialWidth));
+      var maxWidth = Math.max(MAX_COLUMN_WIDTH, Math.ceil(initialWidth));
+      grip.setAttribute("aria-valuemin", minWidth);
+      grip.setAttribute("aria-valuemax", maxWidth);
+      grip.setAttribute("aria-valuenow", Math.round(initialWidth));
+      grip.setAttribute("aria-valuetext", Math.round(initialWidth) + " pixels");
+      grip.tabIndex = 0;
+      grip.title = "Drag or use left and right arrow keys to resize";
+      th.appendChild(grip);
+      function setColumnWidth(width) {
+        var nextWidth = Math.max(minWidth, Math.min(maxWidth, width));
+        th.style.width = nextWidth + "px";
+        grip.setAttribute("aria-valuenow", Math.round(nextWidth));
+        grip.setAttribute("aria-valuetext", Math.round(nextWidth) + " pixels");
+        fitTableWidth();
+      }
+      grip.addEventListener("keydown", function (event) {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        fixColumnWidths();
+        setColumnWidth(parseFloat(th.style.width) + (event.key === "ArrowRight" ? 16 : -16));
+      });
+      var dragging = false, startX = 0, startWidth = 0;
+      grip.addEventListener("pointerdown", function (event) {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        fixColumnWidths();
+        fitTableWidth();
+        dragging = true; startX = event.clientX; startWidth = parseFloat(th.style.width);
+        grip.classList.add("on");
+        root.classList.add("col-resizing");
+        // A scripted event has no active pointer to capture.
+        try { grip.setPointerCapture(event.pointerId); } catch (e) {}
+      });
+      grip.addEventListener("pointermove", function (event) {
+        if (!dragging) return;
+        setColumnWidth(startWidth + event.clientX - startX);
+      });
+      function endDrag() {
+        dragging = false;
+        grip.classList.remove("on");
+        root.classList.remove("col-resizing");
+      }
+      grip.addEventListener("pointerup", endDrag);
+      grip.addEventListener("pointercancel", endDrag);
+      grip.addEventListener("lostpointercapture", endDrag);
+    });
+  });
+  // ezreview opens a comment on a click in review mode. The click that ends a column drag is not a comment.
+  addEventListener("click", function (event) {
+    if (!event.target.closest || !event.target.closest(".col-grip")) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, true);
 
   /* ---------- rail ---------- */
   var count = function (sel) { return doc.querySelectorAll(sel).length; };

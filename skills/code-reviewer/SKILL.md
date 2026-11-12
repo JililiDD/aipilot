@@ -41,7 +41,7 @@ If any of the three items is missing, return the request to the builder. Never g
 Project-document paths are relative to the resolved documents root. The constitution path is relative to the plugin. Read these documents and files:
 
 - `../workflow-orchestrator/references/document-system-spec.md`: the plugin-owned constitution. It is not a project document. Follow it without restating it. `memory/agent-guideline.md` holds project-specific overrides.
-- `../workflow-orchestrator/references/engineering-rules.md`: the constitution's rules for code. They are Code naming, Code text, Code design, and Test design.
+- `../workflow-orchestrator/references/engineering-rules.md`: the constitution's rules for code. They are Code naming, Code text, Code layout, Code design, and Test design.
 - The target work-item: read all of its sections. The master documents lag behind an active work-item by design (constitution §6). This lag is never a staleness finding.
 - `product-spec.md`, `design-spec.md`, and `architecture.md`, for the surrounding state.
 - `memory/decisions.md` and `memory/lessons.md` (constitution §2).
@@ -67,7 +67,7 @@ Project-document paths are relative to the resolved documents root. The constitu
 
 ## Findings Discipline
 
-- **Every finding attaches to a requirement, an AC, or a concrete named risk.** Style preferences, taste, and "for future flexibility" hardening are not findings. A finding may also attach to an architecture view. A break of `engineering-rules.md` Code naming, Code text, or Test design is a finding, not a style preference. A reviewer who invents improvements causes scope creep in reverse.
+- **Every finding attaches to a requirement, an AC, or a concrete named risk.** Style preferences, taste, and "for future flexibility" hardening are not findings. A finding may also attach to an architecture view. A break of `engineering-rules.md` Code naming, Code text, Code layout, or Test design is a finding, not a style preference. A reviewer who invents improvements causes scope creep in reverse.
 - Use these severities:
   - **P0**: broken behavior or data risk.
   - **P1**: a cited AC is unmet.
@@ -108,6 +108,7 @@ Project-document paths are relative to the resolved documents root. The constitu
 - the code follows the existing project style.
 - each name that the diff adds or renames follows `engineering-rules.md` Code naming. This covers values, methods, types, and test methods. Check the names one at a time.
 - each comment that the diff adds or changes follows `engineering-rules.md` Code text.
+- each field, constructor, method, and nested type that the diff adds stands in its group by `engineering-rules.md` Code layout. Do not report the place of an existing member.
 - the changed lines add no new lint warning, even when CI allows it.
 - the added or changed code follows `engineering-rules.md` Code design. Check its applicable safeguards and verification evidence. Do not require a particular abstraction without a concrete risk.
 - verification is present at trust and integration boundaries.

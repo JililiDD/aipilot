@@ -1108,7 +1108,7 @@ test('code names follow one shared naming rule, and only the project form comes 
 
   const rules = read('skills/workflow-orchestrator/references/engineering-rules.md');
   // The code rule has one home; every stage that writes or reviews code reads that home.
-  assert.ok(constitution.includes('`engineering-rules.md`, next to this file, holds Code naming, Code text, Code design, and Test design'));
+  assert.ok(constitution.includes('It holds Code naming, Code text, Code layout, Code design, and Test design.'));
   for (const skill of [devBuilder, reviewer, read('skills/dev-plan-builder/SKILL.md')]) {
     assert.ok(skill.includes('../workflow-orchestrator/references/engineering-rules.md'));
   }
@@ -1270,7 +1270,7 @@ test('engineering rules cover names, text, and closed values without duplicating
   const builder = read('skills/dev-builder/SKILL.md');
   const reviewer = read('skills/code-reviewer/SKILL.md');
 
-  for (const heading of ['## Code naming', '## Code text', '## Code design', '## Test design']) {
+  for (const heading of ['## Code naming', '## Code text', '## Code layout', '## Code design', '## Test design']) {
     assert.ok(rules.includes(heading), `${heading} belongs in the engineering rules`);
     assert.ok(!constitution.includes(heading), `${heading} must not be duplicated in the constitution`);
   }
@@ -1279,6 +1279,23 @@ test('engineering rules cover names, text, and closed values without duplicating
   assert.ok(rules.includes('These rules cover the text that you write with code: comments'));
   assert.ok(reviewer.includes('Check the literals one at a time.'));
   assert.ok(builder.includes('Check each comment that this task adds or changes'));
+});
+
+test('member layout is shared by the builder and reviewer without moving existing members', () => {
+  const rules = read('skills/workflow-orchestrator/references/engineering-rules.md');
+  const layout = rules.split('## Code layout\n')[1]?.split('## Code design\n')[0];
+  const builder = read('skills/dev-builder/SKILL.md');
+  const reviewer = read('skills/code-reviewer/SKILL.md');
+  const backend = read('skills/java-backend-expert/references/backend-checks.md');
+
+  assert.ok(layout?.includes('5. `public static` methods;'));
+  assert.ok(layout.includes('10. `private` instance methods;'));
+  assert.ok(layout.includes('If the class or project already follows another consistent order, follow it.'));
+  assert.ok(layout.includes('Do not move an existing member only to follow these rules.'));
+  assert.ok(builder.includes('Check the place of each field, constructor, method, and nested type'));
+  assert.ok(reviewer.includes('Do not report the place of an existing member.'));
+  assert.ok(backend.includes('Order the members of a class by `engineering-rules.md` Code layout.'));
+  assert.ok(read('evals/README.md').includes('30 sessions: 5 cases'));
 });
 
 test('eval fixtures are development-only while the writing checker remains in the plugin', () => {

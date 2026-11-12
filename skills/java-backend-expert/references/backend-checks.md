@@ -23,7 +23,7 @@ Sources rank in this order, highest first:
 
 ## Implementation Checks
 
-- Match existing package conventions. Name values, methods, types, and tests by `engineering-rules.md` Code naming. Write comments and Javadoc by `engineering-rules.md` Code text.
+- Match existing package conventions. Name values, methods, types, and tests by `engineering-rules.md` Code naming. Write comments and Javadoc by `engineering-rules.md` Code text. Order the members of a class by `engineering-rules.md` Code layout.
 - Keep controllers thin. A controller does only request parsing, the authorization boundary, passing input to validation, and response mapping. Business rules live in services or domain code, not in controllers, repositories, or mappers. Dependencies point one way: controllers → services → repositories.
 - Keep repositories focused on persistence. Do not hide business decisions in queries. The exception is a project that already does so.
 - Avoid these constructs:

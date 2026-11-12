@@ -53,7 +53,7 @@ If you cannot reproduce the defect at all, follow **Reproduce first** instead. M
 Project paths mean the resolved documents root. The constitution path is plugin-relative. Read these documents when they exist:
 
 - `../workflow-orchestrator/references/document-system-spec.md`, the constitution. The plugin owns this file, and it is not a project document.
-- `../workflow-orchestrator/references/engineering-rules.md`, the constitution's rules for code: Code naming, Code text, Code design, and Test design.
+- `../workflow-orchestrator/references/engineering-rules.md`, the constitution's rules for code: Code naming, Code text, Code layout, Code design, and Test design.
 - `memory/agent-guideline.md`, which holds project-specific overrides.
 - The **target work-item** in the top level of `work-items/`. Identify it by the Target Resolution rule (constitution §3). Never guess. A reference-only Design section on a phase work-item is complete (constitution §3 Phase-derived items).
 - `product-spec.md`, `design-spec.md`, `architecture.md`, `memory/decisions.md`, and `memory/lessons.md` (constitution §2).
@@ -104,9 +104,10 @@ A stop means: report the unit's results and wait. At whole-work-item granularity
    - explicit data flow.
 3. **YAGNI check**: name anything that you defer because the current requirements do not prove it.
 4. Implement the smallest coherent change.
-5. Self-review the task-scoped diff once before verification. Check the diff against the Requirement, Design, Plan, project conventions, `engineering-rules.md` Test design, reuse decision, and YAGNI boundary. Correct the defects that you find. Then do these three checks, and fix each break:
+5. Self-review the task-scoped diff once before verification. Check the diff against the Requirement, Design, Plan, project conventions, `engineering-rules.md` Test design, reuse decision, and YAGNI boundary. Correct the defects that you find. Then do these four checks, and fix each break:
    - Go through each name that this task adds or renames, one name at a time. This covers values, methods, types, and test methods. Check each name against `engineering-rules.md` Code naming.
    - Check each comment that this task adds or changes against `engineering-rules.md` Code text.
+   - Check the place of each field, constructor, method, and nested type that this task adds against `engineering-rules.md` Code layout.
    - Find each string or number literal that this task's code compares or branches on. Check it against Closed value sets in `engineering-rules.md` Code design.
 
    Remove accidental complexity, duplication, unclear naming, dead code, and debug residue that this task introduced. Keep the refactoring inside this task's changes, and do not improve unrelated code or invent alternative approaches merely to satisfy this step.
@@ -285,6 +286,7 @@ Whatever the stop marker is, respect the code marking. Later stories build on `b
 - Preserve existing user changes.
 - Follow existing project style before generic Clean Code or SOLID preferences. Where the project style does not decide, follow `engineering-rules.md` Code design. If a convention is genuinely harmful, surface it to the user instead of silently forking from it.
 - **Names and comments**: the project style does not decide the words of a new name. Follow `engineering-rules.md` Code naming for each name that you add or rename. Follow `engineering-rules.md` Code text for each comment and commit message that you add or change.
+- **Member order**: put each member that you add to a class in its group by `engineering-rules.md` Code layout. Do not mix `public` and `private` methods. Do not move an existing member only to follow the order.
 - **Read before you write**: read the exports, immediate callers, and shared utilities that the change touches. "Looks orthogonal" is dangerous. If you are unsure why code is structured a certain way, ask. Under a Goal Wrap, do not ask: keep the existing structure and record the open point in the Execution Record.
 - **Surgical changes**: touch only what the task requires. Clean up only your own mess. Do not "improve" adjacent code, comments, or formatting. Do not refactor what isn't broken. Run a formatter only over the lines you change, unless CI formats whole files. Change shared code only when the task needs it, and verify its other callers.
 - **No new lint warnings**: the lines you change add no new lint warning, even when CI allows warnings. Warnings on lines you do not touch stay out of scope.
