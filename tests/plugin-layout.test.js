@@ -1279,6 +1279,29 @@ test('engineering rules cover names, text, and closed values without duplicating
   assert.ok(rules.includes('These rules cover the text that you write with code: comments'));
   assert.ok(reviewer.includes('Check the literals one at a time.'));
   assert.ok(builder.includes('Check each comment that this task adds or changes'));
+
+  const codeText = rules.split('## Code text\n')[1]?.split('## Code layout\n')[0];
+  for (const rule of [
+    '**Reason, not action**',
+    '**No change history**',
+    '**Documentation comments**',
+    '**Project practice**',
+    '**Changed code**',
+    '**Existing comments**',
+    'a comment states a reason, a constraint, or a contract',
+    'Do not write a comment that repeats what the code does.',
+    'write a documentation comment for each type and method that another module or another team calls',
+    'For other code, write one only when the name and the signature cannot state the contract.',
+    'If the project consistently requires a documentation comment in a place, write it there.',
+    'if your change makes an existing comment wrong, correct or delete that comment in the same change',
+    'do not delete an existing comment only to follow these rules',
+  ]) {
+    assert.ok(codeText?.includes(rule), `Code text must include: ${rule}`);
+  }
+  assert.ok(builder.includes("Also find each existing comment that this task's change makes wrong, and correct or delete it."));
+  assert.ok(builder.includes('Code text also decides when to write a comment.'));
+  assert.ok(reviewer.includes('This covers when to write a comment, not only its wording.'));
+  assert.ok(reviewer.includes('the diff leaves no existing comment that its change makes wrong'));
 });
 
 test('member layout is shared by the builder and reviewer without moving existing members', () => {
@@ -1295,7 +1318,7 @@ test('member layout is shared by the builder and reviewer without moving existin
   assert.ok(builder.includes('Check the place of each field, constructor, method, and nested type'));
   assert.ok(reviewer.includes('Do not report the place of an existing member.'));
   assert.ok(backend.includes('Order the members of a class by `engineering-rules.md` Code layout.'));
-  assert.ok(read('evals/README.md').includes('30 sessions: 5 cases'));
+  assert.ok(read('evals/README.md').includes('36 sessions: 6 cases'));
 });
 
 test('eval fixtures are development-only while the writing checker remains in the plugin', () => {
@@ -1318,7 +1341,13 @@ test('a plan opens with its approach decisions, one table per choice, and reuse 
   assert.ok(planTemplate.includes('[verified: <probe and its result>]'));
   assert.ok(planTemplate.includes('[unverified: Task <n.m> checks it]'));
   assert.ok(planTemplate.includes('Pre-check: <Keep | Switch | Escalate>'));
-  assert.ok(planTemplate.includes('Dropped: <failed gate or lost criterion>'));
+  assert.ok(planTemplate.includes('Dropped: <rule that it breaks, or criterion that it lost on>, because <what this candidate does or lacks>'));
+  assert.ok(planTemplate.includes('A general reason, such as "failed the constraint", is not enough.'));
+  assert.ok(planTemplate.includes('for an acceptance criterion or a Non-Goal, give its ID;'));
+  assert.ok(planTemplate.includes('Dropped: loses on reuse, because it rebuilds the existing ExpiringKeyCache eviction logic.'));
+  assert.ok(devPlanBuilder.includes("a dropped candidate's Result names no specific rule or criterion"));
+  assert.ok(devBuilder.includes('For each dropped candidate, name the specific rule that it breaks or the criterion that it lost on.'));
+  assert.ok(devBuilder.includes('Say what in the candidate causes that result.'));
   assert.ok(!planTemplate.includes('- Approach for <choice>'));
   assert.ok(planTemplate.includes('Reuse Notes record only what the stories reuse'));
   // Premises stay, because an Approach Challenge and the arbiter judge a recorded choice by them.

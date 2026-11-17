@@ -173,6 +173,7 @@ The plan is not ready if any of these is true:
 - a `[plan]` line in Deferred Choices has no recorded choice;
 - an approach choice lacks its dropped candidates or its premises;
 - a candidate lacks its source or its "Choose this if" condition;
+- a dropped candidate's Result names no specific rule or criterion, or does not say what in the candidate causes the drop;
 - a premise lacks its status, or an unverified premise lacks a task that checks it;
 - a choice that is hard to reverse or binds future work-items lacks its Pre-check line;
 - a Stop Condition restates a premise;

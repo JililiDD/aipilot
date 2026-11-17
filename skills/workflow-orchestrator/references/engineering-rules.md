@@ -50,6 +50,14 @@ Each format keeps its standard form:
 - A tag description, such as the text of `@param` or `@return`, may be a phrase.
 - The subject line of a commit message is a short command. The project's commit format decides its prefix and its length.
 
+These rules decide when to write a comment. Write a comment only for what the code cannot say. Before you write one, try to say it in the code. Use a clearer name, an extracted method, a named constant, or a type.
+- **Reason, not action**: a comment states a reason, a constraint, or a contract. Examples are a limit of a downstream system, the source of a business rule, and a workaround with its removal condition. Do not write a comment that repeats what the code does.
+- **No change history**: do not describe the change in a comment, such as "now uses the cache" or "fixed for the ticket". The commit message holds the change history.
+- **Documentation comments**: write a documentation comment for each type and method that another module or another team calls. An example is the public interface of a shared library. For other code, write one only when the name and the signature cannot state the contract. Examples are the handling of null, the condition of an exception, a unit, and thread safety. Do not write a documentation comment that repeats the signature, such as `@param id the id`. Cover each behavior that a documentation comment states with a test, by Test design, below.
+- **Project practice**: the project decides the form of a comment. If the project consistently requires a documentation comment in a place, write it there. An example is a documentation comment on each public method. Do not copy any other habit of the surrounding code, such as comments that repeat the code.
+- **Changed code**: if your change makes an existing comment wrong, correct or delete that comment in the same change. This correction is part of the task.
+- **Existing comments**: do not delete an existing comment only to follow these rules. Delete a comment only when your change makes it wrong or removes its code.
+
 These rules do not cover text that the program outputs, such as a log message, an exception message, or UI text. In a code review, a break of these rules is **P3**.
 
 ## Code layout

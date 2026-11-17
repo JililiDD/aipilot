@@ -107,7 +107,8 @@ Project-document paths are relative to the resolved documents root. The constitu
 - each string or number literal that the diff compares or branches on follows Closed value sets in `engineering-rules.md` Code design. Check the literals one at a time.
 - the code follows the existing project style.
 - each name that the diff adds or renames follows `engineering-rules.md` Code naming. This covers values, methods, types, and test methods. Check the names one at a time.
-- each comment that the diff adds or changes follows `engineering-rules.md` Code text.
+- each comment that the diff adds or changes follows `engineering-rules.md` Code text. This covers when to write a comment, not only its wording.
+- the diff leaves no existing comment that its change makes wrong (`engineering-rules.md` Code text). A correction of such a comment is part of the task, not an unneeded change.
 - each field, constructor, method, and nested type that the diff adds stands in its group by `engineering-rules.md` Code layout. Do not report the place of an existing member.
 - the changed lines add no new lint warning, even when CI allows it.
 - the added or changed code follows `engineering-rules.md` Code design. Check its applicable safeguards and verification evidence. Do not require a particular abstraction without a concrete risk.

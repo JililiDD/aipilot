@@ -3,6 +3,39 @@
 All notable changes to AIPilot are documented here. Releases follow Semantic
 Versioning.
 
+## [2.8.0] - 2026-11-16
+
+### Added
+
+- Comment guidance covers reasons, constraints, contracts, documentation comments, and project requirements. Comments must not repeat code or record change history.
+- A sixth development-only eval case checks redundant, historical, and stale comments. It preserves comments that explain a reason.
+- A new grader checks the specific reason for each dropped approach candidate.
+
+### Changed
+
+- Dropped candidates name the specific rule or ranking criterion and explain what causes the result. Plans cite constraints, criterion IDs, or source files.
+- Builder self-review and code review check comments made stale by changed code. Unrelated existing comments remain untouched.
+- The plan template includes examples for constraint violations and ranking losses. Builder guidance accepts both kinds of rejection.
+
+### Fixed
+
+- Regression assertions now protect the comment rules and their builder and reviewer checks.
+
+### Known limitations
+
+- Contract tests verify rule text, not consistent agent behavior. The six-case agent suite was not rerun for this candidate.
+- Existing browser-review limitations from v2.4.0 remain unchanged.
+
+### Verification performed
+
+- Plugin layout validation, 113 Node tests, release preflight, and whitespace checks passed for this candidate.
+- The strengthened comment and approach tests fail against v2.7.0 and pass with this update.
+
+### Upgrade notes
+
+- No project document migration, runtime dependency, or new permission is required.
+- To roll back, install v2.7.0 or check out tag `v2.7.0`.
+
 ## [2.7.0] - 2026-11-12
 
 ### Added
@@ -295,6 +328,7 @@ Versioning.
 - Claude Code, Codex, and Grok Build installation support.
 - Deterministic browser-review rendering with vendored offline dependencies.
 
+[2.8.0]: https://github.com/JililiDD/aipilot/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/JililiDD/aipilot/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/JililiDD/aipilot/compare/v2.5.0...v2.6.0
 [2.5.0]: https://github.com/JililiDD/aipilot/compare/v2.4.0...v2.5.0
@@ -322,3 +356,4 @@ RELEASE 2.3.0 — 2026-10-17T20:41:25
 RELEASE 2.4.0 — 2026-10-17T22:35:16
 RELEASE 2.6.0 — 2026-11-12T14:17:47
 RELEASE 2.7.0 — 2026-11-12T16:55:50
+RELEASE 2.8.0 — 2026-11-16T22:13:20

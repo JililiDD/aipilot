@@ -106,7 +106,7 @@ A stop means: report the unit's results and wait. At whole-work-item granularity
 4. Implement the smallest coherent change.
 5. Self-review the task-scoped diff once before verification. Check the diff against the Requirement, Design, Plan, project conventions, `engineering-rules.md` Test design, reuse decision, and YAGNI boundary. Correct the defects that you find. Then do these four checks, and fix each break:
    - Go through each name that this task adds or renames, one name at a time. This covers values, methods, types, and test methods. Check each name against `engineering-rules.md` Code naming.
-   - Check each comment that this task adds or changes against `engineering-rules.md` Code text.
+   - Check each comment that this task adds or changes against `engineering-rules.md` Code text. Also find each existing comment that this task's change makes wrong, and correct or delete it.
    - Check the place of each field, constructor, method, and nested type that this task adds against `engineering-rules.md` Code layout.
    - Find each string or number literal that this task's code compares or branches on. Check it against Closed value sets in `engineering-rules.md` Code design.
 
@@ -208,7 +208,7 @@ Do not treat changing or redesigning those specifications as an implementation a
    - If the choice constrains future work-items and is not visible in the state documents, record it in `memory/decisions.md`.
    - If the choice is task-scoped, record it in the Execution Record.
 
-   Record the chosen candidate, each other candidate with the gate that it failed or the criterion that it lost on, and the evidence. Record the source and the "Choose this if" condition of every candidate. Before you implement, re-run any Reuse, Maintainability, or YAGNI scan that the choice invalidates.
+   Record the chosen candidate, each other candidate with the gate that it failed or the criterion that it lost on, and the evidence. For each dropped candidate, name the specific rule that it breaks or the criterion that it lost on. Say what in the candidate causes that result. A general reason, such as "failed a constraint" or "lost on reuse", is not enough. Record the source and the "Choose this if" condition of every candidate. Before you implement, re-run any Reuse, Maintainability, or YAGNI scan that the choice invalidates.
 7. **Revisit**: when evidence found while implementing contradicts a claim that the choice rested on, stop forcing it. Return to the Gate with the new evidence, and record why the approach changed. This step covers your own choices. For a choice that the Plan's Approach Decisions record, raise an Approach Challenge instead.
 
 ## Approach Challenge
@@ -285,7 +285,7 @@ Whatever the stop marker is, respect the code marking. Later stories build on `b
 
 - Preserve existing user changes.
 - Follow existing project style before generic Clean Code or SOLID preferences. Where the project style does not decide, follow `engineering-rules.md` Code design. If a convention is genuinely harmful, surface it to the user instead of silently forking from it.
-- **Names and comments**: the project style does not decide the words of a new name. Follow `engineering-rules.md` Code naming for each name that you add or rename. Follow `engineering-rules.md` Code text for each comment and commit message that you add or change.
+- **Names and comments**: the project style does not decide the words of a new name. Follow `engineering-rules.md` Code naming for each name that you add or rename. Follow `engineering-rules.md` Code text for each comment and commit message that you add or change. Code text also decides when to write a comment. If your change makes an existing comment wrong, correct or delete that comment.
 - **Member order**: put each member that you add to a class in its group by `engineering-rules.md` Code layout. Do not mix `public` and `private` methods. Do not move an existing member only to follow the order.
 - **Read before you write**: read the exports, immediate callers, and shared utilities that the change touches. "Looks orthogonal" is dangerous. If you are unsure why code is structured a certain way, ask. Under a Goal Wrap, do not ask: keep the existing structure and record the open point in the Execution Record.
 - **Surgical changes**: touch only what the task requires. Clean up only your own mess. Do not "improve" adjacent code, comments, or formatting. Do not refactor what isn't broken. Run a formatter only over the lines you change, unless CI formats whole files. Change shared code only when the task needs it, and verify its other callers.
